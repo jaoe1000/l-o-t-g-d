@@ -6,6 +6,9 @@ RUN apt-get update && apt-get install -y git unzip \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
 
+# Bump PHP memory limit to 256MB to give the game plenty of headroom
+RUN echo "memory_limit = 256M" > /usr/local/etc/php/conf.d/memory-limit.ini
+
 # Copy the official Composer binary directly from the official image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
