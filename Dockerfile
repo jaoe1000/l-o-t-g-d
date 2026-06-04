@@ -6,21 +6,31 @@ RUN apt-get update && apt-get install -y git unzip \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
 
-# Bump PHP memory limit to 256MB to give the game plenty of headroom
-RUN echo "memory_limit = 256M" > /usr/local/etc/php/conf.d/memory-limit.ini
+# 1. Use the official production PHP configuration to hide layout warnings
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-# Copy the official Composer binary directly from the official image
+# 2. Aggressively bump the server memory limit to 512MB
+RUN echo "memory_limit = 512M" > "$PHP_INI_DIR/conf.d/memory-limit.ini"
+
+# Copy the official Composer binary directly
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set the active directory inside the container
+WORKDIR /var/www/html
 
 # Copy your repository files into the web root
 COPY . /var/www/html
+
+# 3. Search and destroy any hardcoded 64MB memory limits hidden in the legacy game code
+RUN find . -type f -name "*.php" -exec sed -i '/ini_set.*memory_limit/Id' {} + \
+    && find . -type f -name ".htaccess" -exec sed -i '/memory_limit/Id' {} + || true
 
 # Clone the official upstream modules repository and inject them
 RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
     && cp -r /tmp/modules/* /var/www/html/modules/ \
     && rm -rf /tmp/modules
 
-# Run Composer to install all required PHP dependencies automatically
+# Run Composer cleanly inside the working directory
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
 
 # Set up cache, persistent config directory, and symlink
