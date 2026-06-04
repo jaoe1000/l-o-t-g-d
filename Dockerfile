@@ -23,6 +23,7 @@ RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
 # Run Composer to install all required PHP dependencies automatically
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
 
-# Set up the mandatory cache directory and web server permissions
-RUN mkdir -p /var/www/html/cache \
+# Set up cache, persistent config directory, and symlink
+RUN mkdir -p /var/www/html/cache /var/www/html/persistent_config \
+    && ln -s /var/www/html/persistent_config/dbconnect.php /var/www/html/dbconnect.php \
     && chown -R www-data:www-data /var/www/html
