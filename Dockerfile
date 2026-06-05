@@ -11,6 +11,8 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 # 2. Aggressively bump the server memory limit to 512MB
 RUN echo "memory_limit = 512M" > "$PHP_INI_DIR/conf.d/memory-limit.ini"
+#Set the server timezone so game days roll over at the correct local time
+RUN echo "date.timezone = America/New_York" > "$PHP_INI_DIR/conf.d/timezone.ini"
 
 # Copy the official Composer binary directly
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
