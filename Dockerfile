@@ -36,7 +36,7 @@ RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
 # Run Composer cleanly inside the working directory
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
 
-# Set up cache, persistent config directory, and symlink
-RUN mkdir -p /var/www/html/cache /var/www/html/persistent_config \
+# Set up cache, persistent config directory, account output, and symlink
+RUN mkdir -p /var/www/html/cache /var/www/html/persistent_config /var/www/html/accounts-output \
     && ln -s /var/www/html/persistent_config/dbconnect.php /var/www/html/dbconnect.php \
     && chown -R www-data:www-data /var/www/html
