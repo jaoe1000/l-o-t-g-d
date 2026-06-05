@@ -60,7 +60,7 @@ function settings_dohook($hook, $args)
         case 'footer-news':
         case 'village':
             if ($hook == 'village') {
-                addnav($args['othernav']);
+                addnav($args['othernav'] ?? 'Other');
             }
             else {
                 addnav('News');
