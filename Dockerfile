@@ -27,6 +27,7 @@ RUN find . -type f -name "*.php" -exec sed -i '/ini_set.*memory_limit/Id' {} + \
 
 # Clone the official upstream modules repository and inject them
 RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
+    && mkdir -p /var/www/html/modules \
     && cp -r /tmp/modules/* /var/www/html/modules/ \
     && rm -rf /tmp/modules
 
