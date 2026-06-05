@@ -1,4 +1,5 @@
 <?php
+define("ALLOW_ANONYMOUS", true);
 require_once('common.php');
 
 // Tell the database to change the 'value' column to a massive TEXT field
