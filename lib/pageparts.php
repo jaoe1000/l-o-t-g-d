@@ -128,9 +128,9 @@ function page_footer($saveuser=true){
 	//output any template part replacements that above hooks need (eg,
 	//advertising)
 	reset($replacementbits);
-	foreach ($replacementbits as $key => $val) {		
-		$header = str_replace("{{$key}}", "{{$key}}" . join($val, ''), $header);
-		$footer = str_replace("{{$key}}", "{{$key}}" . join($val, ''), $footer);
+foreach ($replacementbits as $key => $val) {		
+		$header = str_replace("{{$key}}", "{{$key}}" . join('', $val), $header);
+		$footer = str_replace("{{$key}}", "{{$key}}" . join('', $val), $footer);
 	}
 
 	$builtnavs = buildnavs();
