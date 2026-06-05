@@ -72,7 +72,7 @@ function changelog_dohook($hook, $args)
             break;
         case 'village':
             if (get_module_setting('infonav')) {
-                addnav($args['infonav']);
+                addnav($args['infonav'] ?? 'Info');
                 addnav('View Changelog', 'runmodule.php?module=changelog&ret=village');
             }
             break;
