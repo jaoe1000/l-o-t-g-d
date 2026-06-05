@@ -38,6 +38,7 @@ function changelog_dohook($hook, $args)
 {
     switch ($hook) {
         case 'header-modules':
+            $plural = "";
             $module = httppost('module') ?: httpget('module');
             $op = httpget('op');
             if ($module != '') {
