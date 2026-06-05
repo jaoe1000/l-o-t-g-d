@@ -162,13 +162,20 @@ foreach ($replacementbits as $key => $val) {
 	else {
 		$session['needtoviewmotd'] = false;
 	}
-	$pre_headscript = "<LINK REL=\"shortcut icon\" HREF=\"favicon.ico\" TYPE=\"image/x-icon\"/>";
+	$pre_headscript = "<LINK REL=\"shortcut icon\" HREF=\"favicon.ico\" TYPE=\"image/x-icon\"/>" .
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" .
+        "<style>" .
+        "html, body { max-width: 100vw; overflow-x: hidden; }" .
+        "table, tbody, tr, td { max-width: 100% !important; height: auto !important; }" .
+        "img { max-width: 100%; height: auto; }" .
+        "td, div, span { word-wrap: break-word; overflow-wrap: break-word; }" .
+        "</style>";
+
 	if ($headscript>""){
 		$header=str_replace("{headscript}",$pre_headscript."<script language='JavaScript'>".$headscript."</script>",$header);
 	}else{
 		$header = str_replace("{headscript}",$pre_headscript,$header);
 	}
-
 	$script = "";
 
 	if (!isset($session['user']['name'])) $session['user']['name']="";
