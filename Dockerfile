@@ -28,7 +28,9 @@ RUN find . -type f -name "*.php" -exec sed -i '/ini_set.*memory_limit/Id' {} + \
     && find . -type f -name ".htaccess" -exec sed -i '/memory_limit/Id' {} + || true
 
 # Clone the official upstream modules repository and inject them
+# 1. Clone the upstream modules, DELETE the toxic folder, and "flatten" the rest
 RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
+    && rm -rf /tmp/modules/_old_dragonprime_snapshot \
     && mkdir -p /var/www/html/modules \
     && cp -r /tmp/modules/*/* /var/www/html/modules/ 2>/dev/null || true \
     && rm -rf /tmp/modules
