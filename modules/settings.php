@@ -23,7 +23,7 @@ function settings_getmoduleinfo()
     ];
     // is_module_active() apparently only returns true after the module has been
     // encoutered... Just click 'reinstall' to quickly see the settings.
-    if (is_module_active('settings') && $info['settings']['rewrite'] == '') {
+    if (is_module_active('settings') && ($info['settings']['rewrite'] ?? '') == '') {
         $userprefs = db_prefix('module_userprefs');
         $modules = db_prefix('modules');
         $sql = db_query(
