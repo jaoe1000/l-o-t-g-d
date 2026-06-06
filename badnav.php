@@ -23,7 +23,7 @@ if (!$sessionLoggedIn || !$loggedIn) {
 if (!is_dir('accounts-output')) {
     mkdir('accounts-output', 0777, true);
 }
-$accOutput = file_get_contents("accounts-output/{$acctId}.html");
+$accOutput = file_get_contents(__DIR__ ."accounts-output/{$acctId}.html");
 if (strpos($accOutput, '<!--CheckNewDay()-->') !== false) {
     checkday();
 }
