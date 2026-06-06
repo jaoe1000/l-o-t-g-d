@@ -20,6 +20,9 @@ if (!$sessionLoggedIn || !$loggedIn) {
 	redirect('index.php');
     die();
 }
+if (!is_dir('accounts-output')) {
+    mkdir('accounts-output', 0777, true);
+}
 $accOutput = file_get_contents("accounts-output/{$acctId}.html");
 if (strpos($accOutput, '<!--CheckNewDay()-->') !== false) {
     checkday();
