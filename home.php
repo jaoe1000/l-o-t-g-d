@@ -26,7 +26,7 @@ if ($session['loggedin']){
 
 $op = httpget('op');
 if ($op=="timeout") {
-	$session['message'] .= loadTranslation("home.timeout");
+	$session['message'] = loadTranslation("home.timeout");
 }
 
 page_header(loadTranslation('common.title'));
@@ -85,7 +85,7 @@ if (abs(getsetting("OnlineCountLast",0) - strtotime("now")) > 60){
 }
 if ($onlinecount<getsetting("maxonline",0) || getsetting("maxonline",0)==0){
 	if ($op=="timeout"){
-		$session['message'].= loadTranslation('home.timeout');
+		$session['message']= loadTranslation('home.timeout');
 	}
 	if (!isset($_COOKIE['lgi'])){
 		$session['message'].= loadTranslation('home.no_cookie');
