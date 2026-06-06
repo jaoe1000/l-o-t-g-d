@@ -19,8 +19,7 @@ function synctable(string $tableName, $descriptor, $nodrop = false) {
 	global $session;
 	require_once('dbconnect.php');
 	global $DB_NAME;
-	$database = ($DB_NAME > '' ? $DB_NAME : $session['dbinfo']['DB_NAME']);
-	unset($DB_NAME);
+	$database = ($DB_NAME > '' ? $DB_NAME : ($session['dbinfo']['DB_NAME'] ?? ''));	unset($DB_NAME);
 	$sql = db_query("SHOW TABLES LIKE '$tableName';");
 	// $row = db_num_rows($sql);
 	// var_dump($row);
