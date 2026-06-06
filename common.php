@@ -57,7 +57,9 @@ require_once("lib/su_access.php");
 require_once("lib/datetime.php");
 require_once("lib/translator.php");
 
-
+if (!defined('DATETIME_DATEMIN')) {
+    define('DATETIME_DATEMIN', '0000-00-00 00:00:00');
+}
 //mt_srand(make_seed());
 $pagestarttime = getmicrotime();
 
