@@ -20,20 +20,20 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set the active directory inside the container
 WORKDIR /var/www/html
 
-# Copy your repository files into the web root
-COPY . /var/www/html
-
-# 3. Search and destroy any hardcoded 64MB memory limits hidden in the legacy game code
-RUN find . -type f -name "*.php" -exec sed -i '/ini_set.*memory_limit/Id' {} + \
-    && find . -type f -name ".htaccess" -exec sed -i '/memory_limit/Id' {} + || true
-
-# Clone the official upstream modules repository and inject them
-# 1. Clone the upstream modules, DELETE the toxic folder, and "flatten" the rest
+# Clone the official upstream modules repository and inject them FIRST
+# Delete the toxic folder, and "flatten" the rest
 RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
     && rm -rf /tmp/modules/_old_dragonprime_snapshot \
     && mkdir -p /var/www/html/modules \
     && cp -r /tmp/modules/*/* /var/www/html/modules/ 2>/dev/null || true \
     && rm -rf /tmp/modules
+
+# Copy your repository files into the web root SECOND (Last One Wins!)
+COPY . /var/www/html
+
+# 3. Search and destroy any hardcoded 64MB memory limits hidden in the legacy game code
+RUN find . -type f -name "*.php" -exec sed -i '/ini_set.*memory_limit/Id' {} + \
+    && find . -type f -name ".htaccess" -exec sed -i '/memory_limit/Id' {} + || true
 
 # Run Composer cleanly inside the working directory
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
