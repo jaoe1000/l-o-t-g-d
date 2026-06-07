@@ -25,7 +25,15 @@ WORKDIR /var/www/html
 RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
     && rm -rf /tmp/modules/_old_dragonprime_snapshot \
     && mkdir -p /var/www/html/modules \
-    # Move every directory found in /tmp/modules into /var/www/html/modules/
+    # Dynamically find nested duplicate folders and flatten them
+    && find /tmp/modules -mindepth 1 -maxdepth 1 -type d | while read dir; do \
+         base=$(basename "$dir"); \
+         if [ -d "$dir/$base" ]; then \
+           mv "$dir/$base"/* "$dir/"; \
+           rmdir "$dir/$base"; \
+         fi; \
+       done \
+    # Move the clean, flattened folders to the web root
     && find /tmp/modules -mindepth 1 -maxdepth 1 -type d -exec mv {} /var/www/html/modules/ \; \
     && rm -rf /tmp/modules
 
