@@ -270,14 +270,13 @@ if ($op == 'confirmbuy') {
 
 if ($confirm == 0) {
 	if ($session['user']['hashorse']>0){
-		addnav(array("%s", color_sanitize($name)));
+		addnav(color_sanitize($name));
 		tlschema($schemas['offer']);
 		output($texts['offer'], $repaygold, $repaygems, $lcname);
 		tlschema();
-		addnav(array("Sell %s`0", $lcname),"stables.php?op=sellmount");
+		addnav(sprintf("Sell %s0", $lcname), "stables.php?op=sellmount");
 		if (getsetting("allowfeed", 0) && $session['user']['fedmount']==0) {
-			addnav(array("Feed %s`0 (`^%s`0 gold)", $lcname, $grubprice),
-					"stables.php?op=feed");
+			ddnav(sprintf("Feed %s0 (^%s0 gold)", $lcname, $grubprice), "stables.php?op=feed");
 		}
 	}
 
@@ -288,11 +287,11 @@ if ($confirm == 0) {
 	for ($i=0;$i<$number;$i++){
 		$row = db_fetch_assoc($result);
 		if ($category!=$row['mountcategory']){
-			addnav(array("%s", $row['mountcategory']));
+			addnav($row['mountcategory']);
 			$category = $row['mountcategory'];
 		}
 		if ($row['mountdkcost'] <= $session['user']['dragonkills'])
-			addnav(array("Examine %s`0", $row['mountname']),"stables.php?op=examine&id={$row['mountid']}");
+			addnav(sprintf("Examine %s0", $row['mountname']), "stables.php?op=examine&id={$row['mountid']}");
 	}
 }
 
