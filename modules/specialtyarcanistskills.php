@@ -35,19 +35,19 @@ function specialtyarcanistskills_getmoduleinfo(){
 }
 
 function specialtyarcanistskills_install(){
-				module_addhook("apply-specialties");
-				module_addhook("fightnav-specialties");
-				module_addhook("incrementspecialty");
-				module_addhook("castlelibbook");
-				module_addhook("castlelib");
-				module_addhook("choose-specialty");
-				module_addhook("dragonkill");
-				module_addhook("newday");
-				module_addhook("pointsdesc");
-				module_addhook("set-specialty");
-				module_addhook("specialtycolor");
-				module_addhook("specialtymodules");
-				module_addhook("specialtynames");
+                module_addhook("apply-specialties");
+                module_addhook("fightnav-specialties");
+                module_addhook("incrementspecialty");
+                module_addhook("castlelibbook");
+                module_addhook("castlelib");
+                module_addhook("choose-specialty");
+                module_addhook("dragonkill");
+                module_addhook("newday");
+                module_addhook("pointsdesc");
+                module_addhook("set-specialty");
+                module_addhook("specialtycolor");
+                module_addhook("specialtymodules");
+                module_addhook("specialtynames");
         return true;
 }
 
@@ -138,7 +138,6 @@ function specialtyarcanistskills_dohook($hookname,$args){
                         }
                 }
                 break;
-        }
         case "castlelibbook":
                 output("Book on Arcane Lore. (3 Turns)`n");
                 addnav("Read a Book");
@@ -146,16 +145,16 @@ function specialtyarcanistskills_dohook($hookname,$args){
                 break;
         case "castlelib":
                 if ($op69 == 'arcanist'){
-                			output("You sit down and open up the Book on Arcane Lore.`n");
-                			output("You read for a while... in the time it takes you to read you use up`n");
-                			output("3 Turns.`n`n");
-                			output("Unlike modern tomes on swords and sorcery, this book focuses on older techniques `n");
-                			output("long since abandoned.  People may scoff, but you find it encouraging in your pursuits `n");
-                			output("of Arcanist lore.  Too bad it doesn't help with that nagging acne problem!`n");
-                			$session['user']['turns']-=3;
-                			set_module_pref('skill',(get_module_pref('skill','specialtyarcanistskills') + 1),'specialtyarcanistskills');
-                			set_module_pref('uses', get_module_pref("uses",'specialtyarcanistskills') + 1,'specialtyarcanistskills');
-                			addnav("Continue","runmodule.php?module=lonnycastle&op=library");
+                            output("You sit down and open up the Book on Arcane Lore.`n");
+                            output("You read for a while... in the time it takes you to read you use up`n");
+                            output("3 Turns.`n`n");
+                            output("Unlike modern tomes on swords and sorcery, this book focuses on older techniques `n");
+                            output("long since abandoned.  People may scoff, but you find it encouraging in your pursuits `n");
+                            output("of Arcanist lore.  Too bad it doesn't help with that nagging acne problem!`n");
+                            $session['user']['turns']-=3;
+                            set_module_pref('skill',(get_module_pref('skill','specialtyarcanistskills') + 1),'specialtyarcanistskills');
+                            set_module_pref('uses', get_module_pref("uses",'specialtyarcanistskills') + 1,'specialtyarcanistskills');
+                            addnav("Continue","runmodule.php?module=lonnycastle&op=library");
                 }
                 break;
         case "choose-specialty":
@@ -231,23 +230,23 @@ function specialtyarcanistskills_dohook($hookname,$args){
                 set_module_pref("uses", $amt);
                 break;
         case "pointsdesc":
-				if ($cost>0)
-				{
-					$args['count']++;
-					$format = $args['format'];
-					$str = translate("The Arcanist Specialty is availiable upon reaching %s Dragon Kills and %s points.");
-					$str = sprintf($str, get_module_setting("mindk"),
-							$cost);
-					output($format, $str, true);
-				}
-				break;
+                if ($cost>0)
+                {
+                    $args['count']++;
+                    $format = $args['format'];
+                    $str = translate("The Arcanist Specialty is availiable upon reaching %s Dragon Kills and %s points.");
+                    $str = sprintf($str, get_module_setting("mindk"),
+                            $cost);
+                    output($format, $str, true);
+                }
+                break;
         case "set-specialty":
                 if($session['user']['specialty'] == $spec) {
                         page_header($name);
                         $session['user']['donationspent'] = $session['user']['donationspent'] + $cost;
                         output("`3Growing up, you remember reading and endless hours of study.");
                         output("Over time you began to feel a strange energy begin to surface, ancient tomes mysteriously revealing their true nature to you!");
-                        output("You found this could be further developed and used as a weapon against your foes.");                }
+                        output("You found this could be further developed and used as a weapon against your foes.");              }
                 break;
         case "specialtycolor":
                 $args[$spec] = $ccode;
@@ -258,6 +257,7 @@ function specialtyarcanistskills_dohook($hookname,$args){
         case "specialtynames":
                 $args[$spec] = translate_inline($name);
                 break;
+        } // This was the missing closing brace!
         return $args;
 }
 
