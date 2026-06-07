@@ -161,7 +161,7 @@ function house_dohook($hookname, $args){
 function house_run(){
 	global $SCRIPT_NAME;
 	if ($SCRIPT_NAME == "runmodule.php"){
-		require_once("modules/lib/house_func.php");
+		require_once(__DIR__ . '/lib/house_func.php');
 		include("modules/lib/house.php");
 	}
 }
