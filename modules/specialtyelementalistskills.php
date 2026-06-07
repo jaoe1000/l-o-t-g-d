@@ -150,7 +150,7 @@ function specialtyelementalistskills_dohook($hookname,$args){
 			}
 		}
 		break;
-	}
+	// REMOVED THE STRAY BRACE THAT WAS HERE
 	case "castlelibbook":
 		output("Scattered, Covered, Smothered and Burned book. (3 Turns)`n");
 		addnav("Read a Book");
@@ -273,10 +273,9 @@ function specialtyelementalistskills_dohook($hookname,$args){
 			$args[$spec] = translate_inline($name);
 		}
 		break; 
+	} // ADDED THE MISSING CLOSING BRACE HERE
 	return $args;
 }
-
-
 
 function specialtyelementalistskills_run(){
 }
