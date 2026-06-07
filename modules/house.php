@@ -115,7 +115,11 @@ function house_dohook($hookname, $args){
             // Use the null coalescing operator to prevent crashes if 'schemas' or 'gatenav' are missing
             $schemas = $args['schemas'] ?? array();
             $gatenav = $args['gatenav'] ?? '';
-            
+            if (!empty($gatenav)) {
+    			tlschema($schemas['gatenav'] ?? 'village');
+    			addnav($gatenav);
+    			tlschema();
+			}
             if (isset($args['schemas']['gatenav'])) {
                 tlschema($args['schemas']['gatenav']);
             }
