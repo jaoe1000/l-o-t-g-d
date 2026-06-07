@@ -22,26 +22,18 @@ WORKDIR /var/www/html
 
 # Clone the official upstream modules repository and inject them FIRST
 # Delete the toxic folder, and "flatten" the rest
+# Copy the script first
+COPY fix_modules.sh /tmp/fix_modules.sh
+
+# Clone, run the fix script, and move in one layer to keep the build stable
 RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
     && rm -rf /tmp/modules/_old_dragonprime_snapshot \
     && mkdir -p /var/www/html/modules \
-    # Dynamically find nested duplicate folders and flatten them
-    && find /tmp/modules -mindepth 1 -maxdepth 1 -type d | while read dir; do \
-         base=$(basename "$dir"); \
-         if [ -d "$dir/$base" ]; then \
-           mv "$dir/$base"/* "$dir/"; \
-           rmdir "$dir/$base"; \
-         fi; \
-       done \
-    # Move the clean, flattened folders to the web root
-    && find /tmp/modules -mindepth 1 -maxdepth 1 -type d -exec mv {} /var/www/html/modules/ \; \
-    && rm -rf /tmp/modules
+    && chmod +x /tmp/fix_modules.sh \
+    && /tmp/fix_modules.sh \
+    && rm -rf /tmp/modules /tmp/fix_modules.sh
 
-# After cloning, this will flatten modules that have a nested subfolder of the same name
-RUN find /tmp/modules -mindepth 2 -maxdepth 2 -type d -exec sh -c 'mv {}/* $(dirname {})/ && rmdir {}' \; \
-    && find /tmp/modules -mindepth 1 -maxdepth 1 -type d -exec mv {} /var/www/html/modules/ \;
-
-# Copy your repository files into the web root SECOND (Last One Wins!)
+# Copy your local repository files OVER the modules (Last one wins)
 COPY . /var/www/html
 
 # 3. Search and destroy any hardcoded 64MB memory limits hidden in the legacy game code
