@@ -12,7 +12,19 @@ if ($op==""){
 	popup_header("Translator Tool");
 	$uri = rawurldecode(httpget('u'));
 	$text = stripslashes(rawurldecode(httpget('t')));
-	
+	// Modern PHP 8.4 Fix: Smart Village Detector
+	global $session;
+	if ($uri == 'village.php' && isset($session['user']['location'])) {
+	    $current_location = $session['user']['location'];
+	    $default_village = getsetting('villagename', 'Silverkeep');
+	    
+	    // If the admin is standing in a custom village, rewrite the namespace automatically
+	    if ($current_location != $default_village) {
+	        // NB-Core strips spaces for module names (e.g., 'Aetherian Reach' becomes 'AetherianReach')
+	        $module_name = 'village_' . str_replace(' ', '', $current_location);
+	        $uri = 'module-' . $module_name;
+	    }
+	}
 	$translation = translate_loadnamespace($uri);
 	if (isset($translation[$text]))
 		$trans = $translation[$text];
@@ -24,8 +36,8 @@ if ($op==""){
 	$saveclose = htmlentities(translate_inline("Save & Close"), ENT_COMPAT, getsetting("charset", "ISO-8859-1"));
 	$savenotclose = htmlentities(translate_inline("Save No Close"), ENT_COMPAT, getsetting("charset", "ISO-8859-1"));
 	rawoutput("<form action='translatortool.php?op=save' method='POST'>");
-	rawoutput("$namespace <input type='hidden' name='uri' value=\"".htmlentities(stripslashes($uri), ENT_COMPAT, getsetting("charset", "ISO-8859-1"))."\" readonly><br/>");
-	rawoutput("$texta<br>");
+// Modernized UI (Visible and Editable)
+	rawoutput("$namespace <input type='text' name='uri' value=\"".htmlentities(stripslashes($uri), ENT_COMPAT, getsetting("charset", "ISO-8859-1"))."\" size='60'><br/>");	rawoutput("$texta<br>");
 	rawoutput("<textarea name='text' cols='60' rows='5' readonly>".htmlentities($text, ENT_COMPAT, getsetting("charset", "ISO-8859-1"))."</textarea><br/>");
 	rawoutput("$translation<br>");
 	rawoutput("<textarea name='trans' cols='60' rows='5'>".htmlentities(stripslashes($trans), ENT_COMPAT, getsetting("charset", "ISO-8859-1"))."</textarea><br/>");
