@@ -110,3 +110,187 @@ function racepaladin_dohook($hookname,$args){
 				$session['user']['location']=$city;
 			}
 		}
+		break;
+	case "newday":
+		if ($session['user']['race']==$race){
+			racepaladin_checkcity();
+			if ($paladin<=0){
+				apply_buff("racialbenefit",array(
+				"name"=>"`!Ancestry`0",
+	 			"atkmod"=>"(+1*(<attack>?(2+((1+floor(<level>/5))/<attack>)):0))",
+				"allowinpvp"=>1,
+				"allowintrain"=>1,
+				"rounds"=>-1,
+				"schema"=>"module-racepaladin",
+				));
+				output("`n`!The Fate of the world lies in your hands!To achieve your destuny, you must first harness your powers!`0`n");
+			} else {
+				$session['user']['hitpoints']+=$paladin;
+				$bonusturns=(int)$paladin/5;
+				$session['user']['turns']+=$bonusturns;
+				output("`n`&For being a rather heroic `!Being`&, you receive %s extra hit points, and %s extra forest fights!`n", $paladin, $bonusturns);
+				if ($paladin==30){
+					apply_buff("racialbenefit",array(
+					"name"=>"`!Vaporize`0",
+	 				"atkmod"=>"(<attack>?(5+((1+floor(<level>/5))/<attack>)):0)",
+					"allowinpvp"=>1,
+					"allowintrain"=>1,
+					"rounds"=>-1,
+					"schema"=>"module-racepaladin",
+					));
+					output("`n`&For being the hero, you receive an additional blessing of `!Godly Strength!`0`n");
+				}
+			}	
+		}
+		break;
+	case "villagetext":
+		racepaladin_checkcity();
+		if ($session['user']['location'] == $city){
+			$args['text']=("`!`b`c$city, Home of the Paladins`c`b`n`!The sun shines brightly on this Heroic yet rather small village.  $city is an ancient town built by the Gods themselves to ensure the safety and fate of the Paladins.The rise of the evil Vampiric race beckons.But Paladins believe good always prevail over evil at soem point in time and space.`n");
+			$args['schemas']['text'] = "module-racepaladin";
+			$args['clock']="`n`6One of the tiny kids softly whispers in your ear that it is`^%s`6 before disappearing in a blue light`n";
+			$args['schemas']['clock'] = "module-racepaladin";
+			if (is_module_active("calendar")) {
+				$args['calendar']="`n`6Another kid gently whispers in your ear, \"`^Today is `&%3\$s %2\$s`^, `&%4\$s`^.  It is `&%1\$s`^.`6\"`n";
+				$args['schemas']['calendar'] = "modules-racepaladin";
+			}
+			$args['title']= array("%s City", $city);
+			$args['schemas']['title'] = "module-racepaladin";
+			$args['sayline']="announces";
+			$args['schemas']['sayline'] = "module-racepaladin";
+			$args['talk']="`n`&The word on the block is:`n";
+			$args['schemas']['talk'] = "module-racepaladin";
+			$new = get_module_setting("newest-$city", "cities");
+			if ($new != 0) {
+				$sql =  "SELECT name FROM " . db_prefix("accounts") .
+					" WHERE acctid='$new'";
+				$result = db_query_cached($sql, "newest-$city");
+				$row = db_fetch_assoc($result);
+				$args['newestplayer'] = $row['name'];
+				$args['newestid']=$new;
+			} else {
+				$args['newestplayer'] = $new;
+				$args['newestid']="";
+			}
+			if ($new == $session['user']['acctid']) {
+				$args['newest']="`n`6Even with the potential for greatness, you are a human none the less being released in a cruel world.  Even crueler are the towering expectations, like your destiny.";
+			} else {
+				$args['newest']="`n`#Looking at all the towering `!Godly`# buildings, and distracted is `^%s`#.";
+			}
+			$args['schemas']['newest'] = "module-racepaladin";
+			$args['gatenav']="The Heavenly Gates";
+			$args['schemas']['gatenav'] = "module-racepaladin";
+			$args['fightnav']="Hall of Heroes";
+			$args['schemas']['fightnav'] = "module-racepaladin";
+			$args['marketnav']="The Pub";
+			$args['schemas']['marketnav'] = "module-racepaladin";
+			$args['tavernnav']="Ambrosia and Ale";
+			$args['schemas']['tavernnav'] = "module-racepaladin";
+			$args['section']="village-$race";
+		}
+		break;
+	case "travel":
+		$capital = getsetting("villagename", LOCATION_FIELDS);
+		$hotkey = substr($city, 0, 1);
+		tlschema("module-cities");
+		if ($session['user']['location']==$capital){
+			addnav("Safer Travel");
+			addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=cities&op=travel&city=$city");
+		}
+		elseif ($session['user']['location']!=$city){
+			addnav("More Dangerous Travel");
+			addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=cities&op=travel&city=$city&d=1");
+		}
+		if ($session['user']['superuser'] & SU_EDIT_USERS){
+			addnav("Superuser");
+			addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=cities&op=travel&city=$city&su=1");
+		}
+		tlschema();
+		break;	
+	case "charstats":
+		if ($session['user']['race'] == 'Paladin') {
+			// The alignment was fetched securely at the top of the hook.
+			// Any specific stats for the sidebar would be added here using addcharstat().
+		}
+		break;
+	case "validlocation":
+		if (is_module_active("cities"))
+			$args[$city] = "village-$race";
+		break;
+	case "moderate":
+			if (is_module_active("cities")) {
+			   tlschema("commentary");
+			   $args["village-$race"]=sprintf_translate("City of %s", $city);
+			   tlschema();
+			   }
+			   break;
+	case "changesetting":
+		// Ignore anything other than villagename setting changes
+		if ($args['setting'] == "villagename" && $args['module']=="racepaladin") {
+			if ($session['user']['location'] == $args['old'])
+				$session['user']['location'] = $args['new'];
+			$sql = "UPDATE " . db_prefix("accounts") .
+				" SET location='" . $args['new'] .
+				"' WHERE location='" . $args['old'] . "'";
+			db_query($sql);
+			if (is_module_active("cities")) {
+				$sql = "UPDATE " . db_prefix("module_userprefs") .
+					" SET value='" . $args['new'] .
+					"' WHERE modulename='cities' AND setting='homecity'" .
+					"AND value='" . $args['old'] . "'";
+				db_query($sql);
+			}
+		}
+		break;
+	case "raceminedeath":
+		if ($session['user']['race'] == $race) {
+				$args['chance'] = get_module_setting("minedeathchance");
+		$args['racesave'] = "It was your destiny as a Paladin that allowed you to survive unscathed.`n";
+		$args['schema']="module-racepaladin";
+		}
+		  break;
+	case "pvpadjust":
+		$enemyAL = get_module_pref('alignment','alignment',$badguy['acctid']);
+		if($enemyAL >= 50) {
+			$badguy['attack']+=(1+floor($badguy['level']/5));
+		} else {
+			$badguy['attack']-=(1+floor($badguy['level']/5));
+		}
+		if ($badguy['race'] == $race) {
+			// Fixed PHP 8.4 fatal typo: $baduy -> $badguy
+			$badguy['hitpoints']+=($enemyAL-50);
+		}
+		break;
+	case "pointsdesc":
+		if (get_module_setting("mindk")>0 || $cost>0)
+		{
+			$args['count']++;
+			$format = $args['format'];
+			$str = translate("The Paladin race is availiable upon reaching %s Dragon Kills and %s Donation points.");
+			$str = sprintf($str, get_module_setting("mindk"),
+					get_module_setting("cost"));
+			output($format, $str, true);
+		}
+		break;
+	}
+	return $args;
+}
+
+function racepaladin_checkcity(){
+	global $session;
+	$race="Paladin";
+	$city=get_module_setting("villagename");
+	
+	if ($session['user']['race']==$race && is_module_active("cities")){
+		//if they're this race and their home city isn't right, set it up.
+		if (get_module_pref("homecity","cities")!=$city){ //home city is wrong
+			set_module_pref("homecity",$city,"cities");
+		}
+	}	
+	return true;
+}
+
+function racepaladin_run(){
+
+}
+?>
