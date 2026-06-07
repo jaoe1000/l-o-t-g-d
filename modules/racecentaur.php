@@ -1,111 +1,138 @@
 <?php
-if ($_GET['op']=="download"){ // this offers the module on every server for download
- $dl=join("",file("racecentaur.php"));
- echo $dl;
-}
-
-/* Centaur - a race with extra travel */
-/* by eph, based on Felyne by Shannon Brown, thanks to xChrisx for the how-to!*/
-// 
-
 function racecentaur_getmoduleinfo(){
 	$info = array(
 		"name"=>"Race - Centaur",
-		"version"=>"1.1",
-		"author"=>"eph",
+		"version"=>"1.2",
+		"author"=>"`4Thanatos",
 		"category"=>"Races",
-		"download"=>"modules/racecentaur.php?op=download",
 		"settings"=>array(
 			"Centaur Race Settings,title",
-			"minedeathchance"=>"Percent chance for Centaur to die in the mine,range,0,100,1|80",
-			"mindk"=>"How many DKs do you need before the race is available?,int|0",
-			"xtravel"=>"How many extra travel does this race get?,int|1",
+			"turnsup"=>"Extra Turns's,int|5",
+			"pvpup"=>"Extra PVP's,int|2",
+      "buffname"=>"Buff Name,text|`7Centaur Speed`0",
+      "hpup" =>"Hitpoint Bonous:,int|100",
+      "atkmod"=>"Attack Bonous(mult) :,int|1.2",
+      "defmod"=>"Defense Bonous(mult):,int|1.8",
+      "badguydmgmod"=>"BadGuyDamageMod(mult):,float|.7",
+      "goldmod"=>"GoldMod(mult):,float|1",
+      "lifetap"=>"LifeTap:,int|0",
+      "dmgshield"=>"DamageShield:,int|0", 
+      "startloc"=>"Starting Village:,location|".getsetting("villagename", LOCATION_FIELDS),
+      "minedeathchance"=>"Chance for Centaurs to die in the mine,range,0,100,1|0",
+      "dk_req"=>"How many DKs do you need before the race is available?,int|4",
+      "racename"=>"Race Name :,hidden|Centaur",
+      "Level Settings,title",
+      "levels"=>"Max Amount of Levels?(0 to disable),int|25",
+      "levelatkinc"=>"each level increases atk buff by X:,float|.03",
+      "leveldefinc"=>"each level increases def buff by X:,float|.04",
+      "levelturninc"=>"each level increases turns by X:,int|2",
+      "levelpvpinc"=>"each level increases PVP by X:,int|0",
+      "levelhpinc"=>"each level increases hp(cur) by X:,int|30",
+      "levelltinc"=>"each level increases lifetap by X:,float|0",
+      "leveldsinc"=>"each level increases damage shield by X:,float|0",
+      "goldmodlvl"=>"Gold Mod increase by X:,float|.1",
+      "cre_req"=>"battle victories Required to level up the race(0 to disable),int|140",
 		),
+		"prefs"=>array(
+		  "level"=>"race lvl:,int|0",
+		  "cre"  =>"Battle Victory points,int|0",
+      "race_on"=>"Can user become race?,bool|1",
+    ),
 	);
 	return $info;
 }
-
 function racecentaur_install(){
-	// The Centaur live with the humans, so..
-	if (!is_module_installed("racehuman")) {
-		output("The Centaur only choose to live with humans. You must install that race module.");
-		return false;
-	}
-
-	module_addhook("chooserace");
-	module_addhook("setrace");
-	module_addhook("newday");
-	module_addhook("charstats");
-	module_addhook("raceminedeath");
-	module_addhook("pvpadjust");
-	module_addhook("racenames");
-	module_addhook("count-travels");
-	return true;
+    module_addhook("chooserace");
+    module_addhook("setrace");
+    module_addhook("creatureencounter");
+    module_addhook("charstats");
+    module_addhook("raceminedeath");
+	  module_addhook("racenames");
+	  module_addhook("newday");
+	  module_addhook("pvpwin");
+	  module_addhook("battle-victory");
+    return true;
 }
-
 function racecentaur_uninstall(){
 	global $session;
-	// Force anyone who was a Centaur to rechoose race
-	$sql = "UPDATE  " . db_prefix("accounts") . " SET race='" . RACE_UNKNOWN . "' WHERE race='Centaur'";
+	$sql = "UPDATE  " . db_prefix("accounts") . " SET race='" . RACE_UNKNOWN . "' WHERE race='Centaur '";
 	db_query($sql);
 	if ($session['user']['race'] == 'Centaur')
 		$session['user']['race'] = RACE_UNKNOWN;
 	return true;
 }
-
 function racecentaur_dohook($hookname,$args){
-	//yeah, the $resline thing is a hack.  Sorry, not sure of a better way
-	//to handle this.
-	// It could be passed as a hook arg?
 	global $session,$resline;
-
-	if (is_module_active("racehuman")) {
-		$city = get_module_setting("villagename", "racehuman");
-	} else {
-		$city = getsetting("villagename", LOCATION_FIELDS);
-	}
-	$race = "Centaur";
+	$module="racecentaur";
+	$city = get_module_setting("startloc");
+	$race = get_module_setting("racename");
 	switch($hookname){
-	case "pvpadjust":
-		if ($args['race'] == $race) {
-			$args['creaturedefense']+=(2+floor($args['creaturelevel']/5));
-			$args['creaturehealth']-= round($args['creaturehealth']*.05, 0);
-		}
+	case "racenames":
+		$args[$race] = $race;
 		break;
+	case "battle-victory":
+		if ($session['user']['race']==$race&&
+        get_module_setting("levels")>get_module_pref("level")){   
+			   $cre=get_module_pref("cre");
+			   $cre++;
+			   set_module_pref("cre",$cre);
+			   if($cre==get_module_setting("cre_req")){
+            set_module_pref("cre",0);
+            $lvl=get_module_pref("level");
+            $lvl++;
+            set_module_pref("level",$lvl);
+            output(array("`7Your %s `7Level has increased.",$race));
+         }
+    }	     
+  break;
+	case "pvpwin":
+		if ($session['user']['race']==$race&&
+        get_module_setting("levels")>get_module_pref("level")){   
+			   $cre=get_module_pref("cre");
+			   $cre++;
+			   set_module_pref("cre",$cre);
+			   if($cre==get_module_setting("cre_req")){
+            set_module_pref("cre",0);
+            $lvl=get_module_pref("level");
+            $lvl++;
+            set_module_pref("level",$lvl);
+            output(array("`7Your %s `7Level has increased.",$race));
+         }
+    }	 
+    break;
 	case "raceminedeath":
-		if ($session['user']['race'] == $race) {
+		if ($session['user']['race']==$race){
 			$args['chance'] = get_module_setting("minedeathchance");
-			$args['racesave'] = "Your equine senses noticed the sound of a coming earthslide fast enough, allowing you to flee the mine in full gallop.`n";
-			$args['schema']="module-racecentaur";
 		}
 		break;
 	case "charstats":
 		if ($session['user']['race']==$race){
+		  $lvl=get_module_pref("level");
 			addcharstat("Vital Info");
-			addcharstat("Race", translate_inline($race));
+			addcharstat("Race", translate_inline($race)."(Level $lvl)");
 		}
 		break;
-	case "racenames":
-		$args[$race] = $race;
-		break;
-	case "count-travels":
-		if ($session['user']['race']== $race){
-		$xtravel = get_module_setting("xtravel");
-		$args['available']=($args['available']+$xtravel);
+	case "creatureencounter":
+		if ($session['user']['race']==$race){
+			//get those folks who haven't manually chosen a race
+			racecentaur_checkcity();
+			$goldmodlvl=get_module_pref("level")*get_module_setting("goldmodlvl");
+			$goldmod=get_module_setting("goldmod")+$goldmodlvl;
+			$args['creaturegold']=round($args['creaturegold']*$goldmod,0);
 		}
 		break;
 	case "chooserace":
-		if ($session['user']['dragonkills'] > get_module_setting("mindk"))
-		{
-		output("<a href='newday.php?setrace=Centaur$resline'>On the lush meadows surrounding the city of %s</a>, your race of `QCentaurs`0 lives in wooden emcampments. You are good-natured and fast as the wind.`n`n",$city, true);
-		addnav("`QCentaur`0","newday.php?setrace=$race$resline");
+	  $dk_req=get_module_setting("dk_req")-1;
+	  if(get_module_pref("race_on")&&
+       $session[user][dragonkills]>$dk_req){
+		output("<a href='newday.php?setrace=$race$resline'>In the Forest of %s</a>, Dwell the mighty `#Centaur`0.`n`n", $city, true);
+		addnav("`#Centaur`0","newday.php?setrace=$race$resline");
 		addnav("","newday.php?setrace=$race$resline");
 		}
 		break;
 	case "setrace":
-		if ($session['user']['race']==$race){ // it helps if you capitalize correctly
-			output("`&As a Centaur, your speed is unrivaled by other races.`n");
-			output("You gain extra travel!`n");
+		if ($session['user']['race']==$race){
+			output("`#As a Centaur, you posess great speed.`n");
 			if (is_module_active("cities")) {
 				if ($session['user']['dragonkills']==0 &&
 						$session['user']['age']==0){
@@ -114,46 +141,81 @@ function racecentaur_dohook($hookname,$args){
 							$session['user']['acctid'],"cities");
 				}
 				set_module_pref("homecity",$city,"cities");
-				$session['user']['location']=$city;
+				if ($session['user']['age'] == 0)
+					$session['user']['location']=$city;
 			}
 		}
 		break;
 	case "newday":
 		if ($session['user']['race']==$race){
-			racecentaur_checkcity();
-			apply_buff("racialbenefit",array(
-				"name"=>"`QEquine Speed`0",
-				"allowinpvp"=>1,
-				"allowintrain"=>1,
-				"rounds"=>-1,
-				"schema"=>"module-racecentaur",
-				)
-			);
+			racecentaur_checkcity($module);
+			racecentaur_applystats($module);
 		}
 		break;
-	}
-
-	return $args;
+  }
+  	return $args;
 }
-
+function racecentaur_applystats($module){
+  global $session;
+  $lvlatkmod=get_module_pref("level")*get_module_setting("levelatkinc");
+  $lvldefmod=get_module_pref("level")*get_module_setting("leveldefinc");
+  $lvlturnmod=get_module_pref("level")*get_module_setting("levelturninc");
+  $lvlpvpmod=get_module_pref("level")*get_module_setting("levelpvpinc");
+  $lvlhpmod=get_module_pref("level")*get_module_setting("levelhpinc");
+  $lvlltmod=get_module_pref("level")*get_module_setting("levelltinc");
+  $lvldsmod=get_module_pref("level")*get_module_setting("leveldsinc");
+  $race['name']        =get_module_setting("racename"    ,$module);
+  $race['buffname']    =get_module_setting("buffname"    ,$module);
+  $race['turns']       =get_module_setting("turnsup"     ,$module);
+  $race['pvp']         =get_module_setting("pvpup"       ,$module);
+  $race['atk']         =get_module_setting("atkmod"      ,$module);
+  $race['def']         =get_module_setting("defmod"      ,$module);
+  $race['hp']          =get_module_setting("hpup"        ,$module);
+  $race['badguydmgmod']=get_module_setting("badguydmgmod",$module);
+  $race['lifetap']     =get_module_setting("lifetap"     ,$module);
+  $race['dmgshield']   =get_module_setting("dmgshield"   ,$module);
+  if($race['hp']>1) {$race['hp'] +=$lvlhpmod;}
+  if($race['atk']>1){$race['atk']+=$lvlatkmod;}
+  if($race['def']>1){$race['def']+=$lvldefmod;}
+  $race['turns']+=$lvlturnmod;
+  $race['pvp']+=$lvlpvpmod;
+  if($race['lifetap']>0){$race['lifetap']+=$lvlltmod;}
+  if($race['dmgshield']>0){$race['dmgshield']+=$lvldsmod;}
+  output(array("`n`n`7Because you are a %s you gain the following :",$race['name']));  
+  if($race['hp']>0){
+    $session['user']['hitpoints']+=$race['hp'];
+    output(array("`nYou gain %s hitpoints!",$race['hp']));}
+  if($race['turns']>0){
+    $session['user']['turns']+=$race['turns'];
+    output(array("`nYou gain %s turns!",$race['turns']));}
+  if($race['pvp']>0){
+    $session['user']['playerfights']+=$race['pvp'];
+    output(array("`nYou gain %s PvP's!",$race['pvp']));}
+  output(array("`n%s `7- race buff!`n",$race['buffname']));
+  apply_buff("racialbenefit",array(
+				"name"        =>$race['buffname'],
+				"atkmod"      =>$race['atk'],
+				"defmod"      =>$race['def'],
+				"badguydmgmod"=>$race['badguydmgmod'],
+				"dmgshield"   =>$race['dmgshield'],
+				"lifetap"     =>$race['lifetap'],
+				"allowinpvp"  =>1,
+				"allowintrain"=>1,
+				"rounds"      =>-1,
+				"schema"      =>"module-".$module,)
+	);
+}
 function racecentaur_checkcity(){
-	global $session;
-	$race="Centaur";
-	if (is_module_active("racehuman")) {
-		$city = get_module_setting("villagename", "racehuman");
-	} else {
-		$city = getsetting("villagename", LOCATION_FIELDS);
-	}
-	
+  global $session;
+  $module="racecentaur";
+  $race=get_module_setting("racename",$module);
+  if (is_module_active($module)) {$city = get_module_setting("startloc", $module);} 
+  else {$city = getsetting("villagename", LOCATION_FIELDS);}
 	if ($session['user']['race']==$race && is_module_active("cities")){
-		//if they're this race and their home city isn't right, set it up.
-		if (get_module_pref("homecity","cities")!=$city){ //home city is wrong
+		if (get_module_pref("homecity","cities")!=$city){
 			set_module_pref("homecity",$city,"cities");
 		}
-	}	
-	return true;
-}
-
-function racecentaur_run(){
+	}
+  return true;
 }
 ?>

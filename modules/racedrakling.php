@@ -3,7 +3,7 @@
 function racedrakling_getmoduleinfo(){
 	$info = array(
 		"name"=>"Race - Drakling",
-		"version"=>"1.1",
+		"version"=>"1.2",
 		"author"=>"`4Thanatos,`2Based on Eric Stevens racehuman",
 		"category"=>"Races",
 		"download"=>"http://greendragon.co.nr",
@@ -30,14 +30,12 @@ function racedrakling_getmoduleinfo(){
       "levelturninc"=>"each level increases turns by X:,int|1",
       "levelpvpinc"=>"each level increases PVP by X:,int|1",
       "levelhpinc"=>"each level increases hp(cur) by X:,int|10",
-      "levelltinc"=>"each level increases lifetap by X:,int|0",
-      "leveldsinc"=>"each level increases damage shield by X:,int|0",
-      "pvp_req"=>"Pvp's Required to level up the race(0 to disable),int|100",
+      "levelltinc"=>"each level increases lifetap by X:,float|0",
+      "leveldsinc"=>"each level increases damage shield by X:,float|0",
       "cre_req"=>"battle victories Required to level up the race(0 to disable),int|150",
 		),
 		"prefs"=>array(
 		  "level"=>"race lvl:,int|0",
-		  "pvp"  =>"Pvp's points,int|0",
 		  "cre"  =>"Battle Victory points,int|0",
       "race_on"=>"Can user become race?,bool|1",
     ),
@@ -96,17 +94,17 @@ function racedrakling_dohook($hookname,$args){
 	case "pvpwin":
 		if ($session['user']['race']==$race&&
         get_module_setting("levels")>get_module_pref("level")){   
-			   $pvp=get_module_pref("pvp");
-			   $pvp++;
-			   set_module_pref("pvp",$pvp);
-			   if($pvp==get_module_setting("pvp_req")){
-            set_module_pref("pvp",0);
+			   $cre=get_module_pref("cre");
+			   $cre++;
+			   set_module_pref("cre",$cre);
+			   if($cre==get_module_setting("cre_req")){
+            set_module_pref("cre",0);
             $lvl=get_module_pref("level");
             $lvl++;
             set_module_pref("level",$lvl);
             output(array("`7Your %s `7Level has increased.",$race));
          }
-    }
+    }	    
     break;
 	case "raceminedeath":
 		if ($session['user']['race']==$race){
@@ -115,9 +113,9 @@ function racedrakling_dohook($hookname,$args){
 		break;
 	case "charstats":
 		if ($session['user']['race']==$race){
+		  $lvl=get_module_pref("level");
 			addcharstat("Vital Info");
-			addcharstat("Race", translate_inline($race));
-			addcharstat("Race Level",get_module_pref("level"));
+			addcharstat("Race", translate_inline($race)."(Level $lvl)");
 		}
 		break;
 	case "chooserace":

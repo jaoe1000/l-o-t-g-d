@@ -1,38 +1,32 @@
 <?php
-function raceimp_getmoduleinfo(){
+function racehuman_getmoduleinfo(){
 	$info = array(
-		"name"=>"Race - Imp",
+		"name"=>"Race - Human",
 		"version"=>"1.2",
-		"author"=>"`4Thanatos,`2Based on Chris Vorndran's raceimp",
+		"author"=>"`4Thanatos",
 		"category"=>"Races",
-		"download"=>"http://greendragon.co.nr",
 		"settings"=>array(
-			"Imp Race Settings,title",
-			"turnsup"=>"Extra Turns's,int|3",
-			"pvpup"=>"Extra PVP's,int|1",
-      "buffname"=>"Buff Name,text|`@Imp Trickery`0",
-      "hpup" =>"Hitpoint Bonous:,int|15",
-      "atkmod"=>"Attack Bonous(mult) :,int|1.1",
+			"Human Race Settings,title",
+			"turnsup"=>"Extra Turns's,int|5",
+			"pvpup"=>"Extra PVP's,int|0",
+      "buffname"=>"Buff Name,text|`@Human Will",
+      "hpup" =>"Hitpoint Bonous:,int|35",
+      "atkmod"=>"Attack Bonous(mult) :,int|1.3",
       "defmod"=>"Defense Bonous(mult):,int|1.1",
-      "badguydmgmod"=>"BadGuyDamageMod(mult):,float|.5",
-      "goldmod"=>"GoldMod(mult):,float|1.4",
+      "badguydmgmod"=>"BadGuyDamageMod(mult):,float|1.2",
       "lifetap"=>"LifeTap:,int|0",
       "dmgshield"=>"DamageShield:,int|0", 
       "startloc"=>"Starting Village:,location|".getsetting("villagename", LOCATION_FIELDS),
-      "minedeathchance"=>"Chance for Imps to die in the mine,range,0,100,1|0",
+      "minedeathchance"=>"Chance for Humans to die in the mine,range,0,100,1|0",
       "dk_req"=>"How many DKs do you need before the race is available?,int|2",
-      "racename"=>"Race Name :,hidden|Imp",
+      "racename"=>"Race Name :,hidden|Human",
       "Level Settings,title",
-      "levels"=>"Max Amount of Levels?(0 to disable),int|50",
-      "levelatkinc"=>"each level increases atk buff by X:,float|.02",
-      "leveldefinc"=>"each level increases def buff by X:,float|.02",
-      "levelturninc"=>"each level increases turns by X:,int|0",
-      "levelpvpinc"=>"each level increases PVP by X:,int|0",
-      "levelhpinc"=>"each level increases hp(cur) by X:,int|50",
+      "levels"=>"Max Amount of Levels?(0 to disable),int|10",
+      "levelinc"=>"each level increases buffs by X:,float|.03",
+      "levelhpinc"=>"each level increases hp(cur) by X:,int|5",
       "levelltinc"=>"each level increases lifetap by X:,float|0",
       "leveldsinc"=>"each level increases damage shield by X:,float|0",
-      "goldmodlvl"=>"Gold Mod increase by X:,float|0",
-      "cre_req"=>"battle victories Required to level up the race(0 to disable),int|100",
+      "cre_req"=>"battle victories Required to level up the race(0 to disable),int|150",      
 		),
 		"prefs"=>array(
 		  "level"=>"race lvl:,int|0",
@@ -42,7 +36,9 @@ function raceimp_getmoduleinfo(){
 	);
 	return $info;
 }
-function raceimp_install(){
+
+
+function racehuman_install(){
     module_addhook("chooserace");
     module_addhook("setrace");
     module_addhook("creatureencounter");
@@ -54,17 +50,23 @@ function raceimp_install(){
 	  module_addhook("battle-victory");
     return true;
 }
-function raceimp_uninstall(){
+
+function racehuman_uninstall(){
 	global $session;
-	$sql = "UPDATE  " . db_prefix("accounts") . " SET race='" . RACE_UNKNOWN . "' WHERE race='Imp '";
+	// Force anyone who was a Human to rechoose race
+	$sql = "UPDATE  " . db_prefix("accounts") . " SET race='" . RACE_UNKNOWN . "' WHERE race='Human '";
 	db_query($sql);
-	if ($session['user']['race'] == 'Imp')
+	if ($session['user']['race'] == 'Human')
 		$session['user']['race'] = RACE_UNKNOWN;
 	return true;
 }
-function raceimp_dohook($hookname,$args){
+
+function racehuman_dohook($hookname,$args){
+	//yeah, the $resline thing is a hack.  Sorry, not sure of a better way
+	// to handle this.
+	// Pass it as an arg?
 	global $session,$resline;
-	$module="raceimp";
+	$module="racehuman";
 	$city = get_module_setting("startloc");
 	$race = get_module_setting("racename");
 	switch($hookname){
@@ -74,33 +76,32 @@ function raceimp_dohook($hookname,$args){
 	case "battle-victory":
 		if ($session['user']['race']==$race&&
         get_module_setting("levels")>get_module_pref("level")){   
-			   $cre=get_module_pref("cre");
-			   $cre++;
-			   set_module_pref("cre",$cre);
-			   if($cre==get_module_setting("cre_req")){
-            set_module_pref("cre",0);
+			   $pvp=get_module_pref("pvp");
+			   $pvp++;
+			   set_module_pref("pvp",$pvp);
+			   if($pvp==get_module_setting("pvp_req")){
+            set_module_pref("pvp",0);
             $lvl=get_module_pref("level");
             $lvl++;
             set_module_pref("level",$lvl);
             output(array("`7Your %s `7Level has increased.",$race));
          }
-    }	     
+    }
   break;
 	case "pvpwin":
 		if ($session['user']['race']==$race&&
         get_module_setting("levels")>get_module_pref("level")){   
-			   $cre=get_module_pref("cre");
-			   $cre++;
-			   set_module_pref("cre",$cre);
-			   if($cre==get_module_setting("cre_req")){
-            set_module_pref("cre",0);
+			   $pvp=get_module_pref("pvp");
+			   $pvp++;
+			   set_module_pref("pvp",$pvp);
+			   if($pvp==get_module_setting("pvp_req")){
+            set_module_pref("pvp",0);
             $lvl=get_module_pref("level");
             $lvl++;
             set_module_pref("level",$lvl);
             output(array("`7Your %s `7Level has increased.",$race));
          }
-    }	    
-    break;
+    }
 	case "raceminedeath":
 		if ($session['user']['race']==$race){
 			$args['chance'] = get_module_setting("minedeathchance");
@@ -113,56 +114,47 @@ function raceimp_dohook($hookname,$args){
 			addcharstat("Race", translate_inline($race)."(Level $lvl)");
 		}
 		break;
-	case "creatureencounter":
-		if ($session['user']['race']==$race){
-			//get those folks who haven't manually chosen a race
-			raceimp_checkcity();
-			$goldmodlvl=get_module_pref("level")*get_module_setting("goldmodlvl");
-			$goldmod=get_module_setting("goldmod")+$goldmodlvl;
-			$args['creaturegold']=round($args['creaturegold']*$goldmod,0);
-		}
-		break;
 	case "chooserace":
 	  $dk_req=get_module_setting("dk_req")-1;
 	  if(get_module_pref("race_on")&&
        $session[user][dragonkills]>$dk_req){
-        output("<a href='newday.php?setrace=Imp$resline'>The land of Imps</a> $city, `5hidden away from the world. `^Impish`0 `5 houses, crafted out of molten rock. Hidden in the deepest of crags, protected from the world of the normal folk. You are a very small being, only able to fly. You feel the need to trick others.`n`n",true);
-        addnav("`\$I`)mp`0","newday.php?setrace=Imp$resline");
-        addnav("","newday.php?setrace=Imp$resline");
+		output("`0<a href='newday.php?setrace=$race$resline'>From the city of %s</a>, you've led a happy and somewhat wasted life until you decide to depart on your quest. `n`n", $city, true);
+		addnav("`&Human`0","newday.php?setrace=$race$resline");
+		addnav("","newday.php?setrace=$race$resline");
 		}
 		break;
 	case "setrace":
-        if ($session['user']['race']==$race){
-            output("`^As an Imp, you feel your matured skin protect you.`nYou gain extra attack!");
-            if (is_module_active("cities")) {
-                if ($session['user']['dragonkills']==0 &&
-                        $session['user']['age']==0){
-                    set_module_setting("newest-$city",
-                            $session['user']['acctid'],"cities");
-                }
-                set_module_pref("homecity",$city,"cities");
-                $session['user']['location']=$city;
-            }
-        }
+		if ($session['user']['race']==$race){
+			output("`&As a Human, you are a mortal and have the weakness of such but if you harness your abilities and hone your skills you will become a force to be reckoned with.");
+			if (is_module_active("cities")) {
+				if ($session['user']['dragonkills']==0 &&
+						$session['user']['age']==0){
+					//new farmthing, set them to wandering around this city.
+					set_module_setting("newest-$city",
+							$session['user']['acctid'],"cities");
+				}
+				set_module_pref("homecity",$city,"cities");
+				if ($session['user']['age'] == 0)
+					$session['user']['location']=$city;
+			}
+		}
 		break;
 	case "newday":
 		if ($session['user']['race']==$race){
-			raceimp_checkcity($module);
-			raceimp_applystats($module);
+			racehuman_checkcity($module);
+			racehuman_applystats($module);
 		}
 		break;
   }
   	return $args;
 }
-function raceimp_applystats($module){
+function racehuman_applystats($module){
   global $session;
-  $lvlatkmod=get_module_pref("level")*get_module_setting("levelatkinc");
-  $lvldefmod=get_module_pref("level")*get_module_setting("leveldefinc");
-  $lvlturnmod=get_module_pref("level")*get_module_setting("levelturninc");
-  $lvlpvpmod=get_module_pref("level")*get_module_setting("levelpvpinc");
+  $lvlmod=get_module_pref("level")*get_module_setting("levelinc");
   $lvlhpmod=get_module_pref("level")*get_module_setting("levelhpinc");
   $lvlltmod=get_module_pref("level")*get_module_setting("levelltinc");
   $lvldsmod=get_module_pref("level")*get_module_setting("leveldsinc");
+  
   $race['name']        =get_module_setting("racename"    ,$module);
   $race['buffname']    =get_module_setting("buffname"    ,$module);
   $race['turns']       =get_module_setting("turnsup"     ,$module);
@@ -173,13 +165,15 @@ function raceimp_applystats($module){
   $race['badguydmgmod']=get_module_setting("badguydmgmod",$module);
   $race['lifetap']     =get_module_setting("lifetap"     ,$module);
   $race['dmgshield']   =get_module_setting("dmgshield"   ,$module);
+  
   if($race['hp']>1) {$race['hp'] +=$lvlhpmod;}
-  if($race['atk']>1){$race['atk']+=$lvlatkmod;}
-  if($race['def']>1){$race['def']+=$lvldefmod;}
-  $race['turns']+=$lvlturnmod;
-  $race['pvp']+=$lvlpvpmod;
+  if($race['atk']>1){$race['atk']+=$lvlmod;}
+  if($race['def']>1){$race['def']+=$lvlmod;}
   if($race['lifetap']>0){$race['lifetap']+=$lvlltmod;}
   if($race['dmgshield']>0){$race['dmgshield']+=$lvldsmod;}
+  
+  
+  
   output(array("`n`n`7Because you are a %s you gain the following :",$race['name']));  
   if($race['hp']>0){
     $session['user']['hitpoints']+=$race['hp'];
@@ -204,14 +198,14 @@ function raceimp_applystats($module){
 				"schema"      =>"module-".$module,)
 	);
 }
-function raceimp_checkcity(){
+function racehuman_checkcity($module){
   global $session;
-  $module="raceimp";
   $race=get_module_setting("racename",$module);
   if (is_module_active($module)) {$city = get_module_setting("startloc", $module);} 
   else {$city = getsetting("villagename", LOCATION_FIELDS);}
 	if ($session['user']['race']==$race && is_module_active("cities")){
-		if (get_module_pref("homecity","cities")!=$city){
+		//if they're this race and their home city isn't right, set it up.
+		if (get_module_pref("homecity","cities")!=$city){ //home city is wrong
 			set_module_pref("homecity",$city,"cities");
 		}
 	}
