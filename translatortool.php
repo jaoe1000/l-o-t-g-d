@@ -48,8 +48,14 @@ if ($op==""){
 }elseif ($_GET['op']=='save'){
     global $language;
     $uri = addslashes(httppost('uri'));
-    $text = addslashes(httppost('text'));
-    $trans = addslashes(httppost('trans'));
+    
+    // Modern PHP Fix: Normalize browser CRLF (\r\n) to Engine LF (\n)
+    $text_raw = str_replace("\r\n", "\n", httppost('text'));
+    $trans_raw = str_replace("\r\n", "\n", httppost('trans'));
+    
+    // Escape the apostrophes for the database
+    $text = addslashes($text_raw);
+    $trans = addslashes($trans_raw);
 
     $page = $uri;
 	if (strpos($page,"?")!==false) $page = substr($page,0,strpos($page,"?"));
