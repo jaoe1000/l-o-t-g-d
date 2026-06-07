@@ -5,6 +5,8 @@ $page = httpget('page');
 $order = httpget('order');
 $showonly = httpget('showonly');
 $ownerid = httpget('ownerid');
+$op = httpget('op');
+
 if($op!="new")	addnav("Add a New Dwelling","runmodule.php?module=dwellingseditor&op=new");
 
 $dwellsperpage = get_module_setting("listnum","dwellings");
