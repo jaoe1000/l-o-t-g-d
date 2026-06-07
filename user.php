@@ -31,23 +31,97 @@ $gentimecount = 0;
 $order = "acctid";
 if ($sort!="") $order = "$sort";
 $display = 0;
-$query = httppost('q');
-if ($query === false) {
-	$query = httpget('q');
-	if ($query === false) {
-		$query = $session['user']['login'];
-	}
-}
 
-if ($op=="search" || $op== ""){
-	require_once("lib/lookup_user.php");
-	list($searchresult, $err) = lookup_user($query, $order);
-	$op = "";
-	if ($err) {
-		output($err);
-	} else {
-		$display = 1;
-	}
+// 1. Adjustable Inputs & Clear Default Search
+// By defaulting to "" instead of $session['user']['login'], it shows all users automatically.
+$query = httppost('q') !== false ? httppost('q') : (httpget('q') !== false ? httpget('q') : "");
+$page = max(1, (int)(httpget('page') ?: 1));
+$pagesize = max(25, (int)(httppost('pagesize') ?: httpget('pagesize') ?: 50));
+
+if ($op == "search" || $op == "") {
+    // Preserve module integrations if they exist
+    $m = httpget("module");
+    $m_param = $m ? "&module=$m&subop=module" : "";
+
+    // 2. Safe Query Construction
+    $where = "";
+    if ($query !== "") {
+        // Modern PHP 8.4 sanitization
+        $safe_query = addslashes("%$query%");
+        $where = "WHERE login LIKE '$safe_query' OR name LIKE '$safe_query' OR acctid = '" . (int)$query . "'";
+    }
+
+    // 3. The Offset Math
+    $count_sql = "SELECT count(*) AS c FROM " . db_prefix("accounts") . " $where";
+    $count_res = db_query($count_sql);
+    $count_row = db_fetch_assoc($count_res);
+    $total_users = (int)$count_row['c'];
+    
+    $total_pages = max(1, ceil($total_users / $pagesize));
+    if ($page > $total_pages) $page = $total_pages;
+    
+    $offset = ($page - 1) * $pagesize;
+
+    // Fetch the specific chunk of users using LIMIT to protect memory
+    $sql = "SELECT * FROM " . db_prefix("accounts") . " $where ORDER BY $order LIMIT $offset, $pagesize";
+    $searchresult = db_query($sql);
+    
+    $err = ($total_users == 0) ? "`\$No users found matching that query.`0" : "";
+
+    // 4. The UI (Dropdown and Pagination Links)
+    if ($total_users > 0) {
+        $q_param = rawurlencode($query);
+        $base_url = "user.php?op=search{$m_param}&q={$q_param}";
+        
+        rawoutput("<div style='margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.1); border: 1px dashed rgba(255,255,255,0.2);'>");
+        
+        // Dropdown Form
+        rawoutput("<form action='{$base_url}' method='POST' style='display:inline;'>");
+        output("Users per page: ");
+        rawoutput("<select name='pagesize' onchange='this.form.submit()'>");
+        foreach ([25, 50, 100, 250] as $size) {
+            $selected = ($size == $pagesize) ? "selected" : "";
+            rawoutput("<option value='$size' $selected>$size</option>");
+        }
+        rawoutput("</select>");
+        rawoutput("</form>");
+        
+        // Page Links
+        rawoutput("&nbsp; | &nbsp; ");
+        output("Page: ");
+        
+        // Basic math to prevent rendering 1000s of page links at once
+        $start_page = max(1, $page - 5);
+        $end_page = min($total_pages, $page + 5);
+        
+        if ($start_page > 1) {
+            rawoutput("<a href='{$base_url}&page=1&pagesize={$pagesize}'>1</a> ... ");
+            addnav("", "{$base_url}&page=1&pagesize={$pagesize}");
+        }
+        
+        for ($i = $start_page; $i <= $end_page; $i++) {
+            if ($i == $page) {
+                rawoutput("<b style='color: #FFD700;'>$i</b> ");
+            } else {
+                rawoutput("<a href='{$base_url}&page={$i}&pagesize={$pagesize}'>$i</a> ");
+                addnav("", "{$base_url}&page={$i}&pagesize={$pagesize}");
+            }
+        }
+        
+        if ($end_page < $total_pages) {
+            rawoutput("... <a href='{$base_url}&page={$total_pages}&pagesize={$pagesize}'>$total_pages</a>");
+            addnav("", "{$base_url}&page={$total_pages}&pagesize={$pagesize}");
+        }
+        
+        rawoutput("</div>");
+    }
+
+    $op = "";
+    if ($err) {
+        output($err);
+    } else {
+        $display = 1;
+    }
 }
 
 
