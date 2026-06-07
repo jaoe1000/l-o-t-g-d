@@ -291,7 +291,7 @@ if ($confirm == 0) {
 			$category = $row['mountcategory'];
 		}
 		if ($row['mountdkcost'] <= $session['user']['dragonkills'])
-			addnav(sprintf("Examine %s0", $row['mountname']), "stables.php?op=examine&id={$row['mountid']}");
+			addnav($row['mountname'], "stables.php?op=examine&id={$row['mountid']}");
 	}
 }
 
