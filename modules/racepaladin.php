@@ -24,7 +24,7 @@ function racepaladin_getmoduleinfo(){
 
 function racepaladin_install(){
 	if (!is_module_installed("alignment")) {
-  		output("This module requires both the alignment module be installed.");
+  		output("This module requires the alignment module be installed.");
   		return false;
 	}
 	else {
@@ -69,7 +69,7 @@ function racepaladin_dohook($hookname,$args){
 	$al = 0;
 	if (is_module_active('alignment')) {
 		// Force-load the module to beat the load order trap
-		@require_once('modules/alignment/alignment.php'); 
+		@require_once('modules/alignment.php'); 
 		
 		if (function_exists('get_align')) {
 			// Grab the alignment using the correct variable name
