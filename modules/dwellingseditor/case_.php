@@ -2,6 +2,7 @@
 $sortby = httpget('sortby');
 $ref = httpget('ref');
 $page = httpget('page');
+$pnum = (int)$page > 0 ? (int)$page : 1; 
 $order = httpget('order');
 $showonly = httpget('showonly');
 $ownerid = httpget('ownerid');
@@ -36,7 +37,7 @@ $to = min($pageoffset+$dwellsperpage,$totaldwellings);
 $limit=" LIMIT $pageoffset,$dwellsperpage ";
 addnav("Pages");
 for ($i = 0; $i < $totaldwellings; $i += $dwellsperpage){
-	$pnum = $i/$dwellsperpage+1;
+	$pnum = ($i / $dwellsperpage) + 1;
 	if ($page == $pnum) {
 		addnav(array(" ?`b`#Page %s`0 (%s-%s)`b", $pnum, $i+1, min($i+$dwellsperpage,$totaldwellings)), "runmodule.php?module=dwellingseditor&&ref=$ref&sortby=$sortby&showonly=$showonly&ownerid=$ownerid&order=$order&page=$pnum");
 	} else {
