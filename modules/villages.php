@@ -111,13 +111,13 @@ function villages_dohook($hookname,$args)
 
 		case 'count-travels':
 			global $playermount;
-			$args['available'] += get_module_setting('allowance');
+			$args['available'] += get_module_setting('allowance') ?? 0;
 			if ($playermount && isset($playermount['mountid'])) {
 				$mountId = $playermount['mountid'];
 				$extra = get_module_objpref('mounts', $mountId, 'extra_travel');
 				$args['available'] += $extra;
 			}
-			$args['used'] += get_module_pref('traveled');
+			$args['used'] += get_module_pref('traveled') ?? 0;
     		break;
 
 		case 'villages-use-travel':
