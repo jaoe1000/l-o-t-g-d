@@ -200,7 +200,7 @@ if ($op == "") {
 		"allowcreation"=>"Allow creation of new characters,bool",
 		"gameadminemail"=>"Admin Email",
 		"emailpetitions"=>"Should submitted petitions be emailed to Admin Email address?,bool",
-		"defaultlanguage"=>"Default Language,enum,en,English,dk,Danish,de,Deutsch,es,Español,fr,French,it,Italian",
+		"defaultlanguage"=>"Default Language,enum,en,English,dk,Danish,de,Deutsch,es,EspaÃ±ol,fr,French,it,Italian",
 		"edittitles"=>"Should DK titles be editable in user editor,bool",
 		"motditems"=>"How many items should be shown on the motdlist,int",
 
