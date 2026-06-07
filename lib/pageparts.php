@@ -917,7 +917,6 @@ function maillink(){
     
     return "<a href='mail.php' target='_blank' onClick=\"".popup("mail.php").";return false;\" class='".($row['notseen'] > 0 ? 'hotmotd' : 'motd')."'>$link</a>";
 }
-}
 
 /**
  * Returns a display formatted (and popup enabled) MOTD link - determines if unread MOTD items exist and highlights the link if needed
