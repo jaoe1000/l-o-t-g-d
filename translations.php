@@ -116,7 +116,7 @@ if (!empty($errors)) {
     output_notl("</ul></div>", true);
 }
 
-if ($isPopup) $popupUri = '&popup=1';
+if ($isPopup) $popupUri = $isPopup ? '&popup=1' : '';
 if (!$isPopup) {
     output("Select a translation file to edit:`n`n");
 
