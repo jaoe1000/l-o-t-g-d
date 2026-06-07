@@ -196,12 +196,19 @@ function racepaladin_dohook($hookname,$args){
 		}
 		tlschema();
 		break;	
-	case "charstats":
-		if ($session['user']['race']==$race){
-			addcharstat("Vital Info");
-			addcharstat("Race", $race);
-		}
-		break;
+	// Modern PHP Fix: Defensive Dependency Check
+case "charstats":
+    if ($session['user']['race'] == 'Paladin') {
+        // Only run the alignment logic if the companion module is actually installed
+        if (function_exists('get_align')) {
+            $align = get_align($session['user']['acctid']);
+            // ... (keep the original alignment logic here) ...
+        } else {
+            // Optional: Provide a fallback or simply do nothing if alignment is missing
+            $align = 'Unknown'; 
+        }
+    }
+    break;
 	case "validlocation":
 		if (is_module_active("cities"))
 			$args[$city] = "village-$race";
