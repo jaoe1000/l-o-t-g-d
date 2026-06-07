@@ -25,7 +25,8 @@ WORKDIR /var/www/html
 RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
     && rm -rf /tmp/modules/_old_dragonprime_snapshot \
     && mkdir -p /var/www/html/modules \
-    && cp -r /tmp/modules/*/* /var/www/html/modules/ 2>/dev/null || true \
+    # Move each module directory into the target directory, avoiding the nested structure
+    && find /tmp/modules -mindepth 1 -maxdepth 1 -type d -exec mv {} /var/www/html/modules/ \; \
     && rm -rf /tmp/modules
 
 # Copy your repository files into the web root SECOND (Last One Wins!)
