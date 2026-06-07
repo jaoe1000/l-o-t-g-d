@@ -907,11 +907,16 @@ function maillink(){
 	db_free_result($result);
 	$row['seencount'] = isset($row['seencount']) ? (int) $row['seencount'] : 0;
 	$row['notseen']=isset($row['notseen']) ? (int) $row['notseen'] : 0;
-	if ($row['notseen']>0){
-		return sprintf("<a href='mail.php' target='_blank' onClick=\"".popup("mail.php").";return false;\" class='hotmotd'>".translate_inline("Ye Olde Mail: %s new, %s old", 'common')."</a>",$row['notseen'],$row['seencount']);
-	}else{
-		return sprintf("<a href='mail.php' target='_blank' onClick=\"".popup("mail.php").";return false;\" class='motd'>".translate_inline("Ye Olde Mail: %s new, %s old", 'common')."</a>",$row['notseen'],$row['seencount']);
-	}
+	$format = translate_inline("Ye Olde Mail: %s new, %s old", 'common');
+    
+    try {
+        $link = sprintf($format, $row['notseen'], $row['seencount']);
+    } catch (ValueError | TypeError $e) {
+        $link = "Ye Olde Mail"; // Absolute fallback
+    }
+    
+    return "<a href='mail.php' target='_blank' onClick=\"".popup("mail.php").";return false;\" class='".($row['notseen'] > 0 ? 'hotmotd' : 'motd')."'>$link</a>";
+}
 }
 
 /**
