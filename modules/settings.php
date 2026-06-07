@@ -81,11 +81,15 @@ function settings_dohook($hook, $args)
                 );
                 $fill = [];
                 $rewrite = json_decode(get_module_setting('rewrite'), true);
-                while ($row = db_fetch_assoc($sql)) {
+               while ($row = db_fetch_assoc($sql)) {
                     if ($row['setting'] != '' && strpos($row['setting'], 'user_') !== false) {
                         $structuredKey = "{$row['modulename']}__{$row['setting']}";
-                        if ($rewrite[$structuredKey] != $row['formalname']) {
-                            $fill[$structuredKey] = $rewrite[$structuredKey];
+                        
+                        // Safety check for PHP 8.4
+                        $rewriteValue = $rewrite[$structuredKey] ?? ''; 
+                        
+                        if ($rewriteValue != $row['formalname']) {
+                            $fill[$structuredKey] = $rewriteValue;
                         }
                         else {
                             $fill[$structuredKey] = $row['formalname'];
@@ -96,8 +100,12 @@ function settings_dohook($hook, $args)
                         foreach ($possibleKeys as $key => $val) {
                             if (strpos($key, 'user_') !== false) {
                                 $structuredKey = "{$row['fallback']}__$key";
-                                if ($rewrite[$structuredKey] != $row['formalname'] && $rewrite[$structuredKey] != '') {
-                                    $fill[$structuredKey] = $rewrite[$structuredKey];
+                                
+                                // Safety check for PHP 8.4
+                                $rewriteValue = $rewrite[$structuredKey] ?? '';
+                                
+                                if ($rewriteValue != $row['formalname'] && $rewriteValue != '') {
+                                    $fill[$structuredKey] = $rewriteValue;
                                 }
                                 else {
                                     $fill[$structuredKey] = $row['formalname'];
