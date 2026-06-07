@@ -247,7 +247,15 @@ function loadTranslation(string $namespacedKey, array $replace = []): string
 
     // Apply sprintf replacements first
     if (!empty($replace) && is_string($translatedString)) {
-        $translatedString = vsprintf($translatedString, $replace);
+        try {
+            $translatedString = vsprintf($translatedString, $replace);
+        } catch (ValueError $e) {
+            // PHP 8.4 compatibility: If the format is invalid, 
+            // log the error if desired, but return the original string 
+            // instead of letting the engine crash.
+            error_log("Translation formatting error: " . $e->getMessage() . " for string: " . $translatedString);
+            // $translatedString remains the original unformatted string
+        }
     }
 
     // Then resolve {{namespace.key}} placeholders
