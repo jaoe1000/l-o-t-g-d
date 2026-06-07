@@ -34,16 +34,12 @@ if ($op==""){
 	rawoutput("</form>");
 	popup_footer();
 }elseif ($_GET['op']=='save'){
-    global $language, $mysqli_resource;
-	$uri = httppost('uri');
-	$text = httppost('text');
-	$trans = httppost('trans');
-    $text = mysqli_real_escape_string($mysqli_resource, $text);
-    $trans = mysqli_real_escape_string($mysqli_resource, $trans);
-    $uri = mysqli_real_escape_string($mysqli_resource, $uri);
-    var_dump($text);
+    global $language;
+    $uri = addslashes(httppost('uri'));
+    $text = addslashes(httppost('text'));
+    $trans = addslashes(httppost('trans'));
 
-	$page = $uri;
+    $page = $uri;
 	if (strpos($page,"?")!==false) $page = substr($page,0,strpos($page,"?"));
 
 	if ($trans==""){
