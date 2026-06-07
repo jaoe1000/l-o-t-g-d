@@ -58,12 +58,20 @@ function page_header(){
     if (isTranslateKey($title)) {
         $title = loadTranslation($title, $arguments);
     }
-	else if (hasTranslateKey($title)) {
-		$title = handleSubtranslations($title, $i18nNamespace ?? 'common');
-		$title = vsprintf($title, $arguments);
-	}
+    else if (hasTranslateKey($title)) {
+        $title = handleSubtranslations($title, $i18nNamespace ?? 'common');
+        try {
+            $title = vsprintf($title, $arguments);
+        } catch (ValueError $e) {
+            // Fallback: Use raw title if format specifier is invalid
+        }
+    }
     else {
-        $title = vsprintf($title, $arguments);
+        try {
+            $title = vsprintf($title, $arguments);
+        } catch (ValueError $e) {
+            // Fallback: Use raw title if format specifier is invalid
+        }
     }
 	$title = holidayize($title, 'title');
 	$title = sanitize($title);
