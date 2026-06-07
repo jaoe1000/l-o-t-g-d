@@ -1,34 +1,61 @@
 #!/bin/bash
-# fix_modules.sh - Dynamic Core File Extraction
+# fix_modules.sh - Two-Pass Category Flattening & Module Extraction
 
-# Ensure the target directory exists
 mkdir -p /var/www/html/modules/
 
+# ==========================================
+# PASS 1: Flatten Top-Level Categories
+# ==========================================
+# Any folder that DOES NOT meet the specific nested rule (module_name/module_name/) 
+# is treated as a category wrapper. We dissolve it and move its contents up.
+for dir in /tmp/modules/*; do
+    if [ -d "$dir" ]; then
+        base=$(basename "$dir")
+        
+        # If it lacks the double-nested inner folder, flatten it.
+        if [ ! -d "$dir/$base" ]; then
+            mv "$dir"/* /tmp/modules/ 2>/dev/null
+            rm -rf "$dir"
+        fi
+    fi
+done
+
+# ==========================================
+# PASS 2: Process Modules & Support Folders
+# ==========================================
+# /tmp/modules/ now only contains actual module wrappers or flat files.
 for dir in /tmp/modules/*; do
     if [ -d "$dir" ]; then
         base=$(basename "$dir")
 
-        # Dynamic Check: Does this module have a subfolder with the exact same name?
-        # (e.g., /tmp/modules/dwellings/dwellings/)
+        # If it meets the double-nested rule (e.g., dwellings/dwellings/)
         if [ -d "$dir/$base" ]; then
             
-            # 1. Move ALL .php files strictly from the FIRST level to the modules root
-            # (This safely grabs dwellings.php, dwcastles.php, etc.)
+            # 1. Promote ALL core .php files from this wrapper to the modules root
             find "$dir" -maxdepth 1 -type f -name "*.php" -exec mv {} /var/www/html/modules/ \;
 
-            # 2. Rescue the internal support files by moving them out of the redundant inner subfolder
-            # (This moves func.php, lib.php, dohook/, etc. up one level into $dir)
+            # 2. Rescue any sibling support folders (e.g., extracting dwellings_pvp/)
+            for sub in "$dir"/*; do
+                if [ -d "$sub" ]; then
+                    sub_base=$(basename "$sub")
+                    # If it is NOT the primary inner nested folder, move it to the web root
+                    if [ "$sub_base" != "$base" ]; then
+                        mv "$sub" /var/www/html/modules/
+                    fi
+                fi
+            done
+
+            # 3. Collapse the primary inner nested folder
+            # (Moving run/, images/, etc., up to replace the wrapper)
             mv "$dir/$base"/* "$dir/" 2>/dev/null
-            
-            # 3. Remove the now-empty inner subfolder
             rmdir "$dir/$base" 2>/dev/null
         fi
 
-        # Move the finalized, cleanly structured folder to the web root
+        # Move the cleanly formatted support folder to the web root
         mv "$dir" /var/www/html/modules/
         
-    # Catch any orphaned flat files sitting directly at the root of the clone
     elif [ -f "$dir" ] && [[ "$dir" == *.php ]]; then
+        # Catch orphaned flat files and push them to the web root
         mv "$dir" /var/www/html/modules/
     fi
 done
