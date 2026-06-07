@@ -65,9 +65,14 @@ function racepaladin_dohook($hookname,$args){
 	$cost = get_module_setting("cost");
 	$city = get_module_setting("villagename");
 	$race = "Paladin";
-	if (is_module_active('alignment')) {
-		$al = get_align();
-	}
+	// Modern PHP 8.4 Fix: Native LotGD Dependency Check
+if (is_module_active('alignment') && function_exists('get_align')) {
+    // If the module is active AND the function loaded successfully, grab the alignment
+    $align = get_align($session['user']['acctid']);
+} else {
+    // Fallback if the alignment module is inactive, uninstalled, or broken
+    $align = 0; 
+}
 	$paladin = ($al+50);
 	switch($hookname){
 	case "chooserace":
