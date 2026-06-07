@@ -200,33 +200,33 @@ function settings_run()
             $prefs['template'] = $_COOKIE['template']?:getsetting('defaultskin', 'jade.htm');
             $prefs['email'] = $session['user']['emailaddress'];
             $prefsFormat = [
-                'Account' => [
-                    'bio' => 'Short biography, textarea',
-                    'newpass' => 'New password, password',
-                    'oldpass' => 'If you are changing your password&comma; type your old one, password',
-                    'email' => 'Email, text',
-                ],
-                'Display' => [
-                    'template' => 'Skin, theme',
-                    'language' => 'Which language do you prefer?, enum, ' . $languages,
-                    'timestamp' => 'Show timestamps in commentary?, enum, 0, None, 1, Real Time, 2, Relative Time',
-                ],
-                'Game Behavior' => [
-                    'emailonmail' => 'Receive emails when you receive a mail?, bool',
-                    'systemmail' => 'Receive emails for system messages?, bool',
-                    'Be sure to check your email\'s spam folder and add our email as a trusted sender!, note',
-                    'dirtyemail' => 'Allow profanity in mail?, bool',
-                    'timeoffset' => sprintf_translate(
-                        'Hours to offset time (currently %s)?, int',
-                        date(
-                            $prefs['timeformat'],
-                            (strtotime('now') + ($prefs['timeoffset'] * 3600))
-                        )
-                    ),
-                    'ihavenocheer' => 'Disable holiday text?, bool',
-                    'nojump' => 'Disable jumping to the commentary when posting or refreshing?, bool',
-                ],
-            ];
+            'Account' => [
+                'bio' => 'Short biography, textarea',
+                'newpass' => 'New password, password',
+                'oldpass' => 'If you are changing your password&comma; type your old one, password',
+                'email' => 'Email, text',
+            ],
+            'Display' => [
+                'template' => 'Skin, theme',
+                'language' => 'Which language do you prefer?, enum, ' . $languages,
+                'timestamp' => 'Show timestamps in commentary?, enum, 0, None, 1, Real Time, 2, Relative Time',
+            ],
+            'Game Behavior' => [
+                'emailonmail' => 'Receive emails when you receive a mail?, bool',
+                'systemmail' => 'Receive emails for system messages?, bool',
+                'Be sure to check your email\'s spam folder and add our email as a trusted sender!, note',
+                'dirtyemail' => 'Allow profanity in mail?, bool',
+                'timeoffset' => sprintf_translate(
+                    'Hours to offset time (currently %s)?, int',
+                    date(
+                        $prefs['timeformat'] ?? 'g:i a', 
+                        (strtotime('now') + (($prefs['timeoffset'] ?? 0) * 3600))
+                    )
+                ),
+                'ihavenocheer' => 'Disable holiday text?, bool',
+                'nojump' => 'Disable jumping to the commentary when posting or refreshing?, bool',
+            ],
+        ];
             if (count(explode(',', $languages)) < 3) {
                 unset($prefs['Display']['language']);
             }
