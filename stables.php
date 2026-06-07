@@ -119,7 +119,7 @@ if ($op==""){
 		output("`7Creature: `&%s`0`n", $mount['mountname']);
 		output("`7Description: `&%s`0`n", $mount['mountdesc']);
 		output("`7Cost: `^%s`& gold, `%%s`& gems`n`n", $mount['mountcostgold'], $mount['mountcostgems']);
-		addnav(array("New %s", $mount['mountname']));
+		addnav(sprintf("New %s", $mount['mountname']));
 		addnav("Buy this creature","stables.php?op=buymount&id={$mount['mountid']}");
 	}
 }elseif($op=='buymount'){
