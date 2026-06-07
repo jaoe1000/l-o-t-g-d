@@ -16,7 +16,11 @@ function soap(string $input, bool $debug = false, bool $skiphook = false): strin
         foreach ($search as $key => $word) {
             do {
                 if ($word > '') {
-                    $times = @preg_match_all($word, $output, $matches);
+                    // Modern PHP 8.4 / PCRE2 Fix:
+                    // The legacy engine builds strings like '\b(*[d...]' which crashes PCRE2.
+                    // We translate the literal '(*' into a valid regex wildcard '(.*' 
+                    $safe_word = str_replace('(*', '(.*', $word);
+                    $times = @preg_match_all($safe_word, $output, $matches);
                 }
                 else {
                     $times = 0;
