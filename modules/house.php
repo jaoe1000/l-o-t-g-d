@@ -108,39 +108,52 @@ function house_uninstall(){
 function house_dohook($hookname, $args){
     global $session;
     $city = getsetting("villagename", LOCATION_FIELDS);
-	$cost = get_module_setting("doncost");
+    $cost = get_module_setting("doncost");
+    
     switch ($hookname){
-    case "village":
-        tlschema($args['schemas']['gatenav']);
-        addnav($args["gatenav"]);
-        tlschema();
-        addnav(array("%s Estates",$session['user']['location']),"runmodule.php?module=house");
-    break;
-	case "pointsdesc":
-    if ($cost > 0){
-        $args['count']++;
-        $format = $args['format'];
-        $str = translate("`^Estates are only available, after %s Dragon Kills and %s Donation Points.");
-        $str = sprintf($str, get_module_setting("mindks"),$cost);
-        output($format, $str, true);
-		}
-	break;
-    case "dragonkilltext":
-		$id = $session['user']['acctid'];
-	if (get_module_pref("housesize", "house", $id) > 0){
-        if (get_module_setting("resettreasure")) set_module_objpref("house", $id, "treasure", 0,"house");
-        if (get_module_setting("resetgems")) set_module_objpref("house", $id, "gemtreasure", 0,"house");
-	}
-    break;
-    case "newday":
-        set_module_pref("gemdone",0);
-        set_module_pref("golddone",0);
-        set_module_pref("praise",0);
-    break;
+        case "village":
+            // Use the null coalescing operator to prevent crashes if 'schemas' or 'gatenav' are missing
+            $schemas = $args['schemas'] ?? array();
+            $gatenav = $args['gatenav'] ?? '';
+            
+            if (isset($args['schemas']['gatenav'])) {
+                tlschema($args['schemas']['gatenav']);
+            }
+            
+            if ($gatenav != '') {
+                addnav($gatenav);
+            }
+            tlschema();
+            
+            addnav(array("%s Estates", $session['user']['location']), "runmodule.php?module=house");
+            break;
+
+        case "pointsdesc":
+            if ($cost > 0){
+                $args['count']++;
+                $format = $args['format'];
+                $str = translate("`^Estates are only available, after %s Dragon Kills and %s Donation Points.");
+                $str = sprintf($str, get_module_setting("mindks"), $cost);
+                output($format, $str, true);
+            }
+            break;
+            
+        case "dragonkilltext":
+            $id = $session['user']['acctid'];
+            if (get_module_pref("housesize", "house", $id) > 0){
+                if (get_module_setting("resettreasure")) set_module_objpref("house", $id, "treasure", 0, "house");
+                if (get_module_setting("resetgems")) set_module_objpref("house", $id, "gemtreasure", 0, "house");
+            }
+            break;
+            
+        case "newday":
+            set_module_pref("gemdone", 0);
+            set_module_pref("golddone", 0);
+            set_module_pref("praise", 0);
+            break;
     }
     return $args;
 }
-
 function house_run(){
 	global $SCRIPT_NAME;
 	if ($SCRIPT_NAME == "runmodule.php"){
