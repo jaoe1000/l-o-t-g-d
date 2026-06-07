@@ -4,7 +4,6 @@
 // by how good their alignment gets.  I eventually intend to develop some more modules with alignment in mind, and I hope
 // to encourage other developers to do the same.
 //
-
 function racepaladin_getmoduleinfo(){
 	$info = array(
 		"name"=>"Race - Paladin",
@@ -66,6 +65,7 @@ function racepaladin_dohook($hookname,$args){
 	$city = get_module_setting("villagename");
 	$race = "Paladin";
 	// Modern PHP 8.4 Fix: Native LotGD Dependency Check
+	$al = 0;
 if (is_module_active('alignment') && function_exists('get_align')) {
     // If the module is active AND the function loaded successfully, grab the alignment
     $align = get_align($session['user']['acctid']);
