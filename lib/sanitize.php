@@ -81,7 +81,7 @@ function translator_uri(string $in): array|string|null
     return $uri;
 }
 
-function translator_page(string $in): $string
+function translator_page(?string $in): ?string
 {
     $page = $in;
     if (strpos($page,"?")!==false) $page=substr($page,0,strpos($page,"?"));

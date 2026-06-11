@@ -47,3 +47,5 @@ RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --opt
 RUN mkdir -p /var/www/html/cache /var/www/html/persistent_config /var/www/html/accounts-output \
     && ln -s /var/www/html/persistent_config/dbconnect.php /var/www/html/dbconnect.php \
     && chown -R www-data:www-data /var/www/html
+
+    RUN echo "ServerName dragon.ndgaming.com" >> /etc/apache2/apache2.conf
