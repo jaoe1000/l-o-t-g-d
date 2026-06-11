@@ -81,7 +81,7 @@ function translator_uri(string $in): array|string|null
     return $uri;
 }
 
-function translator_page($in): string
+function translator_page(string $in): $string
 {
     $page = $in;
     if (strpos($page,"?")!==false) $page=substr($page,0,strpos($page,"?"));
@@ -102,13 +102,13 @@ function modulename_sanitize(string $in): array|string|null
 // the following function borrowed from mike-php at emerge2 dot com's post
 // to php.net documentation.
 //Original post is available here: http://us3.php.net/stripslashes
-function stripslashes_array( $given ) {
-   return is_array( $given ) ?
-       array_map( 'stripslashes_array', $given ) : stripslashes( $given );
+function stripslashes_array(array|string $given): array|string {
+   return is_array($given) ?
+       array_map('stripslashes_array', $given) : stripslashes($given);
 }
 
 // Handle spaces in character names
-function sanitize_name($spaceallowed, $inname)
+function sanitize_name(bool $spaceallowed, string $inname): string|null
 {
     if ($spaceallowed)
         $expr = "([^[:alpha:] _-])";
@@ -118,7 +118,7 @@ function sanitize_name($spaceallowed, $inname)
 }
 
 // Handle spaces and color in character names
-function sanitize_colorname($spaceallowed, $inname, $admin = false)
+function sanitize_colorname(bool $spaceallowed, string $inname, bool $admin = false): string|null
 {
     if ($admin && getsetting("allowoddadminrenames", 0)) return $inname;
     if ($spaceallowed)

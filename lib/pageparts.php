@@ -497,9 +497,9 @@ function popup_header($title="Legend of the Green Dragon"){
 
 	$arguments = func_get_args();
 	if (!$arguments || count($arguments) == 0) {
-		$arguments = array("Legend of the Green Dragon");
+		$arguments = ["Legend of the Green Dragon"];
 	}
-	$title = call_user_func_array("sprintf_translate", $arguments);
+	$title = sprintf_translate(...$arguments);
 	$title = holidayize($title,'title');
 
 	$header = $template['popuphead'];
@@ -705,7 +705,7 @@ function charstats(){
 					$val['name'] = "DEBUG: {$key}";
 				if (is_array($val['name'])) {
 					$val['name'][0] = str_replace("`%","`%%",$val['name'][0]);
-					$val['name']=call_user_func_array("sprintf_translate", $val['name']);
+					$val['name']=sprintf_translate(...$val['name']);
 				} else { //in case it's a string
 					$val['name']=translate_inline($val['name']);
 				}

@@ -41,10 +41,7 @@ function faqmute_dohook($hook, $args)
                 $args['mutemsg'] = translate_inline('`n`$You have to read the FAQ before you can post comments. You can find it in any town.`0`n');
                 break;
             case 'mailfunctions':
-                array_push(
-                    $args,
-                    ['petition.php?op=faq', 'Read the FAQ']
-                );
+                $args[] = ['petition.php?op=faq', 'Read the FAQ'];
                 if (httpget('op') == 'write') {
                     $session['message'] = '`$Unfortunately you need to read the FAQ before you can write mail.';
                     header('Location: mail.php');

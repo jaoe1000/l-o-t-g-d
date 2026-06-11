@@ -455,20 +455,23 @@ function racespecialtyreptile_dohook($hookname,$args){
 }
 
 function racespecialtyreptile_change() {
-	global $session;
-	$race="Reptile"; // ***CHANGE
-	$spec="PR"; // ***CHANGE
-	if (get_module_setting("wepchange")==1&&$session['user']['race']==$race&&$session['user']['specialty']==$spec) {
-		$nstr = "`%".racespecialtyreptile_namer("Y");
-		if (!ereg($nstr,$session['user']['weapon'],$whatevr)) {
-			$n = $nstr." ".$session['user']['weapon'];
-			if (strlen($n)<50) $session['user']['weapon']=$n;
-		}
-		if (!ereg($nstr,$session['user']['armor'],$whatevr)) {
-			$n = $nstr." ".$session['user']['armor'];
-			if (strlen($n)<50) $session['user']['armor']=$n;
-		}
-	}
+    global $session;
+    $race="Reptile"; // ***CHANGE
+    $spec="PR"; // ***CHANGE
+    if (get_module_setting("wepchange")==1 && ($session['user']['race'] ?? '') == $race && ($session['user']['specialty'] ?? '') == $spec) {
+        $nstr = "`%".racespecialtyreptile_namer("Y");
+        
+        // Use preg_match with delimiters (/) and preg_quote to safely escape the $nstr content
+        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['weapon'])) {
+            $n = $nstr." ".$session['user']['weapon'];
+            if (strlen($n) < 50) $session['user']['weapon'] = $n;
+        }
+        
+        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['armor'])) {
+            $n = $nstr." ".$session['user']['armor'];
+            if (strlen($n) < 50) $session['user']['armor'] = $n;
+        }
+    }
 }
 
 function racespecialtyreptile_checkcity(){

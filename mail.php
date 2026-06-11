@@ -44,11 +44,11 @@ $inbox = translate_inline("Inbox");
 $write = translate_inline("Write");
 
 // Build the initial args array
-$args = array();
-array_push($args, array("mail.php", $inbox));
-array_push($args, array("mail.php?op=address",$write));
+$args = [];
+$args[] = ["mail.php", $inbox];
+$args[] = ["mail.php?op=address", $write];
 // to use this hook,
-// just call array_push($args, array("pagename", "functionname"));,
+// just call $args[] = ["pagename", "functionname"];,
 // where "pagename" is the name of the page to forward the user to,
 // and "functionname" is the name of the mail function to add
 $mailfunctions = modulehook("mailfunctions", $args);
