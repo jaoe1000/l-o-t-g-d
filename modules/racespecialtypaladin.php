@@ -324,7 +324,7 @@ function racespecialtypaladin_dohook($hookname,$args){
 					"rounds"=>-1,
 					"schema"=>"module-racespecialtypaladin",
 					));
-					output("`n`!The Fate of the world lies in your hands! To achieve your destiny, you must first harness your powers!`0`n");
+					output("`n`!The fate of the world lies in your hands! To achieve your destiny, you must first harness your powers!`0`n");
 				} else {
 					$session['user']['hitpoints']+=$paladin_race_val;
 					$bonusturns=(int)$paladin_race_val/5;
@@ -433,16 +433,20 @@ function racespecialtypaladin_dohook($hookname,$args){
 		break;
 		case "setrace":
 			if ($session['user']['race']==$race){
-				output("`n`&As a `!paladin`&, you have the power of wizards and the strenght of a warrior running through your blood. `n");
+				// FIXED: "strenght" is now "strength", "is tied" is now "are tied"
+				output("`n`&As a `!paladin`&, you have the power of wizards and the strength of a warrior running through your blood. `n");
 				output("`^As such, you are held to a higher standard. Both mortals and gods expect more from you. ");
-				output("Your growth and bonuses as a `!paladin`& is tied directly to your morality.`n");
+				output("Your growth and bonuses as a `!paladin`& are tied directly to your morality.`n");
+				
 				if (is_module_active("cities")) {
 					if ($session['user']['dragonkills']==0 && $session['user']['age']==0){
 						set_module_setting("newest-$city", $session['user']['acctid'],"cities");
 					}
 					set_module_pref("homecity",$city,"cities");
-					if ($session['user']['age'] == 0)
-						$session['user']['location']=$city;
+					
+					// FIXED: Removed the age == 0 requirement. 
+					// You will now ALWAYS be teleported to the Paladin city upon choosing the race.
+					$session['user']['location']=$city; 
 				}
 			}
 		break;
