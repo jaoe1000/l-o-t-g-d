@@ -532,15 +532,15 @@ function racespecialtypaladin_dohook($hookname,$args){
 					
 					if ($session['user']['location']==$capital){
 						addnav("Safer Travel");
-						addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city");
+						addnav(array("%s?[NEW]Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city");
 					}elseif ($session['user']['location']!=$city){
 						addnav("More Dangerous Travel");
-						addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city&d=1");
+						addnav(array("%s?[NEW]Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city&d=1");
 					}
 					
 					if ($session['user']['superuser'] & SU_EDIT_USERS){
 						addnav("Superuser");
-						addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city&su=1");
+						addnav(array("%s?[NEW]Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city&su=1");
 					}
 					tlschema();
 				}
