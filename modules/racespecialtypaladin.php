@@ -18,7 +18,8 @@ function racespecialtypaladin_getmoduleinfo(){
 		"category"=>"Race Specialities",
 		"download"=>"", 
 		"settings"=>array(
-			"Paladin - Settings,title", 
+			"Paladin - Settings,title",
+			"use_custom_village"=>"Does this race have its own custom village?,bool|1", 
 			"villagename"=>"Name for the Paladin city,|LightHaven", 
 			"stableowner"=>"Name of the city stable-owner,|The Holy Hostler", 
 			"minedeathchance"=>"Chance for this race to die in the mine,range,0,100,1|25", 
@@ -168,10 +169,12 @@ function racespecialtypaladin_dohook($hookname,$args){
 					" SET location='" . $args['new'] .
 					"' WHERE location='" . $args['old'] . "'";
 				db_query($sql);
-				if (is_module_active("cities")) {
+				
+				$travel_mod = racespecialtypaladin_get_travel_mod();
+				if ($travel_mod !== false) {
 					$sql = "UPDATE " . db_prefix("module_userprefs") .
 						" SET value='" . $args['new'] .
-						"' WHERE modulename='cities' AND setting='homecity'" .
+						"' WHERE modulename='$travel_mod' AND setting='homecity'" .
 						"AND value='" . $args['old'] . "'";
 					db_query($sql);
 				}
@@ -292,10 +295,13 @@ function racespecialtypaladin_dohook($hookname,$args){
 			}
 		break;
 		case "moderate":
-			if (is_module_active("cities")) {
-				tlschema("commentary");
-				$args["village-$race"]=sprintf_translate("City of %s", $city); 
-				tlschema();
+			if (get_module_setting("use_custom_village")) {
+				$travel_mod = racespecialtypaladin_get_travel_mod();
+				if ($travel_mod !== false) {
+					tlschema("commentary");
+					$args["village-$race"]=sprintf_translate("City of %s", $city); 
+					tlschema();
+				}
 			}
 		break;
 		case "newday":
@@ -438,15 +444,18 @@ function racespecialtypaladin_dohook($hookname,$args){
 				output("`^As such, you are held to a higher standard. Both mortals and gods expect more from you. ");
 				output("Your growth and bonuses as a `!paladin`& are tied directly to your morality.`n");
 				
-				if (is_module_active("cities")) {
-					if ($session['user']['dragonkills']==0 && $session['user']['age']==0){
-						set_module_setting("newest-$city", $session['user']['acctid'],"cities");
+				if (get_module_setting("use_custom_village")) {
+					$travel_mod = racespecialtypaladin_get_travel_mod();
+					if ($travel_mod !== false) {
+						if ($session['user']['dragonkills']==0 && $session['user']['age']==0){
+							set_module_setting("newest-$city", $session['user']['acctid'],$travel_mod);
+						}
+						set_module_pref("homecity",$city,$travel_mod);
+						
+						// FIXED: Removed the age == 0 requirement. 
+						// You will now ALWAYS be teleported to the Paladin city upon choosing the race.
+						$session['user']['location']=$city; 
 					}
-					set_module_pref("homecity",$city,"cities");
-					
-					// FIXED: Removed the age == 0 requirement. 
-					// You will now ALWAYS be teleported to the Paladin city upon choosing the race.
-					$session['user']['location']=$city; 
 				}
 			}
 		break;
@@ -463,119 +472,143 @@ function racespecialtypaladin_dohook($hookname,$args){
 			}
 		break;
 		case "stablelocs":
-			tlschema("mounts");
-			$args[$city]=sprintf_translate("City of %s", $city); 
-			tlschema();
+			if (get_module_setting("use_custom_village")) {
+				tlschema("mounts");
+				$args[$city]=sprintf_translate("City of %s", $city); 
+				tlschema();
+			}
 		break;
 		case "stabletext":
-			if ($session['user']['location'] != $city) break;
-			$args['title'] = "The Holy Hostler";
-			$args['schemas']['title'] = "module-racespecialtypaladin";
-			$args['desc'] = "`\$You approach a magnificent stable of white marble. ".get_module_setting("stableowner")."`\$ welcomes you warmly.";
-			$args['schemas']['desc'] = "module-racespecialtypaladin";
-			$args['lad']="Sir";
-			$args['schemas']['lad'] = "module-racespecialtypaladin";
-			$args['lass']="Miss";
-			$args['schemas']['lass'] = "module-racespecialtypaladin";
-			$args['nosuchbeast']="`3\"`7I don't stock that creature.`3\", says ".get_module_setting("stableowner")."`3.";
-			$args['schemas']['nosuchbeast'] = "module-racespecialtypaladin";
-			$args['finebeast']=array(
-				"`3\"`7A fine steed for a holy warrior.`3\"`n`n",
-				"`3\"`7May this creature carry you to victory.`3\"`n`n",
-				);
-			$args['schemas']['finebeast'] = "module-racespecialtypaladin";
-			$args['toolittle']="`%I am sorry, but the church requires a larger donation for that.";
-			$args['schemas']['toolittle'] = "module-racespecialtypaladin";
-			$args['replacemount']="`%You leave your `^%s behind, mounting a glorious `&%s`%.";
-			$args['schemas']['replacemount'] = "module-racespecialtypaladin";
-			$args['newmount']="`@You accept the reins to your new `&%s`@.";
-			$args['schemas']['newmount'] = "module-racespecialtypaladin";
-			$args['nofeed']="`3\"`7We do not provide feed here.`3\"";
-			$args['schemas']['nofeed'] = "module-racespecialtypaladin";
-			$args['nothungry']="`&%s`6 refuses the food.";
-			$args['schemas']['nothungry'] = "module-racespecialtypaladin";
-			$args['halfhungry']="`&%s`6 eats gracefully, leaving half.";
-			$args['schemas']['halfhungry'] = "module-racespecialtypaladin";
-			$args['hungry']="`6%s`6 eats ravenously.";
-			$args['schemas']['hungry'] = "module-racespecialtypaladin";
-			$args['mountfull']="`n`6\"`^Your %s`^ is full now.`6\"";
-			$args['schemas']['mountfull'] = "module-racespecialtypaladin";
-			$args['nofeedgold']="`6\"`^You lack the funds for feed.`6\"";
-			$args['schemas']['nofeedgold'] = "module-racespecialtypaladin";
-			$args['confirmsale']="`n`n`6Are you sure you wish to part with your steed?";
-			$args['schemas']['confirmsale'] = "module-racespecialtypaladin";
-			$args['mountsold']="`6You hand the reins over.";
-			$args['schemas']['mountsold'] = "module-racespecialtypaladin";
-			$args['offer']="`n`n`6I can offer you `&%s`6 gold and `%%s`6 gems for %s`6.";
-			$args['schemas']['offer'] = "module-racespecialtypaladin";
+			if (get_module_setting("use_custom_village")) {
+				if ($session['user']['location'] != $city) break;
+				$args['title'] = "The Holy Hostler";
+				$args['schemas']['title'] = "module-racespecialtypaladin";
+				$args['desc'] = "`\$You approach a magnificent stable of white marble. ".get_module_setting("stableowner")."`\$ welcomes you warmly.";
+				$args['schemas']['desc'] = "module-racespecialtypaladin";
+				$args['lad']="Sir";
+				$args['schemas']['lad'] = "module-racespecialtypaladin";
+				$args['lass']="Miss";
+				$args['schemas']['lass'] = "module-racespecialtypaladin";
+				$args['nosuchbeast']="`3\"`7I don't stock that creature.`3\", says ".get_module_setting("stableowner")."`3.";
+				$args['schemas']['nosuchbeast'] = "module-racespecialtypaladin";
+				$args['finebeast']=array(
+					"`3\"`7A fine steed for a holy warrior.`3\"`n`n",
+					"`3\"`7May this creature carry you to victory.`3\"`n`n",
+					);
+				$args['schemas']['finebeast'] = "module-racespecialtypaladin";
+				$args['toolittle']="`%I am sorry, but the church requires a larger donation for that.";
+				$args['schemas']['toolittle'] = "module-racespecialtypaladin";
+				$args['replacemount']="`%You leave your `^%s behind, mounting a glorious `&%s`%.";
+				$args['schemas']['replacemount'] = "module-racespecialtypaladin";
+				$args['newmount']="`@You accept the reins to your new `&%s`@.";
+				$args['schemas']['newmount'] = "module-racespecialtypaladin";
+				$args['nofeed']="`3\"`7We do not provide feed here.`3\"";
+				$args['schemas']['nofeed'] = "module-racespecialtypaladin";
+				$args['nothungry']="`&%s`6 refuses the food.";
+				$args['schemas']['nothungry'] = "module-racespecialtypaladin";
+				$args['halfhungry']="`&%s`6 eats gracefully, leaving half.";
+				$args['schemas']['halfhungry'] = "module-racespecialtypaladin";
+				$args['hungry']="`6%s`6 eats ravenously.";
+				$args['schemas']['hungry'] = "module-racespecialtypaladin";
+				$args['mountfull']="`n`6\"`^Your %s`^ is full now.`6\"";
+				$args['schemas']['mountfull'] = "module-racespecialtypaladin";
+				$args['nofeedgold']="`6\"`^You lack the funds for feed.`6\"";
+				$args['schemas']['nofeedgold'] = "module-racespecialtypaladin";
+				$args['confirmsale']="`n`n`6Are you sure you wish to part with your steed?";
+				$args['schemas']['confirmsale'] = "module-racespecialtypaladin";
+				$args['mountsold']="`6You hand the reins over.";
+				$args['schemas']['mountsold'] = "module-racespecialtypaladin";
+				$args['offer']="`n`n`6I can offer you `&%s`6 gold and `%%s`6 gems for %s`6.";
+				$args['schemas']['offer'] = "module-racespecialtypaladin";
+			}
 		break;
 		case "travel":
-			$capital = getsetting("villagename", LOCATION_FIELDS);
-			$hotkey = substr($city, 0, 1);
-			tlschema("module-cities");
-			if ($session['user']['location']==$capital){
-				addnav("Safer Travel");
-				addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=cities&op=travel&city=$city");
-			}elseif ($session['user']['location']!=$city){
-				addnav("More Dangerous Travel");
-				addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=cities&op=travel&city=$city&d=1");
+			if (get_module_setting("use_custom_village")) {
+				$travel_mod = racespecialtypaladin_get_travel_mod();
+				if ($travel_mod !== false) {
+					$capital = getsetting("villagename", LOCATION_FIELDS);
+					$hotkey = substr($city, 0, 1);
+					tlschema("module-".$travel_mod);
+					
+					if ($session['user']['location']==$capital){
+						addnav("Safer Travel");
+						addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city");
+					}elseif ($session['user']['location']!=$city){
+						addnav("More Dangerous Travel");
+						addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city&d=1");
+					}
+					
+					if ($session['user']['superuser'] & SU_EDIT_USERS){
+						addnav("Superuser");
+						addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city&su=1");
+					}
+					tlschema();
+				}
 			}
-			if ($session['user']['superuser'] & SU_EDIT_USERS){
-				addnav("Superuser");
-				addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=cities&op=travel&city=$city&su=1");
-			}
-			tlschema();
 		break;	
 		case "validlocation":
-			if (is_module_active("cities"))
-				$args[$city]="village-$race";
+			if (get_module_setting("use_custom_village")) {
+				$travel_mod = racespecialtypaladin_get_travel_mod();
+				if ($travel_mod !== false) {
+					$args[$city]="village-$race";
+				}
+			}
 		break;
 		case "villagetext":
-			racespecialtypaladin_checkcity();
-			if ($session['user']['location'] == $city){
-				$args['text']=array("`!`b`c%s, Home of the Paladins`c`b`n`!The sun shines brightly on this Heroic yet rather small village. %s is an ancient town built by the Gods themselves to ensure the safety and fate of the Paladins.`n", $city, $city);
-				$args['schemas']['text'] = "module-racespecialtypaladin";
-				$args['clock']="`n`6One of the tiny kids softly whispers in your ear that it is`^%s`6 before disappearing in a blue light`n";
-				$args['schemas']['clock'] = "module-racespecialtypaladin";
-				if (is_module_active("calendar")) {
-					$args['calendar']="`n`6Another kid gently whispers in your ear, \"`^Today is `&%3\$s %2\$s`^, `&%4\$s`^.  It is `&%1\$s`^.`6\"`n";
-					$args['schemas']['calendar'] = "module-racespecialtypaladin";
+			if (get_module_setting("use_custom_village")) {
+				racespecialtypaladin_checkcity();
+				if ($session['user']['location'] == $city){
+					$args['text']=array("`!`b`c%s, Home of the Paladins`c`b`n`!The sun shines brightly on this Heroic yet rather small village. %s is an ancient town built by the Gods themselves to ensure the safety and fate of the Paladins.`n", $city, $city);
+					$args['schemas']['text'] = "module-racespecialtypaladin";
+					$args['clock']="`n`6One of the tiny kids softly whispers in your ear that it is`^%s`6 before disappearing in a blue light`n";
+					$args['schemas']['clock'] = "module-racespecialtypaladin";
+					if (is_module_active("calendar")) {
+						$args['calendar']="`n`6Another kid gently whispers in your ear, \"`^Today is `&%3\$s %2\$s`^, `&%4\$s`^.  It is `&%1\$s`^.`6\"`n";
+						$args['schemas']['calendar'] = "module-racespecialtypaladin";
+					}
+					$args['title']=array("%s City", $city);
+					$args['schemas']['title'] = "module-racespecialtypaladin";
+					$args['sayline']="announces";
+					$args['schemas']['sayline'] = "module-racespecialtypaladin";
+					$args['talk']="`n`&The word on the block is:`n";
+					$args['schemas']['talk'] = "module-racespecialtypaladin";
+					
+					$travel_mod = racespecialtypaladin_get_travel_mod();
+					if ($travel_mod !== false) {
+						$new = get_module_setting("newest-$city", $travel_mod);
+					} else {
+						$new = 0;
+					}
+					
+					if ($new != 0) {
+						$sql =  "SELECT name FROM " . db_prefix("accounts") . " WHERE acctid='$new'";
+						$result = db_query_cached($sql, "newest-$city");
+						$row = db_fetch_assoc($result);
+						$args['newestplayer'] = $row['name'];
+						$args['newestid']=$new;
+					} else {
+						$args['newestplayer'] = $new;
+						$args['newestid']="";
+					}
+					if ($new == $session['user']['acctid']) {
+						$args['newest']="`n`6Even with the potential for greatness, you are a human none the less being released in a cruel world.";
+					} else {
+						$args['newest']="`n`#Looking at all the towering `!Godly`# buildings, and distracted is `^%s`#.";
+					}
+					$args['schemas']['newest'] = "module-racespecialtypaladin";
+					$args['section']="village-$race";
+					$args['stablename']="The Holy Hostler";
+					$args['schemas']['stablename'] = "module-racespecialtypaladin";
+					$args['gatenav']="The Heavenly Gates";
+					$args['schemas']['gatenav'] = "module-racespecialtypaladin";
+					$args['fightnav']="Hall of Heroes";
+					$args['schemas']['fightnav'] = "module-racespecialtypaladin";
+					$args['marketnav']="The Pub";
+					$args['schemas']['marketnav'] = "module-racespecialtypaladin";
+					$args['tavernnav']="Ambrosia and Ale";
+					$args['schemas']['tavernnav'] = "module-racespecialtypaladin";
+					unblocknav("stables.php");
 				}
-				$args['title']=array("%s City", $city);
-				$args['schemas']['title'] = "module-racespecialtypaladin";
-				$args['sayline']="announces";
-				$args['schemas']['sayline'] = "module-racespecialtypaladin";
-				$args['talk']="`n`&The word on the block is:`n";
-				$args['schemas']['talk'] = "module-racespecialtypaladin";
-				$new = get_module_setting("newest-$city", "cities");
-				if ($new != 0) {
-					$sql =  "SELECT name FROM " . db_prefix("accounts") . " WHERE acctid='$new'";
-					$result = db_query_cached($sql, "newest-$city");
-					$row = db_fetch_assoc($result);
-					$args['newestplayer'] = $row['name'];
-					$args['newestid']=$new;
-				} else {
-					$args['newestplayer'] = $new;
-					$args['newestid']="";
-				}
-				if ($new == $session['user']['acctid']) {
-					$args['newest']="`n`6Even with the potential for greatness, you are a human none the less being released in a cruel world.";
-				} else {
-					$args['newest']="`n`#Looking at all the towering `!Godly`# buildings, and distracted is `^%s`#.";
-				}
-				$args['schemas']['newest'] = "module-racespecialtypaladin";
-				$args['section']="village-$race";
-				$args['stablename']="The Holy Hostler";
-				$args['schemas']['stablename'] = "module-racespecialtypaladin";
-				$args['gatenav']="The Heavenly Gates";
-				$args['schemas']['gatenav'] = "module-racespecialtypaladin";
-				$args['fightnav']="Hall of Heroes";
-				$args['schemas']['fightnav'] = "module-racespecialtypaladin";
-				$args['marketnav']="The Pub";
-				$args['schemas']['marketnav'] = "module-racespecialtypaladin";
-				$args['tavernnav']="Ambrosia and Ale";
-				$args['schemas']['tavernnav'] = "module-racespecialtypaladin";
-				unblocknav("stables.php");
 			}
 		break;
 	}
@@ -607,14 +640,22 @@ function racespecialtypaladin_checkcity(){
 	$race="Paladin"; 
 	$spec="PL"; 
 	$city=get_module_setting("villagename");
+	
 	if (get_module_pref("subclass")!=0&&$session['user']['specialty']!=$spec) {
 		set_module_pref("subclass",0);
 	}
-	if ($session['user']['race']==$race && is_module_active("cities")){
-		if (get_module_pref("homecity","cities")!=$city){ 
-			set_module_pref("homecity",$city,"cities");
+	
+	if (get_module_setting("use_custom_village")) {
+		if ($session['user']['race']==$race) {
+			$travel_mod = racespecialtypaladin_get_travel_mod();
+			if ($travel_mod !== false) {
+				if (get_module_pref("homecity", $travel_mod) != $city) { 
+					set_module_pref("homecity", $city, $travel_mod);
+				}
+			}
 		}
 	}
+	
 	if ($session['user']['race']!=$race && $session['user']['specialty']==$spec) {
 		$session['user']['specialty']="";
 		set_module_pref("newdayset",1);
@@ -695,5 +736,19 @@ function racespecialtypaladin_namer($type='X') {
 	} else {
 		return $class[get_module_pref("subclass")] ?? '';
 	}
+}
+
+function racespecialtypaladin_get_travel_mod() {
+    // Check for the most common travel modules in order of likelihood/preference
+    if (is_module_active("villages")) {
+        return "villages";
+    } elseif (is_module_active("cities")) {
+        return "cities";
+    } elseif (is_module_active("multi-towns")) { // Future-proofing for other forks
+        return "multi-towns";
+    }
+    
+    // Return false if no travel module is currently running
+    return false;
 }
 ?>
