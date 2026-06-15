@@ -138,7 +138,7 @@ function villageCreator_dohook(string $hookName, array $args)
 
            // Block/unblock modules
 			$row = getVillageData($session['user']['location']);
-			if (!$row || !is_array($row)) {
+			if (empty($row) || !isset($row['block_mods'])) {
 				break; // Let the Master Template handle its own towns!
 			}
 			$row['block_mods'] = @unserialize($row['block_mods']);
@@ -175,7 +175,7 @@ function villageCreator_dohook(string $hookName, array $args)
 
         case 'header-village':
             $row = getVillageData($session['user']['location']);
-            if (!$row || !is_array($row)) {
+            if (empty($row) || !isset($row['block_navs'])) {
 				break; // Let the Master Template handle its own towns!
 			}
             // Block navs.
