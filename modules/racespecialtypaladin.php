@@ -604,8 +604,31 @@ function racespecialtypaladin_dohook($hookname,$args){
 					
 					// Change the specific link text for the stables
 					$args['navs']['stables'] = "The Holy Hostler";
-					
+
 					unblocknav("stables.php");
+					// --- BLOCKING UNWANTED LOCATIONS ---
+					blocknav("gypsy.php"); // Banishes Ze Gypsy Tent
+					blocknav("lodge.php"); // Banishes JCP's Hunter Lodge
+					blocknav("mercenarycamp.php"); // No shady mercenaries
+					blocknav("clan.php"); // No standard clan halls
+					blocknav("pvp.php"); 
+					// blocknav("inn.php"); // Uncomment this if you want to banish the Inn entirely!
+
+					// --- FLAVORING THE GATES ---
+					$args['navs']['forest'] = "Patrol the Holy Lands";
+					$args['navs']['logout'] = "Retire to the Sanctuary (Log Out)";
+					
+					// --- FLAVORING THE FIGHT NAVS ---
+					$args['navs']['train'] = "Divine Combat Training";
+					
+					// --- FLAVORING THE MARKET ---
+					$args['navs']['weapons'] = "The Holy Armory";
+					$args['navs']['armor'] = "Blessed Vestments & Mail";
+					$args['navs']['bank'] = "The Church Vaults"; 
+					
+					// --- FLAVORING THE TAVERN ---
+					// If you decide not to block the Inn, let's at least make it sound holy
+					$args['navs']['inn'] = "The Righteous Rest Inn";
 				}
 			}
 		break;
