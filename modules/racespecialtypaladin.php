@@ -593,42 +593,32 @@ function racespecialtypaladin_dohook($hookname,$args){
 					$args['schemas']['new_character_is_user'] = "module-racespecialtypaladin";
 					$args['schemas']['new_character'] = "module-racespecialtypaladin";
 					
-					// 6. MODERN MAPPING: Navigation Headers and Links
+					// 6. MODERN MAPPING: Navigation Headers
 					if (!isset($args['nav_headers'])) $args['nav_headers'] = [];
 					if (!isset($args['navs'])) $args['navs'] = [];
 					
 					$args['nav_headers']['gate'] = "The Heavenly Gates";
 					$args['nav_headers']['fight'] = "Hall of Heroes";
-					$args['nav_headers']['market'] = "The Pub";
-					$args['nav_headers']['tavern'] = "Ambrosia and Ale";
 					
-					// Change the specific link text for the stables
+					// Change the specific link text for the stables and forest
 					$args['navs']['stables'] = "The Holy Hostler";
-
-					unblocknav("stables.php");
-					// --- BLOCKING UNWANTED LOCATIONS ---
-					blocknav("gypsy.php"); // Banishes Ze Gypsy Tent
-					blocknav("lodge.php"); // Banishes JCP's Hunter Lodge
-					blocknav("mercenarycamp.php"); // No shady mercenaries
-					blocknav("clan.php"); // No standard clan halls
-					blocknav("pvp.php"); 
-					// blocknav("inn.php"); // Uncomment this if you want to banish the Inn entirely!
-
-					// --- FLAVORING THE GATES ---
 					$args['navs']['forest'] = "Patrol the Holy Lands";
+					$args['navs']['train'] = "Divine Combat Training";
 					$args['navs']['logout'] = "Retire to the Sanctuary (Log Out)";
 					
-					// --- FLAVORING THE FIGHT NAVS ---
-					$args['navs']['train'] = "Divine Combat Training";
-					
-					// --- FLAVORING THE MARKET ---
-					$args['navs']['weapons'] = "The Holy Armory";
-					$args['navs']['armor'] = "Blessed Vestments & Mail";
-					$args['navs']['bank'] = "The Church Vaults"; 
-					
-					// --- FLAVORING THE TAVERN ---
-					// If you decide not to block the Inn, let's at least make it sound holy
-					$args['navs']['inn'] = "The Righteous Rest Inn";
+					unblocknav("stables.php");
+
+					// --- THE SANCTUARY PURGE ---
+					// Banish everything that doesn't belong in a Holy Order's sanctuary.
+					// This forces players to travel to the capital for commerce and gossip!
+					blocknav("weapons.php"); 
+					blocknav("armor.php"); 
+					blocknav("inn.php"); 
+					blocknav("bank.php"); 
+					blocknav("gypsy.php"); 
+					blocknav("lodge.php"); 
+					blocknav("mercenarycamp.php"); 
+					blocknav("clan.php");
 				}
 			}
 		break;
