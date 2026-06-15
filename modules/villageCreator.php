@@ -136,9 +136,12 @@ function villageCreator_dohook(string $hookName, array $args)
                 break;
             }
 
-            // Block/unblock modules
-            $row = getVillageData($session['user']['location']);
-            $row['block_mods'] = @unserialize($row['block_mods']);
+           // Block/unblock modules
+			$row = getVillageData($session['user']['location']);
+			if (!$row || !is_array($row)) {
+				break; // Let the Master Template handle its own towns!
+			}
+			$row['block_mods'] = @unserialize($row['block_mods']);
 
             if (!is_array($row['block_mods'])) {
                 break;
@@ -172,6 +175,9 @@ function villageCreator_dohook(string $hookName, array $args)
 
         case 'header-village':
             $row = getVillageData($session['user']['location']);
+            if (!$row || !is_array($row)) {
+				break; // Let the Master Template handle its own towns!
+			}
             // Block navs.
             if (!isset($row['block_navs'])) {
                 break;
@@ -280,14 +286,14 @@ function villageCreator_dohook(string $hookName, array $args)
                 $hotkey = substr(sanitize($name), 0, 1);
                 
                 $prereq = modulehook('village-prerequisite', [
-                    'current_id' => $village['id'],
-                    'current_name' => $village['name'],
-                    'id' => $row['id'],
-                    'name' => $row['name'],
-                    'travel' => $row['travel'],
-                    'blocked' => false
-                ]);
-
+					'current_id' => $village['id'] ?? 0,
+					'current_name' => $village['name'] ?? $session['user']['location'],
+					'id' => $row['id'],
+					'name' => $row['name'],
+					'travel' => $row['travel'],
+					'blocked' => false
+				]);
+                
                 if ($prereq['blocked'] == 0) {
                     if ($prereq['travel'] == 0) {
                         addnav('village_creator.nav_headers.travel_safe');
