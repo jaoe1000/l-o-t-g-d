@@ -561,16 +561,23 @@ function racespecialtypaladin_dohook($hookname,$args){
 			if (get_module_setting("use_custom_village")) {
 				racespecialtypaladin_checkcity();
 				if ($session['user']['location'] == $city){
-					$args['text']=array("`!`b`c%s, Home of the Paladins`c`b`n`!The sun shines brightly on this Heroic yet rather small village. %s is an ancient town built by the Gods themselves to ensure the safety and fate of the Paladins.`n", $city, $city);
+					
+					// PHP 8.4 FIX: Explicitly format these strings using sprintf instead of passing raw arrays
+					$args['text'] = sprintf("`!`b`c%s, Home of the Paladins`c`b`n`!The sun shines brightly on this Heroic yet rather small village. %s is an ancient town built by the Gods themselves to ensure the safety and fate of the Paladins.`n", $city, $city);
 					$args['schemas']['text'] = "module-racespecialtypaladin";
+					
 					$args['clock']="`n`6One of the tiny kids softly whispers in your ear that it is`^%s`6 before disappearing in a blue light`n";
 					$args['schemas']['clock'] = "module-racespecialtypaladin";
+					
 					if (is_module_active("calendar")) {
 						$args['calendar']="`n`6Another kid gently whispers in your ear, \"`^Today is `&%3\$s %2\$s`^, `&%4\$s`^.  It is `&%1\$s`^.`6\"`n";
 						$args['schemas']['calendar'] = "module-racespecialtypaladin";
 					}
-					$args['title']=array("%s City", $city);
+					
+					// PHP 8.4 FIX: Formatted the title to be a strict string
+					$args['title'] = sprintf("%s City", $city);
 					$args['schemas']['title'] = "module-racespecialtypaladin";
+					
 					$args['sayline']="announces";
 					$args['schemas']['sayline'] = "module-racespecialtypaladin";
 					$args['talk']="`n`&The word on the block is:`n";
@@ -586,19 +593,26 @@ function racespecialtypaladin_dohook($hookname,$args){
 					if ($new != 0) {
 						$sql =  "SELECT name FROM " . db_prefix("accounts") . " WHERE acctid='$new'";
 						$result = db_query_cached($sql, "newest-$city");
-						$row = db_fetch_assoc($result);
-						$args['newestplayer'] = $row['name'];
+						if ($result && db_num_rows($result) > 0) {
+							$row = db_fetch_assoc($result);
+							$args['newestplayer'] = $row['name'];
+						} else {
+							$args['newestplayer'] = "Unknown";
+						}
 						$args['newestid']=$new;
 					} else {
-						$args['newestplayer'] = $new;
+						$args['newestplayer'] = "No one";
 						$args['newestid']="";
 					}
+					
+					// PHP 8.4 FIX: Formatted the newest player string
 					if ($new == $session['user']['acctid']) {
 						$args['newest']="`n`6Even with the potential for greatness, you are a human none the less being released in a cruel world.";
 					} else {
-						$args['newest']="`n`#Looking at all the towering `!Godly`# buildings, and distracted is `^%s`#.";
+						$args['newest'] = sprintf("`n`#Looking at all the towering `!Godly`# buildings, and distracted is `^%s`#.", $args['newestplayer']);
 					}
 					$args['schemas']['newest'] = "module-racespecialtypaladin";
+					
 					$args['section']="village-$race";
 					$args['stablename']="The Holy Hostler";
 					$args['schemas']['stablename'] = "module-racespecialtypaladin";
