@@ -318,59 +318,64 @@ function racespecialtypaladin_dohook($hookname,$args){
 					$al = function_exists('get_align') ? get_align() : 0; 
 				}
 				
-				$paladin_race_val = ($al+50);
-				$paladin_spec_val = ($al-49);
+				// --- THE FALL FROM GRACE ---
+				if ($al < 0){
+					// Strip Race and Specialty instantly
+					$session['user']['race'] = RACE_UNKNOWN;
+					if ($session['user']['specialty'] == $spec) {
+						$session['user']['specialty'] = "";
+						set_module_pref("uses", 0);
+						set_module_pref("skill", 0);
+						set_module_pref("class", "");
+						set_module_pref("subclass", "");
+					}
+					
+					output("`n`\$`bYOUR GOD HAS FORSAKEN YOU!`b`n");
+					output("`4Your evil actions have severed your connection to the divine. You awake stripped of your Paladin status and all holy powers!`0`n`n");
+					break; // Exit the hook immediately. No buffs or bonuses for the wicked!
+				}
 
-				// Race Bonuses
-				if ($paladin_race_val <= 0){
+				// --- RACE BONUSES (GOOD/NEUTRAL) ---
+				// Cap the insane legacy math! Max +25 HP, Max +3 Turns.
+				$extra_hp = min(25, max(1, floor($al / 10))); 
+				$extra_turns = min(3, max(1, floor($al / 25)));
+				
+				$session['user']['hitpoints'] += $extra_hp;
+				$session['user']['turns'] += $extra_turns;
+				
+				output("`n`&For being a heroic `!Being`&, you receive %s extra hit points, and %s extra forest fights!`n", $extra_hp, $extra_turns);
+				
+				// Vaporize Buff for highly aligned players (50+)
+				if ($al >= 50){
 					apply_buff("racialbenefit",array(
-					"name"=>"`!Ancestry`0",
-					"atkmod"=>"(+1*(<attack>?(2+((1+floor(<level>/5))/<attack>)):0))",
-					"allowinpvp"=>1,
-					"allowintrain"=>1,
-					"rounds"=>-1,
-					"schema"=>"module-racespecialtypaladin",
-					));
-					output("`n`!The fate of the world lies in your hands! To achieve your destiny, you must first harness your powers!`0`n");
-				} else {
-					$session['user']['hitpoints']+=$paladin_race_val;
-					$bonusturns=(int)$paladin_race_val/5;
-					$session['user']['turns']+=$bonusturns;
-					output("`n`&For being a rather heroic `!Being`&, you receive %s extra hit points, and %s extra forest fights!`n", $paladin_race_val, $bonusturns);
-					if ($paladin_race_val==30){
-						apply_buff("racialbenefit",array(
 						"name"=>"`!Vaporize`0",
 						"atkmod"=>"(<attack>?(5+((1+floor(<level>/5))/<attack>)):0)",
 						"allowinpvp"=>1,
 						"allowintrain"=>1,
 						"rounds"=>-1,
 						"schema"=>"module-racespecialtypaladin",
-						));
-						output("`n`&For being the hero, you receive an additional blessing of `!Godly Strength!`0`n");
-					}
+					));
+					output("`n`&For being a true champion of light, you receive an additional blessing of `!Godly Strength!`0`n");
 				}
 				
-				// Specialty Bonuses
+				// --- SPECIALTY BONUSES (BALANCED) ---
 				if($session['user']['specialty'] == $spec) {
-					if($paladin_spec_val > 0) {
-						$bonus = getsetting("specialtybonus", 1);
-						if ($bonus == 1) {
-							output("`n`2For being interested in %s%s`2, you receive `^1`2 extra `&%s%s`2 use for today.`n",$ccode,$name,$ccode,$name);
-						} else {
-							output("`n`2For being interested in %s%s`2, you receive `^%s`2 extra `&%s%s`2 uses for today.`n",$ccode,$name,$bonus,$ccode,$name);
-						}
-						$amt = (int)(get_module_pref("skill") / 3);
-						$paladinbonus = (int)($paladin_spec_val / 10);
-						if($paladinbonus > 0) {
-							output("`n`2For being such a noble creature, you receive `^1`2 extra `&%s%s`2 use for today.`n",$ccode,$name);
-							$amt += $paladinbonus;
-						}
-						$amt++;
-						set_module_pref("uses", $amt);
+					// Baseline Uses: Standard LotGD formula (1 base + 1 per 3 skill points)
+					$bonus = getsetting("specialtybonus", 1);
+					$amt = $bonus + (int)(get_module_pref("skill") / 3);
+					
+					// Alignment Modifiers
+					if ($al >= 50) {
+						// Reward High Alignment (Scale reasonably)
+						$paladinbonus = (int)($al / 20); 
+						$amt += $paladinbonus;
+						output("`n`2Your deep righteousness blesses you with `^%s`2 extra `&%s%s`2 uses for today.`n", $paladinbonus, $ccode, $name);
 					} else {
-						output("`n`2Your power stems from righteousness which you lack so, you receive no `&%s%s`2 uses for today.`n",$ccode,$name);
-						set_module_pref("uses", 0);
+						// Neutral Alignment
+						output("`n`2You maintain your faith, receiving your standard `&%s%s`2 uses for today.`n", $ccode, $name);
 					}
+					
+					set_module_pref("uses", $amt);
 				}
 			}
 		break;
@@ -624,10 +629,14 @@ function racespecialtypaladin_dohook($hookname,$args){
 			}
 		break;
 		case "everyhit":
-			if ($session['user']['race'] == $race || $session['user']['specialty'] == $spec) {
+			// PHP 8.4 FIX: Safely assign these variables so pre-login pages don't crash
+			$userRace = $session['user']['race'] ?? '';
+			$userSpec = $session['user']['specialty'] ?? '';
+			
+			if ($userRace == $race || $userSpec == $spec) {
 				
 				// 1. THE AUTO-REPAIR: Fix routing variables if the Admin editor wiped them
-				if ($session['user']['specialty'] == $spec) {
+				if ($userSpec == $spec) {
 					if (get_module_pref("class") != "magic") set_module_pref("class", "magic");
 					if (get_module_pref("subclass") != "1") set_module_pref("subclass", "1");
 				}
@@ -638,8 +647,8 @@ function racespecialtypaladin_dohook($hookname,$args){
 					$al = function_exists('get_align') ? get_align() : 0;
 					
 					if ($al < 0) {
-						if ($session['user']['race'] == $race) $session['user']['race'] = RACE_UNKNOWN;
-						if ($session['user']['specialty'] == $spec) $session['user']['specialty'] = "";
+						if ($userRace == $race) $session['user']['race'] = RACE_UNKNOWN;
+						if ($userSpec == $spec) $session['user']['specialty'] = "";
 						
 						set_module_pref("uses", 0);
 						set_module_pref("skill", 0);
