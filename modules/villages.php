@@ -343,9 +343,6 @@ function villages_run()
                     "$continueTravelUri&"
                 );
 				if ($travelEvent != 0) {
-					if (is_array($vtext['title'])) {
-    					die("<pre>CRASH INTERCEPTED. Title contains: " . print_r($vtext['title'], true) . "</pre>");
-					}
 					page_header('villages.headers.event');
 					if (checknavs()) {
 						page_footer();
