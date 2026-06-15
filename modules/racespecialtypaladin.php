@@ -72,6 +72,7 @@ function racespecialtypaladin_install(){
 	module_addhook("dragonkill");
 	module_addhook("newday-intercept");
 	module_addhook("pointsdesc");
+	module_addhook("everyhit");
 	
 	// Unique Paladin Hooks
 	module_addhook("castlelib");
@@ -619,6 +620,35 @@ function racespecialtypaladin_dohook($hookname,$args){
 					blocknav("lodge.php"); 
 					blocknav("mercenarycamp.php"); 
 					blocknav("clan.php");
+				}
+			}
+		break;
+		case "everyhit":
+			if ($session['user']['race'] == $race || $session['user']['specialty'] == $spec) {
+				
+				// 1. THE AUTO-REPAIR: Fix routing variables if the Admin editor wiped them
+				if ($session['user']['specialty'] == $spec) {
+					if (get_module_pref("class") != "magic") set_module_pref("class", "magic");
+					if (get_module_pref("subclass") != "1") set_module_pref("subclass", "1");
+				}
+				
+				// 2. THE FALL FROM GRACE: Instantly strip the player if they turn evil
+				if (is_module_active('alignment')) {
+					@require_once('modules/alignment.php');
+					$al = function_exists('get_align') ? get_align() : 0;
+					
+					if ($al < 0) {
+						if ($session['user']['race'] == $race) $session['user']['race'] = RACE_UNKNOWN;
+						if ($session['user']['specialty'] == $spec) $session['user']['specialty'] = "";
+						
+						set_module_pref("uses", 0);
+						set_module_pref("skill", 0);
+						set_module_pref("class", "");
+						set_module_pref("subclass", "");
+						
+						output("`n`\$`bYOUR GOD HAS FORSAKEN YOU!`b`n");
+						output("`4Your evil actions have severed your connection to the divine. You have been stripped of your Paladin status and all holy powers!`0`n`n");
+					}
 				}
 			}
 		break;
