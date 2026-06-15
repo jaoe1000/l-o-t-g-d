@@ -562,68 +562,49 @@ function racespecialtypaladin_dohook($hookname,$args){
 				racespecialtypaladin_checkcity();
 				if ($session['user']['location'] == $city){
 					
-					// PHP 8.4 FIX: Explicitly format these strings using sprintf instead of passing raw arrays
-					$args['text'] = sprintf("`!`b`c%s, Home of the Paladins`c`b`n`!The sun shines brightly on this Heroic yet rather small village. %s is an ancient town built by the Gods themselves to ensure the safety and fate of the Paladins.`n", $city, $city);
-					$args['schemas']['text'] = "module-racespecialtypaladin";
+					// 1. THE CRASH FIX: Format the title as a flat string
+					$args['title'] = sprintf("%s City", $city);
+					$args['schemas']['title'] = "module-racespecialtypaladin";
 					
+					// 2. MODERN MAPPING: 'text' is now 'description'
+					$args['description'] = sprintf("`!`b`c%s, Home of the Paladins`c`b`n`!The sun shines brightly on this Heroic yet rather small village. %s is an ancient town built by the Gods themselves to ensure the safety and fate of the Paladins.`n", $city, $city);
+					$args['schemas']['description'] = "module-racespecialtypaladin";
+					
+					// 3. TIME AND DATES
 					$args['clock']="`n`6One of the tiny kids softly whispers in your ear that it is`^%s`6 before disappearing in a blue light`n";
 					$args['schemas']['clock'] = "module-racespecialtypaladin";
-					
 					if (is_module_active("calendar")) {
 						$args['calendar']="`n`6Another kid gently whispers in your ear, \"`^Today is `&%3\$s %2\$s`^, `&%4\$s`^.  It is `&%1\$s`^.`6\"`n";
 						$args['schemas']['calendar'] = "module-racespecialtypaladin";
 					}
 					
-					// PHP 8.4 FIX: Formatted the title to be a strict string
-					$args['title'] = sprintf("%s City", $city);
-					$args['schemas']['title'] = "module-racespecialtypaladin";
-					
-					$args['sayline']="announces";
-					$args['schemas']['sayline'] = "module-racespecialtypaladin";
+					// 4. MODERN MAPPING: Commentary section
 					$args['talk']="`n`&The word on the block is:`n";
 					$args['schemas']['talk'] = "module-racespecialtypaladin";
 					
-					$travel_mod = racespecialtypaladin_get_travel_mod();
-					if ($travel_mod !== false) {
-						$new = get_module_setting("newest-$city", $travel_mod);
-					} else {
-						$new = 0;
-					}
+					if (!isset($args['commentary'])) $args['commentary'] = [];
+					$args['commentary']['says'] = "announces";
+					$args['commentary']['section'] = "village-$race";
 					
-					if ($new != 0) {
-						$sql =  "SELECT name FROM " . db_prefix("accounts") . " WHERE acctid='$new'";
-						$result = db_query_cached($sql, "newest-$city");
-						if ($result && db_num_rows($result) > 0) {
-							$row = db_fetch_assoc($result);
-							$args['newestplayer'] = $row['name'];
-						} else {
-							$args['newestplayer'] = "Unknown";
-						}
-						$args['newestid']=$new;
-					} else {
-						$args['newestplayer'] = "No one";
-						$args['newestid']="";
-					}
+					// 5. MODERN MAPPING: Newest Player strings
+					// The modern engine queries the DB itself, we just provide the text templates
+					$args['new_character_is_user'] = "`n`6Even with the potential for greatness, you are a human none the less being released in a cruel world.";
+					$args['new_character'] = "`n`#Looking at all the towering `!Godly`# buildings, and distracted is `^%s`#.";
+					$args['schemas']['new_character_is_user'] = "module-racespecialtypaladin";
+					$args['schemas']['new_character'] = "module-racespecialtypaladin";
 					
-					// PHP 8.4 FIX: Formatted the newest player string
-					if ($new == $session['user']['acctid']) {
-						$args['newest']="`n`6Even with the potential for greatness, you are a human none the less being released in a cruel world.";
-					} else {
-						$args['newest'] = sprintf("`n`#Looking at all the towering `!Godly`# buildings, and distracted is `^%s`#.", $args['newestplayer']);
-					}
-					$args['schemas']['newest'] = "module-racespecialtypaladin";
+					// 6. MODERN MAPPING: Navigation Headers and Links
+					if (!isset($args['nav_headers'])) $args['nav_headers'] = [];
+					if (!isset($args['navs'])) $args['navs'] = [];
 					
-					$args['section']="village-$race";
-					$args['stablename']="The Holy Hostler";
-					$args['schemas']['stablename'] = "module-racespecialtypaladin";
-					$args['gatenav']="The Heavenly Gates";
-					$args['schemas']['gatenav'] = "module-racespecialtypaladin";
-					$args['fightnav']="Hall of Heroes";
-					$args['schemas']['fightnav'] = "module-racespecialtypaladin";
-					$args['marketnav']="The Pub";
-					$args['schemas']['marketnav'] = "module-racespecialtypaladin";
-					$args['tavernnav']="Ambrosia and Ale";
-					$args['schemas']['tavernnav'] = "module-racespecialtypaladin";
+					$args['nav_headers']['gate'] = "The Heavenly Gates";
+					$args['nav_headers']['fight'] = "Hall of Heroes";
+					$args['nav_headers']['market'] = "The Pub";
+					$args['nav_headers']['tavern'] = "Ambrosia and Ale";
+					
+					// Change the specific link text for the stables
+					$args['navs']['stables'] = "The Holy Hostler";
+					
 					unblocknav("stables.php");
 				}
 			}
