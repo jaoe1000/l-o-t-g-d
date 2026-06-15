@@ -530,22 +530,25 @@ function racespecialtypaladin_dohook($hookname,$args){
 					$hotkey = substr($city, 0, 1);
 					tlschema("module-".$travel_mod);
 					
+					// FIXED: Dynamically match the URL parameter to the travel module's specific syntax
+					$param = ($travel_mod == "villages") ? "village" : "city";
+					
 					if ($session['user']['location']==$capital){
 						addnav("Safer Travel");
-						addnav(array("%s?[NEW]Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city");
+						addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&$param=$city");
 					}elseif ($session['user']['location']!=$city){
 						addnav("More Dangerous Travel");
-						addnav(array("%s?[NEW]Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city&d=1");
+						addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&$param=$city&d=1");
 					}
 					
 					if ($session['user']['superuser'] & SU_EDIT_USERS){
 						addnav("Superuser");
-						addnav(array("%s?[NEW]Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&city=$city&su=1");
+						addnav(array("%s?Go to %s", $hotkey, $city),"runmodule.php?module=$travel_mod&op=travel&$param=$city&su=1");
 					}
 					tlschema();
 				}
 			}
-		break;	
+		break;
 		case "validlocation":
 			if (get_module_setting("use_custom_village")) {
 				$travel_mod = racespecialtypaladin_get_travel_mod();
