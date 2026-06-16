@@ -18,6 +18,10 @@ function vampirelord_install(){
 	return true;
 }
 
+function vampirelord_uninstall(){
+	return true;
+}
+
 function vampirelord_runevent($type){
 
 	global $session;
