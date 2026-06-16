@@ -42,8 +42,8 @@ function expbar_dohook(string $hookname, array $args): array
             } else {
                 require_once("lib/experience.php");
                 $current_exp = (int)$u['experience'];
-                $prev_req = ($level == 1) ? 0 : exp_for_next_level($level - 1, $u['dragonpoints']);
-                $next_req = exp_for_next_level($level, $u['dragonpoints']);
+                $prev_req = ($level == 1) ? 0 : exp_for_next_level($level - 1, (int)$u['dragonkills']);
+                $next_req = exp_for_next_level($level, (int)$u['dragonkills']);
                 
                 $exp_in_level = $current_exp - $prev_req;
                 $total_in_level = $next_req - $prev_req;
