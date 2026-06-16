@@ -3,15 +3,17 @@
 require_once("lib/http.php");
 
 function sphinx_getmoduleinfo(){
+	$requires = array();
+	if (!is_module_installed("cities") && !is_module_installed("villages")) {
+		$requires["cities"] = "1.0|By Eric Stevens (or Multiple Villages)";
+	}
 	$info = array(
 		"name"=>"The Sphinx",
-		"version"=>"1.03",
+		"version"=>"1.04",
 		"author"=>"Enhas",
 		"category"=>"Travel Specials",
 		"download"=>"http://www.dragonprime.net/users/Enhas/sphinx.txt",
-		"requires"=>array(
-			"cities"=>"1.0|By Eric Stevens",
-		),
+		"requires"=>$requires,
 		"settings"=>array(
 			"The Sphinx Settings,title",
 			"favorfelyne"=>"Does the Sphinx let Felynes pass immediately,bool|1",
@@ -26,7 +28,7 @@ function sphinx_getmoduleinfo(){
 
 function sphinx_install(){
 	module_addeventhook("travel",
-			"return (is_module_active('cities')?80:0);");
+			"return (is_module_active('cities') || is_module_active('villages') ? 80 : 0);");
 	return true;
 }
 
