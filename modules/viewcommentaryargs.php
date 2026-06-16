@@ -63,7 +63,7 @@ function viewcommentaryargs_dohook($hook, $args)
             $temp = str_replace(':', '', $temp);
             $temp = str_replace('</a>', '', $temp);
             $temp = full_sanitize($temp);
-            $temp = mysqli_real_escape_string($mysqli_resource, $temp);
+            $temp = db_escape($temp);
             $sql = db_query(
                 "SELECT commentid, comment, postdate FROM $commentary
                 WHERE comment LIKE '%$temp%'

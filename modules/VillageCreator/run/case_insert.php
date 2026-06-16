@@ -80,8 +80,8 @@ if ($op === 'update') {
     // 1. Handle Renaming (YAML & Accounts)
     if ($coreFields['name'] !== $oldValues['name']) {
         // Update user locations currently in this village to the new name
-        $safeOldName = mysqli_real_escape_string($mysqli_resource, $oldValues['name']);
-        $safeNewName = mysqli_real_escape_string($mysqli_resource, $coreFields['name']);
+        $safeOldName = db_escape($oldValues['name']);
+        $safeNewName = db_escape($coreFields['name']);
         
         db_query("UPDATE $accountsTable SET location = '$safeNewName' WHERE location = '$safeOldName'");
 
@@ -126,10 +126,10 @@ if ($op === 'update') {
     // 2. Perform Update
     $updateClauses = [];
     foreach ($coreFields as $field => $val) {
-        $updateClauses[] = "`$field` = '" . mysqli_real_escape_string($mysqli_resource, $val) . "'";
+        $updateClauses[] = "`$field` = '" . db_escape($val) . "'";
     }
-    $updateClauses[] = "block_mods = '" . mysqli_real_escape_string($mysqli_resource, $serializedMods) . "'";
-    $updateClauses[] = "block_navs = '" . mysqli_real_escape_string($mysqli_resource, $serializedNavs) . "'";
+    $updateClauses[] = "block_mods = '" . db_escape($serializedMods) . "'";
+    $updateClauses[] = "block_navs = '" . db_escape($serializedNavs) . "'";
 
     $sql = "UPDATE $villagesTable SET " . implode(', ', $updateClauses) . " WHERE id = '$villageId'";
     db_query($sql);
@@ -142,15 +142,15 @@ if ($op === 'update') {
 } else {
     // Insert New
     $cols = array_keys($coreFields);
-    $vals = array_map(function ($v) use ($mysqli_resource) {
-        return mysqli_real_escape_string($mysqli_resource, $v);
+    $vals = array_map(function ($v) {
+        return db_escape($v);
     }, array_values($coreFields));
 
     // Add block fields
     $cols[] = 'block_mods';
-    $vals[] = mysqli_real_escape_string($mysqli_resource, $serializedMods);
+    $vals[] = db_escape($serializedMods);
     $cols[] = 'block_navs';
-    $vals[] = mysqli_real_escape_string($mysqli_resource, $serializedNavs);
+    $vals[] = db_escape($serializedNavs);
 
     $sql = "INSERT INTO $villagesTable (" . implode(',', $cols) . ") VALUES ('" . implode("','", $vals) . "')";
     db_query($sql);

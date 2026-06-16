@@ -60,13 +60,11 @@ function villages_install()
 
 function villages_uninstall()
 {
-    global $mysqli_resource, $session;
-	$village = mysqli_real_escape_string(
-        $mysqli_resource,
+    global $session;
+	$village = db_escape(
         getsetting('villagename', LOCATION_FIELDS)
     );
-	$inn = mysqli_real_escape_string(
-        $mysqli_resource,
+	$inn = db_escape(
         getsetting('innname', LOCATION_INN)
     );
     $accountsTable = db_prefix('accounts');
