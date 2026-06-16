@@ -123,32 +123,48 @@ function petshop_dohook($hookname,$args){
 	$petgender3 = translate_inline($gender?"she":"he");
 	$petgender4 = translate_inline($gender?"her":"him");
 	//
-	$petid = get_module_pref("petid");
-	$sql = "SELECT newdaymsg,villagemsg,gardenmsg,battlemsg,upkeepgold FROM " . db_prefix("pets") . " WHERE petid='$petid'";
-	$result = db_query($sql);
-	$row = db_fetch_assoc($result);
-	if ($row['newdaymsg']>""){
-		$msg1 = translate_inline($row['newdaymsg']);
-	}else{
-		$msg1 = translate_inline("Your pet awakens and is ready for the new day.");
+	$msg1 = "";
+	$msg2 = "";
+	$msg3 = "";
+	$msg4 = "";
+	$upkeepgold = 0;
+	$neglect = 0;
+	if ($haspet == 1) {
+		$petid = get_module_pref("petid");
+		$sql = "SELECT newdaymsg,villagemsg,gardenmsg,battlemsg,upkeepgold FROM " . db_prefix("pets") . " WHERE petid='$petid'";
+		$result = db_query($sql);
+		$row = db_fetch_assoc($result);
+		if ($row) {
+			if (isset($row['newdaymsg']) && $row['newdaymsg'] > "") {
+				$msg1 = translate_inline($row['newdaymsg']);
+			} else {
+				$msg1 = translate_inline("Your pet awakens and is ready for the new day.");
+			}
+			if (isset($row['villagemsg']) && $row['villagemsg'] > "") {
+				$msg2 = translate_inline($row['villagemsg']);
+			} else {
+				$msg2 = translate_inline("Your pet keeps an eye out as you wander about the village.");
+			}
+			if (isset($row['gardenmsg']) && $row['gardenmsg'] > "") {
+				$msg3 = translate_inline($row['gardenmsg']);
+			} else {
+				$msg3 = translate_inline("Your pet looks for a comfy place to take a nap.");
+			}
+			if (isset($row['battlemsg']) && $row['battlemsg'] > "") {
+				$msg4 = translate_inline($row['battlemsg']);
+			} else {
+				$msg4 = translate_inline("Frightened, your pet retreats to the forest.");
+			}
+			$upkeepgold = $row['upkeepgold'];
+		} else {
+			$msg1 = translate_inline("Your pet awakens and is ready for the new day.");
+			$msg2 = translate_inline("Your pet keeps an eye out as you wander about the village.");
+			$msg3 = translate_inline("Your pet looks for a comfy place to take a nap.");
+			$msg4 = translate_inline("Frightened, your pet retreats to the forest.");
+			$upkeepgold = 0;
+		}
+		$neglect = get_module_pref("neglect");
 	}
-	if ($row['villagemsg']>""){
-	$msg2 = translate_inline($row['villagemsg']);
-	}else{
-		$msg2 = translate_inline("Your pet keeps an eye out as you wander about the village.");
-	}
-	if ($row['gardenmsg']>""){
-	$msg3 = translate_inline($row['gardenmsg']);
-	}else{
-		$msg3 = translate_inline("Your pet looks for a comfy place to take a nap.");
-	}
-	if ($row['battlemsg']>""){
-		$msg4 = translate_inline($row['battlemsg']);
-	}else{
-		$msg4 = translate_inline("Frightened, your pet retreats to the forest.");
-	}
-	$upkeepgold = $row['upkeepgold'];	
-	$neglect = get_module_pref("neglect");
 	//
 	switch ($hookname) {
 	case "battle":
