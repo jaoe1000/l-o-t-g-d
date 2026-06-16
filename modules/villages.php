@@ -110,15 +110,20 @@ function villages_dohook($hookname,$args)
     		break;
 
 		case 'count-travels':
-			global $playermount;
-			$args['available'] += get_module_setting('allowance') ?? 0;
-			if ($playermount && isset($playermount['mountid'])) {
-				$mountId = $playermount['mountid'];
-				$extra = get_module_objpref('mounts', $mountId, 'extra_travel');
-				$args['available'] += $extra;
-			}
-			$args['used'] += get_module_pref('traveled') ?? 0;
-    		break;
+            global $playermount;
+            
+            // Safely initialize the array keys so PHP 8.4 doesn't panic
+            $args['available'] = ($args['available'] ?? 0) + (get_module_setting('allowance') ?? 0);
+            
+            if ($playermount && isset($playermount['mountid'])) {
+                $mountId = $playermount['mountid'];
+                $extra = get_module_objpref('mounts', $mountId, 'extra_travel') ?? 0; // Added ?? 0 here just in case!
+                $args['available'] += $extra;
+            }
+            
+            // Safely initialize the 'used' key
+            $args['used'] = ($args['used'] ?? 0) + (get_module_pref('traveled') ?? 0);
+        break;
 
 		case 'villages-use-travel':
 			$info = modulehook('count-travels', []);
