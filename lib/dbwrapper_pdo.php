@@ -256,4 +256,61 @@ function db_escape($string) {
     }
     return $quoted;
 }
+
+// mysql_* compatibility shims for legacy modules under PHP 8+
+if (!function_exists('mysql_query')) {
+    function mysql_query($query, $link = null) {
+        return db_query($query);
+    }
+}
+if (!function_exists('mysql_fetch_row')) {
+    function mysql_fetch_row($result) {
+        if ($result instanceof PDOStatement) {
+            return $result->fetch(PDO::FETCH_NUM);
+        }
+        if (is_array($result)) {
+            $row = array_shift($result);
+            if (is_array($row)) {
+                return array_values($row);
+            }
+        }
+        return false;
+    }
+}
+if (!function_exists('mysql_fetch_assoc')) {
+    function mysql_fetch_assoc($result) {
+        return db_fetch_assoc($result);
+    }
+}
+if (!function_exists('mysql_fetch_array')) {
+    function mysql_fetch_array($result) {
+        if ($result instanceof PDOStatement) {
+            return $result->fetch(PDO::FETCH_BOTH);
+        }
+        if (is_array($result)) {
+            $row = array_shift($result);
+            if (is_array($row)) {
+                $assoc = $row;
+                $numeric = array_values($row);
+                return array_merge($assoc, $numeric);
+            }
+        }
+        return false;
+    }
+}
+if (!function_exists('mysql_num_rows')) {
+    function mysql_num_rows($result) {
+        return db_num_rows($result);
+    }
+}
+if (!function_exists('mysql_error')) {
+    function mysql_error($link = null) {
+        return db_error();
+    }
+}
+if (!function_exists('mysql_real_escape_string')) {
+    function mysql_real_escape_string($string, $link = null) {
+        return db_escape($string);
+    }
+}
 ?>

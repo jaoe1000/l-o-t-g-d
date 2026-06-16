@@ -57,26 +57,26 @@ function petshop_getmoduleinfo(){
 function petshop_install(){
 	if (db_table_exists(db_prefix("pets"))) {
 		$sql = "Select petattack FROM ".db_prefix("pets")." LIMIT 1";
-		$result = mysql_query($sql);
+		$result = db_query($sql, false);
 	    if (!$result) db_query("ALTER TABLE ".db_prefix("pets")." ADD `petattack` tinyint(3) NOT NULL default '0'");
 	    $sql = "Select attacktype FROM ".db_prefix("pets")." LIMIT 1";
-		$result = mysql_query($sql);
+		$result = db_query($sql, false);
 	    if (!$result) db_query("ALTER TABLE ".db_prefix("pets")." ADD `attacktype` tinyint(3) NOT NULL default '0'");
 	    $sql = "Select mindamage FROM ".db_prefix("pets")." LIMIT 1";
-		$result = mysql_query($sql);
+		$result = db_query($sql, false);
 	    if (!$result) db_query("ALTER TABLE ".db_prefix("pets")." ADD `mindamage` int(11) NOT NULL default '0'");
 	    $sql = "Select maxdamage FROM ".db_prefix("pets")." LIMIT 1";
-		$result = mysql_query($sql);
+		$result = db_query($sql, false);
 	    if (!$result) db_query("ALTER TABLE ".db_prefix("pets")." ADD `maxdamage` int(11) NOT NULL default '0'");
 	    $sql = "Select petturns FROM ".db_prefix("pets")." LIMIT 1";
-		$result = mysql_query($sql);
+		$result = db_query($sql, false);
 	    if (!$result) db_query("ALTER TABLE ".db_prefix("pets")." ADD `petturns` int(11) NOT NULL default '0'");
 	
 	}else{
 	output("`6Installing the pets database now.`n");	
 	output("`6Presto. Done.`n`n");	
 	$sql = array(
-	"CREATE TABLE ".db_prefix("pets")." (petid INT(11) NOT NULL AUTO_INCREMENT ,petname VARCHAR(25) DEFAULT 'Unknown' NOT NULL ,petbreed TINYINT(3) DEFAULT '0' NOT NULL ,valuegold INT(11) DEFAULT '0' NOT NULL ,valuegems INT(11) DEFAULT '0' NOT NULL, upkeepgold INT(11) DEFAULT '0' NOT NULL ,upkeepgems INT(11) DEFAULT '0' NOT NULL ,petdk INT(11) DEFAULT '0' NOT NULL ,petcharm INT(11) DEFAULT '0' NOT NULL,petdesc VARCHAR(100) NOT NULL,newdaymsg VARCHAR(100) NOT NULL,villagemsg VARCHAR(100) NOT NULL,gardenmsg VARCHAR(100) NOT NULL,battlemsg VARCHAR(100) NOT NULL,petattack TINYINT(3) DEFAULT '0' NOT NULL, attacktype tinyint(3) default '0' NOT NULL, mindamage INT(11) DEFAULT '0' NOT NULL, maxdamage INT(11) DEFAULT '0' NOT NULL, petturns INT(11) DEFAULT '0' NOT NULL, PRIMARY KEY (petid)) TYPE = InnoDB;",			
+	"CREATE TABLE ".db_prefix("pets")." (petid INT(11) NOT NULL AUTO_INCREMENT ,petname VARCHAR(25) DEFAULT 'Unknown' NOT NULL ,petbreed TINYINT(3) DEFAULT '0' NOT NULL ,valuegold INT(11) DEFAULT '0' NOT NULL ,valuegems INT(11) DEFAULT '0' NOT NULL, upkeepgold INT(11) DEFAULT '0' NOT NULL ,upkeepgems INT(11) DEFAULT '0' NOT NULL ,petdk INT(11) DEFAULT '0' NOT NULL ,petcharm INT(11) DEFAULT '0' NOT NULL,petdesc VARCHAR(100) NOT NULL,newdaymsg VARCHAR(100) NOT NULL,villagemsg VARCHAR(100) NOT NULL,gardenmsg VARCHAR(100) NOT NULL,battlemsg VARCHAR(100) NOT NULL,petattack TINYINT(3) DEFAULT '0' NOT NULL, attacktype tinyint(3) default '0' NOT NULL, mindamage INT(11) DEFAULT '0' NOT NULL, maxdamage INT(11) DEFAULT '0' NOT NULL, petturns INT(11) DEFAULT '0' NOT NULL, PRIMARY KEY (petid)) ENGINE = InnoDB;",			
 	);	
 		foreach ($sql as $statement) {
 		db_query($statement);	
