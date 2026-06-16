@@ -29,14 +29,13 @@ function housekitchen_install() {
 	module_addhook ("kitchencontents");
 	$sql		= "SELECT acctid FROM ".db_prefix("accounts");
 	$result	= db_query($sql);
-	$row		= db_fetch_assoc($result);
 
-	for ($i=0;$i<db_num_rows($result);$i++){
+	while ($row = db_fetch_assoc($result)){
 		set_module_pref ("kitchenfull", 1, "houserooms", $row['acctid']);
 		set_module_pref ("kitchennavs", 1, "houserooms", $row['acctid']);
 	}
 
-	output ("`^Doing a check on your preferences to ensure that a successful install has been made ...", $row2['name']);
+	output ("`^Doing a check on your preferences to ensure that a successful install has been made ...");
 
 	if (!get_module_pref ("kitchenfull", "houserooms")) {
 		output ("`n");
@@ -64,9 +63,8 @@ function housekitchen_install() {
 function housekitchen_uninstall() {
 	$sql		= "SELECT acctid FROM ".db_prefix("accounts");
 	$result	= db_query			($sql);
-	$row		= db_fetch_assoc	($result);
 
-	for ($i=0;$i<db_num_rows($result);$i++){
+	while ($row = db_fetch_assoc($result)){
 		set_module_pref ("kitchenfull", 0, "houserooms", $row['acctid']);
 		set_module_pref ("kitchennavs", 0, "houserooms", $row['acctid']);
 	}
@@ -83,7 +81,7 @@ function housekitchen_uninstall() {
 	output ("worry if one or the above reports an error.");
 	output ("`n");
 
-	output ("`^Doing a check on your preferences to ensure that a successful uninstall has been made ...", $row2['name']);
+	output ("`^Doing a check on your preferences to ensure that a successful uninstall has been made ...");
 
 	if (get_module_pref ("kitchenfull", "houserooms")) {
 		output ("`n");
