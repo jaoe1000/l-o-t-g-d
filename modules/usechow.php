@@ -171,10 +171,17 @@ function usechow_dohook($hookname,$args){
 		if ($session['user']['alive'] == 1){
 			$currentpage = $SCRIPT_NAME;
 			$currentpage2 = "";
-			$argspq = $_SERVER['argv'];
-			for ($i=0;$i<$_SERVER['argc'];$i+=1){
-			    if (strchr($argspq[$i],"&c=")) $argspq[$i] = str_replace(strstr($argspq[$i],"&c="),"",$argspq[$i]);
-			    $currentpage2.=$argspq[$i];
+			$argspq = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
+			$argc = isset($_SERVER['argc']) ? $_SERVER['argc'] : 0;
+			if ($argc == 0 && isset($_SERVER['QUERY_STRING'])) {
+				$q = $_SERVER['QUERY_STRING'];
+				$q = preg_replace('/&?c=[^&]*/', '', $q);
+				$currentpage2 = $q;
+			} else {
+				for ($i=0;$i<$argc;$i+=1){
+					if (strchr($argspq[$i],"&c=")) $argspq[$i] = str_replace(strstr($argspq[$i],"&c="),"",$argspq[$i]);
+					$currentpage2.=$argspq[$i];
+				}
 			}
 			if (strstr($currentpage2,"worldmapen")) $currentpage = "runmodule.php?module=worldmapen&op=continue";
 			
@@ -193,7 +200,7 @@ function usechow_dohook($hookname,$args){
 			for ($i=0;$i<6;$i+=1){
 				if ($uchow>$i){
 					$mychow[$i]=substr(strval($uchow),$i,1);
-					if ($badguy['creaturehealth'] > 0 or $session['user']['alive']==0 or strstr($currentpage, "newday") or strstr($currentpage, "bio") or strstr($currentpage, "dragon") or (strstr($currentpage, "runmodule") and !strstr($currentpage, "worldmapen")) or $restrict){
+					if ((isset($badguy['creaturehealth']) && $badguy['creaturehealth'] > 0) or $session['user']['alive']==0 or strstr($currentpage, "newday") or strstr($currentpage, "bio") or strstr($currentpage, "dragon") or (strstr($currentpage, "runmodule") and !strstr($currentpage, "worldmapen")) or $restrict){
 						if ($mychow[$i]=="1") $chow.="<img src=\"./images/bread.gif\" title=\"\" alt=\"\" style=\"width: 14px; height: 16px;\">";
 						if ($mychow[$i]=="2") $chow.="<img src=\"./images/pork.gif\" title=\"\" alt=\"\" style=\"width: 14px; height: 16px;\">";
 						if ($mychow[$i]=="3") $chow.="<img src=\"./images/ham.gif\" title=\"\" alt=\"\" style=\"width: 14px; height: 16px;\">";

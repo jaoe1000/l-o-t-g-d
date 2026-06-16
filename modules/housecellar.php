@@ -367,7 +367,18 @@ function housecellar_run() {
 		}
 
 		else {
-			switch($trvchance) {
+			$target_module = get_module_setting("loc" . $trvchance);
+			$target_on = get_module_setting("on" . $trvchance);
+			$tunnel_continues = false;
+			if ($target_on && $target_module != "" && !is_module_active($target_module)) {
+				$tunnel_continues = true;
+			}
+
+			if ($tunnel_continues) {
+				output ("The tunnel seems to continue...`n");
+				addnav ("Continue Down The Tunnel", "runmodule.php?module=housecellar&op=tunnel");
+			} else {
+				switch($trvchance) {
 	
 			case "1":
 				if (!get_module_setting("on1")) {
@@ -565,9 +576,12 @@ function housecellar_run() {
 				break;		
 			}
 	
-			output ("%s", $descript);
-			addnav ("Continue", "runmodule.php?module=".$location);
-			$session['user']['location'] = $cityloc;
+			if (isset($location) && $location != "") {
+				output ("%s", $descript);
+				addnav ("Continue", "runmodule.php?module=".$location);
+				$session['user']['location'] = $cityloc;
+			}
+			}
 		}
 	}
 	page_footer ();
