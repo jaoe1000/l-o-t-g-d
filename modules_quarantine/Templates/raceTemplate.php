@@ -52,6 +52,8 @@ function racetemplate_install() {
     module_addhook("stablelocs");
     module_addhook("newday");
     module_addhook("newday-intercept");
+    module_addhook("boughtweapon");
+    module_addhook("boughtarmor");
     debug("Installed '[PLACEHOLDER RACE NAME]' advanced race module."); // ***CHANGE
     return true;
 }
@@ -98,14 +100,14 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "changesetting":
-            // Updates players dynamically if you rename the city in the module settings
             if (($args['setting'] ?? '') === "villagename" && ($args['module'] ?? '') === "racetemplate") {
                 if (($session['user']['location'] ?? '') === $args['old'])
                     $session['user']['location'] = $args['new'];
                 $sql = "UPDATE " . db_prefix("accounts") . " SET location='" . $args['new'] . "' WHERE location='" . $args['old'] . "'";
                 db_query($sql);
-                if (is_module_active("cities")) {
-                    $sql = "UPDATE " . db_prefix("module_userprefs") . " SET value='" . $args['new'] . "' WHERE modulename='cities' AND setting='homecity' AND value='" . $args['old'] . "'";
+                $travel_mod = racetemplate_get_travel_mod();
+                if ($travel_mod !== false) {
+                    $sql = "UPDATE " . db_prefix("module_userprefs") . " SET value='" . $args['new'] . "' WHERE modulename='$travel_mod' AND setting='homecity' AND value='" . $args['old'] . "'";
                     db_query($sql);
                 }
             }
@@ -119,7 +121,7 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "chooserace":
-            if (($session['user']['dragonkills'] ?? 0) >= get_module_setting("dklimit")) {
+            if (($session['user']['dragonkills'] ?? 0) >= (int)get_module_setting("dklimit")) {
                 $can_select = true;
 
                 // UNCOMMENT TO RESTRICT RACE BY ALIGNMENT
@@ -146,11 +148,12 @@ function racetemplate_dohook($hookname, $args) {
         case "setrace":
             if ($userRace === $race) {
                 output("`&[PLACEHOLDER RACE SELECTED FLAVOR TEXT AND BUFF EXPLANATION]`n"); // ***CHANGE
-                if (is_module_active("cities")) {
+                $travel_mod = racetemplate_get_travel_mod();
+                if ($travel_mod !== false) {
                     if (($session['user']['dragonkills'] ?? 0) == 0 && ($session['user']['age'] ?? 0) == 0) {
-                        set_module_setting("newest-$city", $session['user']['acctid'], "cities");
+                        set_module_setting("newest-$city", $session['user']['acctid'], $travel_mod);
                     }
-                    set_module_pref("homecity", $city, "cities");
+                    set_module_pref("homecity", $city, $travel_mod);
                     if (($session['user']['age'] ?? 0) == 0)
                         $session['user']['location'] = $city;
                 }
@@ -174,12 +177,14 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "validlocation":
-            if (is_module_active("cities"))
+            $travel_mod = racetemplate_get_travel_mod();
+            if ($travel_mod !== false)
                 $args[$city] = "village-$race";
             break;
 
         case "moderate":
-            if (is_module_active("cities")) {
+            $travel_mod = racetemplate_get_travel_mod();
+            if ($travel_mod !== false) {
                 tlschema("commentary");
                 $args["village-$race"] = sprintf_translate("City of %s", $city); 
                 tlschema();
@@ -187,21 +192,25 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "travel":
-            $capital = getsetting("villagename", LOCATION_FIELDS);
-            $hotkey = substr($city, 0, 1);
-            tlschema("module-cities");
-            if (($session['user']['location'] ?? '') === $capital) {
-                addnav("Safer Travel");
-                addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=cities&op=travel&city=$city");
-            } elseif (($session['user']['location'] ?? '') !== $city) {
-                addnav("More Dangerous Travel");
-                addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=cities&op=travel&city=$city&d=1");
+            $travel_mod = racetemplate_get_travel_mod();
+            if ($travel_mod !== false) {
+                $capital = getsetting("villagename", LOCATION_FIELDS);
+                $hotkey = substr($city, 0, 1);
+                tlschema("module-" . $travel_mod);
+                $param = ($travel_mod === "villages") ? "village" : "city";
+                if (($session['user']['location'] ?? '') === $capital) {
+                    addnav("Safer Travel");
+                    addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=$travel_mod&op=travel&$param=$city");
+                } elseif (($session['user']['location'] ?? '') !== $city) {
+                    addnav("More Dangerous Travel");
+                    addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=$travel_mod&op=travel&$param=$city&d=1");
+                }
+                if (($session['user']['superuser'] ?? 0) & SU_EDIT_USERS) {
+                    addnav("Superuser");
+                    addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=$travel_mod&op=travel&$param=$city&su=1");
+                }
+                tlschema();
             }
-            if (($session['user']['superuser'] ?? 0) & SU_EDIT_USERS) {
-                addnav("Superuser");
-                addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=cities&op=travel&city=$city&su=1");
-            }
-            tlschema();
             break;  
 
         case "villagetext":
@@ -222,7 +231,8 @@ function racetemplate_dohook($hookname, $args) {
                 $args['talk'] = "`n`&Nearby some residents stand talking:`n";
                 $args['schemas']['talk'] = "module-racetemplate";
                 
-                $new = get_module_setting("newest-$city", "cities");
+                $travel_mod = racetemplate_get_travel_mod();
+                $new = $travel_mod !== false ? get_module_setting("newest-$city", $travel_mod) : 0;
                 if ($new != 0) {
                     $sql =  "SELECT name FROM " . db_prefix("accounts") . " WHERE acctid='$new'";
                     $result = db_query_cached($sql, "newest-$city");
@@ -234,7 +244,7 @@ function racetemplate_dohook($hookname, $args) {
                     $args['newestid'] = "";
                 }
                 
-                if ($new == $session['user']['acctid']) {
+                if ($new == ($session['user']['acctid'] ?? 0)) {
                     $args['newest'] = "`n`7[PLACEHOLDER NEWEST PLAYER TEXT (SELF)].";
                 } else {
                     $args['newest'] = "`n`7[PLACEHOLDER NEWEST PLAYER TEXT (OTHER)] `&%s`7.";
@@ -299,9 +309,23 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "stablelocs":
-            tlschema("mounts");
-            $args[$city] = sprintf_translate("City of %s", $city); 
-            tlschema();
+            $travel_mod = racetemplate_get_travel_mod();
+            if ($travel_mod !== false) {
+                tlschema("mounts");
+                $args[$city] = sprintf_translate("City of %s", $city); 
+                tlschema();
+            }
+            break;
+
+        case "boughtweapon":
+        case "boughtarmor":
+            if (get_module_setting("wepchange") == 1 && $userRace === $race) {
+                $adjective = "[PLACEHOLDER ADJECTIVE]"; // ***CHANGE
+                $nstr = "`%" . $adjective;
+                if (!preg_match('/' . preg_quote($nstr, '/') . '/', $args['name'] ?? '')) {
+                    $args['name'] = $nstr . " " . $args['name'];
+                }
+            }
             break;
     }
     return $args;
@@ -336,13 +360,25 @@ function racetemplate_checkcity() {
     $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
     $city = get_module_setting("villagename");
     
-    if (is_module_active("cities")) {
+    $travel_mod = racetemplate_get_travel_mod();
+    if ($travel_mod !== false) {
         if (($session['user']['race'] ?? '') === $race) {
-            if (get_module_pref("homecity", "cities") !== $city) {
-                set_module_pref("homecity", $city, "cities");
+            if (get_module_pref("homecity", $travel_mod) !== $city) {
+                set_module_pref("homecity", $city, $travel_mod);
             }
         }
     }
     return true;
+}
+
+function racetemplate_get_travel_mod() {
+    if (is_module_active("villages")) {
+        return "villages";
+    } elseif (is_module_active("cities")) {
+        return "cities";
+    } elseif (is_module_active("multi-towns")) {
+        return "multi-towns";
+    }
+    return false;
 }
 ?>
