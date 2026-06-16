@@ -124,9 +124,11 @@ function odor_dohook($hookname,$args){
 			}
 		break;
 		case "village":
-			tlschema($args['schemas']['marketnav']);
-    		addnav($args['marketnav']);
-    		tlschema();
+			$marketnav = $args['marketnav'] ?? ($args['nav_headers']['market'] ?? 'Market');
+			$schema = $args['schemas']['marketnav'] ?? 'town';
+			tlschema($schema);
+			addnav($marketnav);
+			tlschema();
 			addnav("Bath House", "runmodule.php?module=odor");
 		break;
 		case "battle-victory":

@@ -277,8 +277,10 @@ function usechow_dohook($hookname,$args){
 		set_module_pref('hunger', get_module_pref('hunger') + get_module_setting('newday'));
 		break;
 	case "village":
-		tlschema($args['schemas']['tavernnav']);
-    	addnav($args['tavernnav']);
+		$tavernnav = $args['tavernnav'] ?? ($args['nav_headers']['tavern'] ?? 'Tavern');
+		$schema = $args['schemas']['tavernnav'] ?? 'town';
+		tlschema($schema);
+    	addnav($tavernnav);
     	tlschema();
 		addnav("Draco's Diner", "runmodule.php?module=usechow&op=inn");
 		break;

@@ -465,7 +465,8 @@ function petshop_dohook($hookname,$args){
 	case "village":
 	$shopname = translate_inline(get_module_setting("petshopname"));
 	if ($session['user']['location'] == get_module_setting("petshoploc")) {	
-		addnav($args['marketnav']);			
+		$marketnav = $args['marketnav'] ?? ($args['nav_headers']['market'] ?? 'Market');
+		addnav($marketnav);			
 		addnav("$shopname",$from2);					
 	}
 	break;

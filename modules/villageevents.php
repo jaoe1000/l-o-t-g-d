@@ -112,7 +112,8 @@ function villageevents_dohook($hookname,$args){
 						14=>"::A drunk villager stumbles from the inn muttering uninteligably.",
 						);
 			//end setup commentary array
-				db_query("INSERT INTO ".db_prefix("commentary")." (postdate,section,author,comment) VALUES (now(),'".$texts['section']."','".get_module_setting('npcid')."',\"".$sayit[$k]."\")");
+				$section = $args['commentary']['section'] ?? ($args['section'] ?? 'village');
+				db_query("INSERT INTO ".db_prefix("commentary")." (postdate,section,author,comment) VALUES (now(),'".$section."','".get_module_setting('npcid')."',\"".$sayit[$k]."\")");
 			}
 return $args;    
 }

@@ -58,8 +58,10 @@ function elvinbank_dohook($hookname,$args){
 		break;
 	case "village":
 		if ($session['user']['location'] == get_module_setting("bankloc")) {
-			tlschema($args['schemas']['marketnav']);
-			addnav($args['marketnav']);
+			$marketnav = $args['marketnav'] ?? ($args['nav_headers']['market'] ?? 'Market');
+			$schema = $args['schemas']['marketnav'] ?? 'town';
+			tlschema($schema);
+			addnav($marketnav);
 			tlschema();
 			blocknav("bank.php");
 			addnav("B?`#F`3inwe's `#B`3ank","runmodule.php?module=elvinbank");
