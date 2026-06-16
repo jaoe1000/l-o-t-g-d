@@ -13,7 +13,7 @@ $pdo_connection = null;
 $pdo_last_statement = null;
 
 function db_connect($host, $user, $pass, $database) {
-    global $pdo_connection;
+    global $pdo_connection, $mysqli_resource;
     try {
         $dsn = "mysql:host=$host;dbname=$database;charset=utf8mb4";
         $options = [
@@ -22,6 +22,7 @@ function db_connect($host, $user, $pass, $database) {
             PDO::ATTR_EMULATE_PREPARES => false,
         ];
         $pdo_connection = new PDO($dsn, $user, $pass, $options);
+        $mysqli_resource = $pdo_connection;
         return true;
     } catch (PDOException $e) {
         return false;
@@ -29,7 +30,7 @@ function db_connect($host, $user, $pass, $database) {
 }
 
 function db_pconnect($host, $user, $pass, $database) {
-    global $pdo_connection;
+    global $pdo_connection, $mysqli_resource;
     try {
         $dsn = "mysql:host=$host;dbname=$database;charset=utf8mb4";
         $options = [
@@ -39,6 +40,7 @@ function db_pconnect($host, $user, $pass, $database) {
             PDO::ATTR_EMULATE_PREPARES => false,
         ];
         $pdo_connection = new PDO($dsn, $user, $pass, $options);
+        $mysqli_resource = $pdo_connection;
         return true;
     } catch (PDOException $e) {
         return false;
@@ -241,5 +243,17 @@ function db_prefix($tablename, $force = false) {
         $prefix = $force;
     }
     return $prefix . $tablename;
+}
+
+function db_escape($string) {
+    global $pdo_connection;
+    if (!$pdo_connection) {
+        return addslashes($string);
+    }
+    $quoted = $pdo_connection->quote($string);
+    if (strlen($quoted) >= 2 && $quoted[0] === "'" && substr($quoted, -1) === "'") {
+        return substr($quoted, 1, -1);
+    }
+    return $quoted;
 }
 ?>

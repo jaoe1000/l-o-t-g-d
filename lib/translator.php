@@ -14,14 +14,12 @@ function translator_setup(): void
 
 	global $language, $mysqli_resource, $session;
     if (isset($session['user']['prefs']['language'])) {
-        $language = mysqli_real_escape_string(
-            $mysqli_resource,
+        $language = db_escape(
             $session['user']['prefs']['language']
         );
         return;
     }
-	$language = mysqli_real_escape_string(
-        $mysqli_resource,
+	$language = db_escape(
         getsetting('defaultlanguage', 'en')
     );
     return;
@@ -80,8 +78,8 @@ function translate(string|array $input, string|null $namespace = null): string|a
 	}
     else if (getsetting('collecttexts', false)) {
         $untranslatedTable = db_prefix('untranslated');
-        $input = mysqli_real_escape_string($mysqli_resource, $input);
-        $namespace = mysqli_real_escape_string($mysqli_resource, $namespace);
+        $input = db_escape($input);
+        $namespace = db_escape($namespace);
 		// db_query(
         //     "INSERT IGNORE INTO $untranslatedTable (
         //         intext,
