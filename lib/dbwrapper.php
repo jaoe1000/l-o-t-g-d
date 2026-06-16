@@ -14,7 +14,7 @@ require_once("lib/datacache.php");
  * @todo Configure this in a commandline installer package instead of a weak
  *  web interface.
  */
-define('DBTYPE', 'mysqli_proc');
+define('DBTYPE', 'pdo');
 $dbinfo['queriesthishit'] = 0;
 
 require_once('lib/dbwrapper_' . DBTYPE . '.php');

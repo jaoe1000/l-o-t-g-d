@@ -33,8 +33,8 @@ if ($name!=""){
 		} else {
 			$password = md5(md5($password));
 		}
-		$sql = "SELECT * FROM " . db_prefix("accounts") . " WHERE login = '$name' AND password='$password' AND locked=0";
-		$result = db_query($sql);
+		$sql = "SELECT * FROM " . db_prefix("accounts") . " WHERE login = ? AND password = ? AND locked = 0";
+		$result = db_query($sql, [$name, $password]);
 		if (db_num_rows($result)==1){
 			$session['user']=db_fetch_assoc($result);
 			$companions = is_serialized($session['user']['companions']) ?
@@ -83,7 +83,7 @@ if ($name!=""){
 					exit();
 				}
 
-				db_query("UPDATE " . db_prefix("accounts") . " SET loggedin=".true.", laston='".date("Y-m-d H:i:s")."' WHERE acctid = ".$session['user']['acctid']);
+				db_query("UPDATE " . db_prefix("accounts") . " SET loggedin = 1, laston = ? WHERE acctid = ?", [date("Y-m-d H:i:s"), $session['user']['acctid']]);
 				invalidatedatacache("online_characters");
 				$session['user']['loggedin']=true;
 				$location = $session['user']['location'];
@@ -107,8 +107,8 @@ if ($name!=""){
 			$sql = "DELETE FROM " . db_prefix("faillog") . " WHERE date<'".date("Y-m-d H:i:s",strtotime("-".(getsetting("expirecontent",180)/4)." days"))."'";
 			checkban($name, true);
 			db_query($sql);
-			$sql = "SELECT acctid FROM " . db_prefix("accounts") . " WHERE login='$name'";
-			$result = db_query($sql);
+			$sql = "SELECT acctid FROM " . db_prefix("accounts") . " WHERE login = ?";
+			$result = db_query($sql, [$name]);
 			if (db_num_rows($result)>0){
 				// just in case there manage to be multiple accounts on
 				// this name.
@@ -167,8 +167,8 @@ if ($name!=""){
 		} else {
 			$session['user']['restorepage']="news.php";
 		}
-		$sql = "UPDATE " . db_prefix("accounts") . " SET loggedin=0,restorepage='{$session['user']['restorepage']}' WHERE acctid = ".$session['user']['acctid'];
-		db_query($sql);
+		$sql = "UPDATE " . db_prefix("accounts") . " SET loggedin = 0, restorepage = ? WHERE acctid = ?";
+		db_query($sql, [$session['user']['restorepage'], $session['user']['acctid']]);
 		invalidatedatacache("charlisthomepage");
 		invalidatedatacache("online_characters");
 		invalidatedatacache("list.php-warsonline");

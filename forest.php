@@ -158,17 +158,17 @@ if ($op=="search"){
 				$packofmonsters = (bool)(e_rand(0,5) == 0 && getsetting("allowpackofmonsters", true)); // true or false
 				switch($packofmonsters) {
 					case false:
-						$sql = "SELECT * FROM " . db_prefix("creatures") . " WHERE creaturelevel <= $targetlevel AND creaturelevel >= $mintargetlevel AND forest=1 ORDER BY rand(".e_rand().") LIMIT $multi";
+						$sql = "SELECT * FROM " . db_prefix("creatures") . " WHERE creaturelevel <= ? AND creaturelevel >= ? AND forest=1 ORDER BY rand(".e_rand().") LIMIT " . (int)$multi;
 						break;
 					case true:
-						$sql = "SELECT * FROM " . db_prefix("creatures") . " WHERE creaturelevel <= $targetlevel AND creaturelevel >= $mintargetlevel AND forest=1 ORDER BY rand(".e_rand().") LIMIT 1";
+						$sql = "SELECT * FROM " . db_prefix("creatures") . " WHERE creaturelevel <= ? AND creaturelevel >= ? AND forest=1 ORDER BY rand(".e_rand().") LIMIT 1";
 						break;
 				}
 			} else {
-				$sql = "SELECT * FROM " . db_prefix("creatures") . " WHERE creaturelevel <= $targetlevel AND creaturelevel >= $mintargetlevel AND forest=1 ORDER BY rand(".e_rand().") LIMIT 1";
+				$sql = "SELECT * FROM " . db_prefix("creatures") . " WHERE creaturelevel <= ? AND creaturelevel >= ? AND forest=1 ORDER BY rand(".e_rand().") LIMIT 1";
 				$packofmonsters = 0;
 			}
-			$result = db_query($sql);
+			$result = db_query($sql, [$targetlevel, $mintargetlevel]);
 			restore_buff_fields();
 			if (db_num_rows($result) == 0) {
 				// There is nothing in the database to challenge you, let's
