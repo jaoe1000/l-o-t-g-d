@@ -340,9 +340,10 @@ function viewcommentary($section,$message="Interject your own commentary?",$limi
 			$rawc[$i] = "`&{$row['name']}`3 says, \"`#".str_replace("&amp;","&",HTMLEntities($row['comment'], ENT_COMPAT, getsetting("charset", "ISO-8859-1")))."`3\"`0`n";
 		}
 		
-		if (!array_key_exists('timestamp', $session['user']['prefs']))
+		if (!isset($session['user']['prefs']['timestamp']))
 			$session['user']['prefs']['timestamp'] = 0;
-		
+		if (!isset($session['user']['prefs']['timeoffset']))
+			$session['user']['prefs']['timeoffset'] = 0;
 		$session['user']['prefs']['timeoffset'] = round($session['user']['prefs']['timeoffset'],1);
 
 		if ($session['user']['prefs']['timestamp']==1) {
