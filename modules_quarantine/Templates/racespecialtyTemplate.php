@@ -68,7 +68,7 @@ function racespecialtytemplate_install() {
     module_addhook("specialtycolor");
     module_addhook("dragonkill");
     module_addhook("newday-intercept");
-    module_addhook("village");
+    module_addhook("villagenav");
     module_addhook("weaponstext");
     module_addhook("armortext");
     module_addhook("trainingtitle");
@@ -328,6 +328,14 @@ function racespecialtytemplate_dohook($hookname, $args) {
                 $args['schemas']['navs']['armor'] = "module-racespecialtytemplate";
                 $args['schemas']['navs']['train'] = "module-racespecialtytemplate";
 
+                // Special section nav header and labels
+                $args['nav_headers']['special'] = "[PLACEHOLDER SPECIAL HEADER]";
+                $args['navs']['special1'] = "[PLACEHOLDER SPECIAL LINK 1]";
+                $args['navs']['special2'] = "[PLACEHOLDER SPECIAL LINK 2]";
+                $args['schemas']['nav_headers']['special'] = "module-racespecialtytemplate";
+                $args['schemas']['navs']['special1'] = "module-racespecialtytemplate";
+                $args['schemas']['navs']['special2'] = "module-racespecialtytemplate";
+
                 unblocknav("stables.php");
             }
             break;
@@ -511,11 +519,10 @@ function racespecialtytemplate_dohook($hookname, $args) {
             $args[$spec] = $ccode;
             break;
 
-        case "village":
+        case "villagenav":
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
-                // Add custom links here for your hybrid race/specialty, e.g.:
-                // addnav($args['marketnav']);
-                // addnav("Custom Altar", "runmodule.php?module=racespecialtytemplate&op=custom");
+                // Add custom links here for your hybrid race/specialty to sit at the top, e.g.:
+                // $args['special']['special1'] = "runmodule.php?module=racespecialtytemplate&op=special1";
             }
             break;
 

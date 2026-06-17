@@ -60,7 +60,7 @@ function racespecialtyreptile_install() {
     module_addhook("specialtycolor");
     module_addhook("dragonkill");
     module_addhook("newday-intercept");
-    module_addhook("village");
+    module_addhook("villagenav");
     module_addhook("weaponstext");
     module_addhook("armortext");
     module_addhook("trainingtitle");
@@ -311,6 +311,14 @@ function racespecialtyreptile_dohook($hookname, $args) {
                 $args['schemas']['navs']['armor'] = "module-racespecialtyreptile";
                 $args['schemas']['navs']['train'] = "module-racespecialtyreptile";
 
+                // Special section nav header and labels
+                $args['nav_headers']['special'] = "Sslyther Services";
+                $args['navs']['witchdoctor'] = "Witch Doctor's Hut";
+                $args['navs']['altar'] = "Venom Altar";
+                $args['schemas']['nav_headers']['special'] = "module-racespecialtyreptile";
+                $args['schemas']['navs']['witchdoctor'] = "module-racespecialtyreptile";
+                $args['schemas']['navs']['altar'] = "module-racespecialtyreptile";
+
                 unblocknav("stables.php");
             }
             break;
@@ -486,14 +494,10 @@ function racespecialtyreptile_dohook($hookname, $args) {
             $args[$spec] = $ccode;
             break;
 
-        case "village":
+        case "villagenav":
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
-                // Add Witch Doctor's Hut to Sslyther Shacks
-                addnav($args['marketnav']);
-                addnav("Witch Doctor's Hut", "runmodule.php?module=racespecialtyreptile&op=witchdoctor");
-                // Add Venom Altar to Murky Muck
-                addnav($args['fightnav']);
-                addnav("Venom Altar", "runmodule.php?module=racespecialtyreptile&op=altar");
+                $args['special']['witchdoctor'] = "runmodule.php?module=racespecialtyreptile&op=witchdoctor";
+                $args['special']['altar'] = "runmodule.php?module=racespecialtyreptile&op=altar";
             }
             break;
 

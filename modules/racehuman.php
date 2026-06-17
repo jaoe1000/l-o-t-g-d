@@ -41,7 +41,7 @@ function racehuman_install() {
     module_addhook("raceminedeath");
     module_addhook("stablelocs");
     module_addhook("newday");
-    module_addhook("village");
+    module_addhook("villagenav");
     module_addhook("weaponstext");
     module_addhook("armortext");
     module_addhook("trainingtitle");
@@ -260,6 +260,14 @@ function racehuman_dohook($hookname, $args) {
                 $args['schemas']['navs']['armor'] = "module-racehuman";
                 $args['schemas']['navs']['train'] = "module-racehuman";
 
+                // Special section nav header and labels
+                $args['nav_headers']['special'] = "Oakhaven Services";
+                $args['navs']['guild'] = "Commerce Guild";
+                $args['navs']['academy'] = "Academy Masterclass";
+                $args['schemas']['nav_headers']['special'] = "module-racehuman";
+                $args['schemas']['navs']['guild'] = "module-racehuman";
+                $args['schemas']['navs']['academy'] = "module-racehuman";
+
                 unblocknav("stables.php");
             }
             break;
@@ -318,14 +326,10 @@ function racehuman_dohook($hookname, $args) {
             }
             break;
 
-        case "village":
+        case "villagenav":
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
-                // Add Commerce Guild to Merchant Square
-                addnav($args['marketnav']);
-                addnav("Commerce Guild", "runmodule.php?module=racehuman&op=guild");
-                // Add Academy Masterclass to Training Grounds
-                addnav($args['fightnav']);
-                addnav("Academy Masterclass", "runmodule.php?module=racehuman&op=academy");
+                $args['special']['guild'] = "runmodule.php?module=racehuman&op=guild";
+                $args['special']['academy'] = "runmodule.php?module=racehuman&op=academy";
             }
             break;
 

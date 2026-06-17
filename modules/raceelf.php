@@ -40,7 +40,7 @@ function raceelf_install() {
     module_addhook("raceminedeath");
     module_addhook("stablelocs");
     module_addhook("newday");
-    module_addhook("village");
+    module_addhook("villagenav");
     module_addhook("weaponstext");
     module_addhook("armortext");
     module_addhook("trainingtitle");
@@ -257,6 +257,14 @@ function raceelf_dohook($hookname, $args) {
                 $args['schemas']['navs']['armor'] = "module-raceelf";
                 $args['schemas']['navs']['train'] = "module-raceelf";
 
+                // Special section nav header and labels
+                $args['nav_headers']['special'] = "Gladehaven Services";
+                $args['navs']['garden'] = "Herb Garden";
+                $args['navs']['shrine'] = "Sylvan Shrine";
+                $args['schemas']['nav_headers']['special'] = "module-raceelf";
+                $args['schemas']['navs']['garden'] = "module-raceelf";
+                $args['schemas']['navs']['shrine'] = "module-raceelf";
+
                 unblocknav("stables.php");
             }
             break;
@@ -315,14 +323,10 @@ function raceelf_dohook($hookname, $args) {
             }
             break;
 
-        case "village":
+        case "villagenav":
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
-                // Add Herb Garden to Treepath Bazaar
-                addnav($args['marketnav']);
-                addnav("Herb Garden", "runmodule.php?module=raceelf&op=garden");
-                // Add Sylvan Shrine to Training Glade
-                addnav($args['fightnav']);
-                addnav("Sylvan Shrine", "runmodule.php?module=raceelf&op=shrine");
+                $args['special']['garden'] = "runmodule.php?module=raceelf&op=garden";
+                $args['special']['shrine'] = "runmodule.php?module=raceelf&op=shrine";
             }
             break;
 

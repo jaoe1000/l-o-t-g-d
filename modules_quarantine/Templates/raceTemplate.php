@@ -49,7 +49,7 @@ function racetemplate_install() {
     module_addhook("raceminedeath");
     module_addhook("stablelocs");
     module_addhook("newday");
-    module_addhook("village");
+    module_addhook("villagenav");
     module_addhook("weaponstext");
     module_addhook("armortext");
     module_addhook("trainingtitle");
@@ -268,6 +268,14 @@ function racetemplate_dohook($hookname, $args) {
                 $args['schemas']['navs']['armor'] = "module-racetemplate";
                 $args['schemas']['navs']['train'] = "module-racetemplate";
 
+                // Special section nav header and labels
+                $args['nav_headers']['special'] = "[PLACEHOLDER SPECIAL HEADER]";
+                $args['navs']['special1'] = "[PLACEHOLDER SPECIAL LINK 1]";
+                $args['navs']['special2'] = "[PLACEHOLDER SPECIAL LINK 2]";
+                $args['schemas']['nav_headers']['special'] = "module-racetemplate";
+                $args['schemas']['navs']['special1'] = "module-racetemplate";
+                $args['schemas']['navs']['special2'] = "module-racetemplate";
+
                 unblocknav("stables.php");
             }
             break;
@@ -324,11 +332,10 @@ function racetemplate_dohook($hookname, $args) {
             }
             break;
 
-        case "village":
+        case "villagenav":
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
-                // Add custom links here for your race, e.g.:
-                // addnav($args['marketnav']);
-                // addnav("Custom Guild", "runmodule.php?module=racetemplate&op=custom");
+                // Add custom links here for your race to sit at the top, e.g.:
+                // $args['special']['special1'] = "runmodule.php?module=racetemplate&op=special1";
             }
             break;
 
