@@ -350,7 +350,13 @@ a:hover {
 }
 
 /* Format experience bar and table rows to stack vertically and stretch full width */
-.stat-row:has(.exp-bar-container),
+.stat-row:has(.exp-bar-container) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 6px 0;
+}
+
 .stat-row:has(table) {
   flex-direction: column;
   align-items: stretch;
@@ -358,16 +364,29 @@ a:hover {
   padding: 6px 0;
 }
 
-/* Style legacy stat progress bar tables (Bladder, Odor, Hunger) to match Experience bar */
+.stat-row:has(table) .stat-grid-value {
+  position: relative;
+  height: 20px;
+  display: block;
+  margin-top: 4px;
+}
+
+.stat-row:has(table) .stat-grid-value br {
+  display: none;
+}
+
 .stat-row table {
   display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100% !important;
-  height: 20px !important;
+  height: 100% !important;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid var(--border-color) !important;
   border-radius: var(--radius-sm) !important;
   overflow: hidden;
-  margin: 4px 0 0 0 !important;
+  margin: 0 !important;
   border-collapse: collapse;
 }
 
@@ -387,6 +406,24 @@ a:hover {
   background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.4), rgba(255, 255, 255, 0.2)) !important;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
   height: 100% !important;
+}
+
+.stat-row:has(table) .stat-grid-value b {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.stat-row:has(table) .stat-grid-value b font {
+  color: #fff !important;
 }
 
 .stats-grid-header {
