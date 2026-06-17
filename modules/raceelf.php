@@ -200,6 +200,8 @@ function raceelf_dohook($hookname, $args) {
             if (($session['user']['location'] ?? '') === $city) {
                 $args['text'] = ["`\$`c`b%s`b`c`n`^Golden beams of sunlight filter down through the towering canopy of %s. Elaborate tree-houses and sylvan structures overlook the village green.`n", $city, $city];
                 $args['schemas']['text'] = "module-raceelf";
+                $args['description'] = ["`\$`c`b%s`b`c`n`^Golden beams of sunlight filter down through the towering canopy of %s. Elaborate tree-houses and sylvan structures overlook the village green.`n", $city, $city];
+                $args['schemas']['description'] = "module-raceelf";
                 $args['clock'] = "`n`7A delicate crystal sundial reads `@%s`7.`n";
                 $args['schemas']['clock'] = "module-raceelf";
                 

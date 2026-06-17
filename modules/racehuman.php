@@ -191,6 +191,8 @@ function racehuman_dohook($hookname, $args) {
             if (($session['user']['location'] ?? '') === $city) {
                 $args['text'] = ["`\$`c`b%s`b`c`n`^The cobblestone streets of %s bustle with merchants, guards, and adventurers alike. It is a beacon of human civilization.`n", $city, $city];
                 $args['schemas']['text'] = "module-racehuman";
+                $args['description'] = ["`\$`c`b%s`b`c`n`^The cobblestone streets of %s bustle with merchants, guards, and adventurers alike. It is a beacon of human civilization.`n", $city, $city];
+                $args['schemas']['description'] = "module-racehuman";
                 $args['clock'] = "`n`7The town square clock reads `@%s`7.`n";
                 $args['schemas']['clock'] = "module-racehuman";
                 

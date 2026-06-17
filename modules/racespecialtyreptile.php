@@ -252,6 +252,8 @@ function racespecialtyreptile_dohook($hookname, $args) {
             if (($session['user']['location'] ?? '') === $city) {
                 $args['text'] = ["`\$`c`b%s`b`c`n`^Tucked away in the humid marshlands, the wooden piers and bridges of %s creak underfoot. Mists hover over the dark waters.`n", $city, $city];
                 $args['schemas']['text'] = "module-racespecialtyreptile";
+                $args['description'] = ["`\$`c`b%s`b`c`n`^Tucked away in the humid marshlands, the wooden piers and bridges of %s creak underfoot. Mists hover over the dark waters.`n", $city, $city];
+                $args['schemas']['description'] = "module-racespecialtyreptile";
                 $args['clock'] = "`n`7A water clock drips quietly, showing `@%s`7.`n";
                 $args['schemas']['clock'] = "module-racespecialtyreptile";
                 if (is_module_active("calendar")) {

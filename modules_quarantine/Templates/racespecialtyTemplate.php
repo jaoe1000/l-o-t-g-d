@@ -274,6 +274,8 @@ function racespecialtytemplate_dohook($hookname, $args) {
             if (($session['user']['location'] ?? '') === $city) {
                 $args['text'] = ["`\$`c`b%s`b`c`n`^[PLACEHOLDER VILLAGE MAIN DESCRIPTION TEXT]`n", $city];
                 $args['schemas']['text'] = "module-racespecialtytemplate";
+                $args['description'] = ["`\$`c`b%s`b`c`n`^[PLACEHOLDER VILLAGE MAIN DESCRIPTION TEXT]`n", $city];
+                $args['schemas']['description'] = "module-racespecialtytemplate";
                 $args['clock'] = "`n`7A clock reads `@%s`7.`n";
                 $args['schemas']['clock'] = "module-racespecialtytemplate";
                 if (is_module_active("calendar")) {

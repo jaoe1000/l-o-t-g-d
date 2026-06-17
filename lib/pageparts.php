@@ -53,6 +53,9 @@ function page_header(){
 	if (!$arguments || count($arguments) == 0) {
 		$arguments = ['common.title'];
 	}
+	if (is_array($arguments[0])) {
+		$arguments = $arguments[0];
+	}
     $title = array_shift($arguments);
 	$title = str_replace('`%', '`%%`', $title);
     if (isTranslateKey($title)) {
