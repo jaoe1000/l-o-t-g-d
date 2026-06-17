@@ -46,6 +46,10 @@ function racehuman_install() {
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
     module_addhook("village");
+    module_addhook("weaponstext");
+    module_addhook("armortext");
+    module_addhook("trainingtitle");
+    module_addhook("modify-master");
     debug("Installed 'Human' advanced race module.");
     return true;
 }
@@ -325,13 +329,56 @@ function racehuman_dohook($hookname, $args) {
             break;
 
         case "village":
-            if (($session['user']['location'] ?? '') === $city) {
+            if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
                 // Add Commerce Guild to Merchant Square
                 addnav($args['marketnav']);
                 addnav("Commerce Guild", "runmodule.php?module=racehuman&op=guild");
                 // Add Academy Masterclass to Training Grounds
                 addnav($args['fightnav']);
                 addnav("Academy Masterclass", "runmodule.php?module=racehuman&op=academy");
+            }
+            break;
+
+        case "weaponstext":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "Oakhaven Steel & Iron";
+                $args['desc'] = [
+                    "`&You enter Oakhaven's grand weaponry forge. Master Horatio's metalworkers are busy hammering out stout steel blades.`n`n",
+                    "Racks of sturdy broadswords, iron spears, and solid round shields line the cobblestone walls.`n`n"
+                ];
+                $args['tradein'] = [
+                    "`7You step up to the heavy counter and display your weapon.`n",
+                    "`&The chief blacksmith wipes sweat from his brow, looks at your gear and says, \"`#I'll give you `^%s`# trade-in value for your `5%s`#.\"`n`n"
+                ];
+            }
+            break;
+
+        case "armortext":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "Oakhaven Heavy Plates";
+                $args['desc'] = [
+                    "`&Suits of polished plate mail, heavy iron breastplates, and stout shields stand in orderly rows inside the armoury.`n`n",
+                    "This armor is forged to withstand the heaviest blows from dragons and wild beasts.`n`n"
+                ];
+                $args['tradein'] = [
+                    "`7You show your current protection to the armorer.`n",
+                    "`&The armorer taps on your chestplate and nods. \"`#I can offer you `^%s`# trade-in value for your `5%s`#.\"`n`n"
+                ];
+            }
+            break;
+
+        case "trainingtitle":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "Oakhaven Training Academy";
+            }
+            break;
+
+        case "modify-master":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['creaturename'] = "Commander Landon";
+                $args['creatureweapon'] = "Steel Broadsword";
+                $args['creaturewin'] = "You fight well for a human, but you must strive harder! Go back and train!";
+                $args['creaturelose'] = "Your adaptation is remarkable. You have surpassed my teachings.";
             }
             break;
     }
@@ -342,6 +389,15 @@ function racehuman_run() {
     global $session;
     $op = httpget('op');
     $city = get_module_setting("villagename");
+    
+    // Check if the user is a Human
+    if (($session['user']['race'] ?? '') !== 'Human') {
+        page_header("Access Denied");
+        output("`\$Only Humans may access this location in Oakhaven.`n`n");
+        addnav("Return to Oakhaven", "village.php");
+        page_footer();
+        return;
+    }
     
     if ($op == "guild") {
         page_header("Oakhaven Commerce Guild");

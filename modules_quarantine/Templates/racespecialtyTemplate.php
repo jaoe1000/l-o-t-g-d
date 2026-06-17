@@ -72,6 +72,11 @@ function racespecialtytemplate_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
+    module_addhook("village");
+    module_addhook("weaponstext");
+    module_addhook("armortext");
+    module_addhook("trainingtitle");
+    module_addhook("modify-master");
     debug("Installed '[PLACEHOLDER RACE NAME]' specialty and race module."); // ***CHANGE
     return true;
 }
@@ -511,6 +516,53 @@ function racespecialtytemplate_dohook($hookname, $args) {
                 }
             }
             break;
+
+        case "village":
+            if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
+                // Add custom links here for your hybrid race/specialty, e.g.:
+                // addnav($args['marketnav']);
+                // addnav("Custom Altar", "runmodule.php?module=racespecialtytemplate&op=custom");
+            }
+            break;
+
+        case "weaponstext":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "[PLACEHOLDER WEAPON SHOP TITLE]";
+                $args['desc'] = [
+                    "`&[PLACEHOLDER WEAPON SHOP DESCRIPTION]`n`n"
+                ];
+                $args['tradein'] = [
+                    "`7[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER]`n`n"
+                ];
+            }
+            break;
+
+        case "armortext":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "[PLACEHOLDER ARMOR SHOP TITLE]";
+                $args['desc'] = [
+                    "`&[PLACEHOLDER ARMOR SHOP DESCRIPTION]`n`n"
+                ];
+                $args['tradein'] = [
+                    "`7[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER]`n`n"
+                ];
+            }
+            break;
+
+        case "trainingtitle":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "[PLACEHOLDER TRAINING CENTER TITLE]";
+            }
+            break;
+
+        case "modify-master":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['creaturename'] = "[PLACEHOLDER TRAINER NAME]";
+                $args['creatureweapon'] = "[PLACEHOLDER TRAINER WEAPON]";
+                $args['creaturewin'] = "[PLACEHOLDER TRAINER WIN MESSAGE]";
+                $args['creaturelose'] = "[PLACEHOLDER TRAINER LOSE MESSAGE]";
+            }
+            break;
     }
     return $args;
 }
@@ -520,6 +572,16 @@ function racespecialtytemplate_run() {
     $op = httpget('op');
     $spec = httpget('spec');
     $resline = httpget('resline');
+    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
+    
+    // Check if the user is of this race to prevent other races accessing custom features
+    if (($session['user']['race'] ?? '') !== $race) {
+        page_header("Access Denied");
+        output("`\$Only %ss may access these features.`n`n", $race);
+        addnav("Return to the Village", "village.php");
+        page_footer();
+        return;
+    }
     
     if ($op == "") {
         page_header("[PLACEHOLDER SPECIALTY MENU]"); // ***CHANGE

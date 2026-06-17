@@ -45,6 +45,10 @@ function raceelf_install() {
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
     module_addhook("village");
+    module_addhook("weaponstext");
+    module_addhook("armortext");
+    module_addhook("trainingtitle");
+    module_addhook("modify-master");
     debug("Installed 'Elf' advanced race module.");
     return true;
 }
@@ -322,13 +326,56 @@ function raceelf_dohook($hookname, $args) {
             break;
 
         case "village":
-            if (($session['user']['location'] ?? '') === $city) {
+            if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
                 // Add Herb Garden to Treepath Bazaar
                 addnav($args['marketnav']);
                 addnav("Herb Garden", "runmodule.php?module=raceelf&op=garden");
                 // Add Sylvan Shrine to Training Glade
                 addnav($args['fightnav']);
                 addnav("Sylvan Shrine", "runmodule.php?module=raceelf&op=shrine");
+            }
+            break;
+
+        case "weaponstext":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "Gladehaven Bowyer & Fletchery";
+                $args['desc'] = [
+                    "`&You climb into a spacious treetop workshop. Elven fletchers and woodcarvers are crafting elegant longbows and lightweight blades.`n`n",
+                    "Beautifully carved wooden racks hold graceful composite bows, silvered arrows, and slender rapiers.`n`n"
+                ];
+                $args['tradein'] = [
+                    "`7You place your weapon on the polished wooden counter.`n",
+                    "`&The master bowyer inspects it carefully. \"`#For this, I can credit you `^%s`# toward your next purchase. Elves require only the finest wood and steel.`\"`n`n"
+                ];
+            }
+            break;
+
+        case "armortext":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "Gladehaven Leaf & Hide";
+                $args['desc'] = [
+                    "`&Rows of light leather jerkins, moon-blessed hide vests, and armors woven from resilient living leaves hang from the branches.`n`n",
+                    "This armor is crafted to preserve the agility and grace of Elven defenders.`n`n"
+                ];
+                $args['tradein'] = [
+                    "`7You show your protection to the elven tanner.`n",
+                    "`&She feels the texture of your armor and nods. \"`#I will offer `^%s`# trade-in value for your `5%s`#.`\"`n`n"
+                ];
+            }
+            break;
+
+        case "trainingtitle":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "Gladehaven Training Glade";
+            }
+            break;
+
+        case "modify-master":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['creaturename'] = "Faelar the Sylvan Bladesinger";
+                $args['creatureweapon'] = "Elven Longbow";
+                $args['creaturewin'] = "You move like a human. Slower! More grace!";
+                $args['creaturelose'] = "A true warrior of the forest. Go, protect the glades.";
             }
             break;
     }
@@ -339,6 +386,15 @@ function raceelf_run() {
     global $session;
     $op = httpget('op');
     $city = get_module_setting("villagename");
+    
+    // Check if the user is an Elf
+    if (($session['user']['race'] ?? '') !== 'Elf') {
+        page_header("Access Denied");
+        output("`\$Only Elves may access this location in Gladehaven.`n`n");
+        addnav("Return to Gladehaven", "village.php");
+        page_footer();
+        return;
+    }
     
     if ($op == "shrine") {
         page_header("Gladehaven Sylvan Shrine");

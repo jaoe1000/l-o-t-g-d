@@ -14,13 +14,15 @@ require_once("lib/experience.php");
 
 tlschema("train");
 
-page_header("Bluspring's Warrior Training");
+$title = "Bluspring's Warrior Training";
+$title = modulehook("trainingtitle", ["title"=>$title])["title"];
+page_header($title);
 
 $battle = false;
 $victory = false;
 $defeat = false;
 
-output("`b`cBluspring's Warrior Training`c`b");
+output("`b`c%s`c`b", $title);
 
 $mid = (int) httpget("master");
 if ($mid) {
@@ -43,6 +45,7 @@ if (db_num_rows($result) > 0 && $session['user']['level'] <= 14){
     $master['creaturewin'] = stripslashes($master['creaturewin']);
     $master['creaturelose'] = stripslashes($master['creaturelose']);
     $master['creatureweapon'] = stripslashes($master['creatureweapon']);
+    $master = modulehook("modify-master", $master);
     if ($master['creaturename'] == "Gadriel the Elven Ranger" &&
             $session['user']['race'] == "Elf") {
         $master['creaturewin'] = "You call yourself an Elf?? Maybe Half-Elf! Come back when you've been better trained.";

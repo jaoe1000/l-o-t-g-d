@@ -65,6 +65,10 @@ function racespecialtyreptile_install() {
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
     module_addhook("village");
+    module_addhook("weaponstext");
+    module_addhook("armortext");
+    module_addhook("trainingtitle");
+    module_addhook("modify-master");
     debug("Installed 'Reptile' specialty and race module.");
     return true;
 }
@@ -489,13 +493,56 @@ function racespecialtyreptile_dohook($hookname, $args) {
             break;
 
         case "village":
-            if (($session['user']['location'] ?? '') === $city) {
+            if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
                 // Add Witch Doctor's Hut to Sslyther Shacks
                 addnav($args['marketnav']);
                 addnav("Witch Doctor's Hut", "runmodule.php?module=racespecialtyreptile&op=witchdoctor");
                 // Add Venom Altar to Murky Muck
                 addnav($args['fightnav']);
                 addnav("Venom Altar", "runmodule.php?module=racespecialtyreptile&op=altar");
+            }
+            break;
+
+        case "weaponstext":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "Sslyther Bone & Fang";
+                $args['desc'] = [
+                    "`&You enter a dark shack built on stilts. Reptilian craftsmen are shaping jagged weapons from beast fangs and giant bones.`n`n",
+                    "The walls are adorned with serrated daggers, bone spears, and crude shields carved from swamp turtle shells.`n`n"
+                ];
+                $args['tradein'] = [
+                    "`7You lay your weapon on a table of damp moss.`n",
+                    "`&The master smith clicks his tongue. \"`#Sssimple tool. I give you `^%s`# trade-in value for your `5%s`#.`\"`n`n"
+                ];
+            }
+            break;
+
+        case "armortext":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "Sslyther Scale & Carapace";
+                $args['desc'] = [
+                    "`&Crude yet sturdy sets of armor made from lizard scales, heavy insect carapaces, and dried swamp hide hang on wooden spikes.`n`n",
+                    "Reptiles value durability and resistance to swamp toxins above all else.`n`n"
+                ];
+                $args['tradein'] = [
+                    "`7You show your armor to the old scaly leatherworker.`n",
+                    "`&He rubs his claws over it and hisses, \"`#Not tough enough. I'll credit `^%s`# for your `5%s`#.`\"`n`n"
+                ];
+            }
+            break;
+
+        case "trainingtitle":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['title'] = "Sslyther Training Pit";
+            }
+            break;
+
+        case "modify-master":
+            if (($session['user']['location'] ?? '') === $city) {
+                $args['creaturename'] = "Sszar the Swamp Master";
+                $args['creatureweapon'] = "Serrated Bone Spear";
+                $args['creaturewin'] = "You are too soft-scaled. Toughen up!";
+                $args['creaturelose'] = "Impressive. You glide like the viper, strike like the python.";
             }
             break;
     }
@@ -508,6 +555,15 @@ function racespecialtyreptile_run() {
     $spec = httpget('spec');
     $resline = httpget('resline');
     $city = get_module_setting("villagename");
+    
+    // Check if the user is a Reptile
+    if (($session['user']['race'] ?? '') !== 'Reptile') {
+        page_header("Access Denied");
+        output("`\$Only Reptiles may access this location in Sslyther.`n`n");
+        addnav("Return to Sslyther", "village.php");
+        page_footer();
+        return;
+    }
     
     if ($op == "") {
         page_header("Choose Reptile Specialty Path"); 
