@@ -23,7 +23,8 @@ function racehuman_getmoduleinfo() {
         ],
         "prefs" => [
             "Human - User Prefs,title", 
-            // Empty for basic race
+            "investment" => "Commerce Guild investment,int|0",
+            "academy_purchased" => "Academy masterclass purchased this DK,bool|0",
         ]
     ];
 }
@@ -44,6 +45,7 @@ function racehuman_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
+    module_addhook("village");
     debug("Installed 'Human' advanced race module.");
     return true;
 }
@@ -145,6 +147,21 @@ function racehuman_dohook($hookname, $args) {
                     $args['turnstoday'] = ($args['turnstoday'] ?? '') . ", Race ($race): $ff";
                     $session['user']['turns'] += $ff;
                     output("`n`^Driven by human ambition, you wake up feeling energetic and gain `%$ff`^ extra turn(s) today!`n`0");
+                }
+                
+                $investment = (int)get_module_pref("investment");
+                if ($investment > 0) {
+                    $chance = e_rand(1, 100);
+                    if ($chance <= 5) {
+                        $lost = round($investment * 0.5);
+                        $investment -= $lost;
+                        set_module_pref("investment", $investment);
+                        output("`n`\$Bad news! One of your Oakhaven trade caravans was raided by bandits! You lost `^%s` gold from your investments.`n", $lost);
+                    } else {
+                        $dividend = round($investment * 0.05);
+                        $session['user']['gold'] += $dividend;
+                        output("`n`@Good news! Your trade investments in the Oakhaven Commerce Guild returned a dividend of `^%s` gold!`n", $dividend);
+                    }
                 }
             }
             break;
@@ -306,12 +323,127 @@ function racehuman_dohook($hookname, $args) {
                 }
             }
             break;
+
+        case "village":
+            if (($session['user']['location'] ?? '') === $city) {
+                // Add Commerce Guild to Merchant Square
+                addnav($args['marketnav']);
+                addnav("Commerce Guild", "runmodule.php?module=racehuman&op=guild");
+                // Add Academy Masterclass to Training Grounds
+                addnav($args['fightnav']);
+                addnav("Academy Masterclass", "runmodule.php?module=racehuman&op=academy");
+            }
+            break;
     }
     return $args;
 }
 
 function racehuman_run() {
-    // Custom shrines or building code can go here
+    global $session;
+    $op = httpget('op');
+    $city = get_module_setting("villagename");
+    
+    if ($op == "guild") {
+        page_header("Oakhaven Commerce Guild");
+        output("`c`b`^Oakhaven Commerce Guild`b`c`n`n");
+        output("`7Welcome to the Commerce Guild, where human capital drives mercantile prosperity. Here, you can invest gold into long-range trade caravans.`n`n");
+        
+        $investment = (int)get_module_pref("investment");
+        output("`7Your current active investment: `^%s`7 gold.`n`n", $investment);
+        
+        $subop = httpget('subop');
+        if ($subop == "invest") {
+            $amt = (int)httppost('amount');
+            if ($amt <= 0) {
+                $amt = (int)httpget('amount');
+            }
+            if ($amt > 0) {
+                if ($session['user']['gold'] >= $amt) {
+                    $session['user']['gold'] -= $amt;
+                    $investment += $amt;
+                    set_module_pref("investment", $investment);
+                    output("`@You have invested `^%s`@ gold into the guild caravans!`n`n", $amt);
+                } else {
+                    output("`\$You do not have enough gold on hand to make that investment.`n`n");
+                }
+            }
+        } elseif ($subop == "withdraw") {
+            if ($investment > 0) {
+                $tax = round($investment * 0.10);
+                $net = $investment - $tax;
+                $session['user']['gold'] += $net;
+                set_module_pref("investment", 0);
+                output("`@You have withdrawn your investments. After a 10%% guild fee (`^%s`@ gold), you receive `^%s`@ gold.`n`n", $tax, $net);
+                $investment = 0;
+            } else {
+                output("`7You do not have any active investments to withdraw.`n`n");
+            }
+        }
+        
+        output("`5Caravans yield a `^5%% dividend`5 every new day. However, they run a `\$5%% risk`5 of being raided by bandits (losing 50%% of invested capital).`n`n");
+        
+        // Investment form
+        output("`7How much would you like to invest?`n");
+        rawoutput("<form action='runmodule.php?module=racehuman&op=guild&subop=invest' method='POST'>");
+        rawoutput("<input type='number' name='amount' min='1' max='".(int)$session['user']['gold']."' placeholder='Gold amount' style='padding: 5px; border-radius: 4px; border: 1px solid #ccc;'>");
+        rawoutput(" <input type='submit' class='button' value='Invest Gold'>");
+        rawoutput("</form>");
+        
+        addnav("", "runmodule.php?module=racehuman&op=guild&subop=invest");
+        
+        if ($investment > 0) {
+            addnav("Withdraw Investments", "runmodule.php?module=racehuman&op=guild&subop=withdraw");
+        }
+        addnav("Return to Oakhaven", "village.php");
+        page_footer();
+    } elseif ($op == "academy") {
+        page_header("Oakhaven Combat Academy");
+        output("`c`b`^Oakhaven Combat Academy`b`c`n`n");
+        output("`7The trainers of the Academy offer advanced masterclasses in weapon handling and physical resilience, helping you unlock your full potential.`n`n");
+        
+        $purchased = get_module_pref("academy_purchased");
+        $cost_gold = 500;
+        $cost_gems = 1;
+        
+        $subop = httpget('subop');
+        if ($subop == "train") {
+            if ($purchased) {
+                output("`\$You have already completed a masterclass during this lifetime. You must wait until your next dragon kill to learn more.`n`n");
+            } elseif ($session['user']['gold'] < $cost_gold || $session['user']['gems'] < $cost_gems) {
+                output("`\$You do not possess the required `^%s gold`0 or `@%s gem(s)`0 to pay the trainers.`n`n", $cost_gold, $cost_gems);
+            } else {
+                $stat = httpget('stat');
+                if ($stat == "attack") {
+                    $session['user']['gold'] -= $cost_gold;
+                    $session['user']['gems'] -= $cost_gems;
+                    $session['user']['attack'] += 1;
+                    set_module_pref("academy_purchased", 1);
+                    output("`@You attend the weapon masterclass and permanently gain `^+1 Attack`@!`n`n");
+                    $purchased = true;
+                } elseif ($stat == "defense") {
+                    $session['user']['gold'] -= $cost_gold;
+                    $session['user']['gems'] -= $cost_gems;
+                    $session['user']['defense'] += 1;
+                    set_module_pref("academy_purchased", 1);
+                    output("`@You attend the defensive masterclass and permanently gain `^+1 Defense`@!`n`n");
+                    $purchased = true;
+                }
+            }
+        }
+        
+        output("`7Attendance cost: `^%s gold`7 and `@%s gem(s)`7.`n`n", $cost_gold, $cost_gems);
+        
+        if (!$purchased) {
+            addnav("Attend Masterclass");
+            addnav("Train Attack (+1 Attack)", "runmodule.php?module=racehuman&op=academy&subop=train&stat=attack");
+            addnav("Train Defense (+1 Defense)", "runmodule.php?module=racehuman&op=academy&subop=train&stat=defense");
+        } else {
+            output("`&You have already attended the masterclass for this dragon kill.`n`n");
+        }
+        
+        addnav("Return to Oakhaven", "village.php");
+        page_footer();
+    }
 }
 
 function racehuman_change() {

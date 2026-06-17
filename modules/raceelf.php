@@ -22,7 +22,8 @@ function raceelf_getmoduleinfo() {
         ],
         "prefs" => [
             "Elf - User Prefs,title", 
-            // Empty for basic race
+            "fights_blessed" => "Fights blessed today,bool|0",
+            "garden_foraged" => "Foraged today,bool|0",
         ]
     ];
 }
@@ -43,6 +44,7 @@ function raceelf_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
+    module_addhook("village");
     debug("Installed 'Elf' advanced race module.");
     return true;
 }
@@ -153,6 +155,9 @@ function raceelf_dohook($hookname, $args) {
                     "rounds" => -1,
                     "schema" => "module-raceelf",
                 ]);
+                
+                set_module_pref("fights_blessed", 0);
+                set_module_pref("garden_foraged", 0);
                 
                 output("`n`@You awaken with sylvan grace. Your senses are razor sharp (+15% defense, +5% attack, +1 extra turn)!`n`0");
             }
@@ -315,12 +320,141 @@ function raceelf_dohook($hookname, $args) {
                 }
             }
             break;
+
+        case "village":
+            if (($session['user']['location'] ?? '') === $city) {
+                // Add Herb Garden to Treepath Bazaar
+                addnav($args['marketnav']);
+                addnav("Herb Garden", "runmodule.php?module=raceelf&op=garden");
+                // Add Sylvan Shrine to Training Glade
+                addnav($args['fightnav']);
+                addnav("Sylvan Shrine", "runmodule.php?module=raceelf&op=shrine");
+            }
+            break;
     }
     return $args;
 }
 
 function raceelf_run() {
-    // Custom shrines or building code can go here
+    global $session;
+    $op = httpget('op');
+    $city = get_module_setting("villagename");
+    
+    if ($op == "shrine") {
+        page_header("Gladehaven Sylvan Shrine");
+        output("`c`b`@Gladehaven Sylvan Shrine`b`c`n`n");
+        output("`7Ancient, glowing runes run down the stone altar, surrounded by sylvan tree roots. Offering a gem here allows you to request sylvan blessings.`n`n");
+        
+        $subop = httpget('subop');
+        $blessed = get_module_pref("fights_blessed");
+        
+        if ($subop == "bless") {
+            if ($session['user']['gems'] < 1) {
+                output("`\$You do not have any gems to offer the forest spirits.`n`n");
+            } else {
+                $type = httpget('type');
+                if ($type == "grace") {
+                    if ($blessed) {
+                        output("`\$The forest spirits whisper that you have already received the Blessing of Grace today.`n`n");
+                    } else {
+                        $session['user']['gems'] -= 1;
+                        $session['user']['turns'] += 2;
+                        set_module_pref("fights_blessed", 1);
+                        output("`@You offer a gem to the altar. A warm green light envelops you, granting you `^+2 extra turns`@ today!`n`n");
+                        $blessed = true;
+                    }
+                } elseif ($type == "wards") {
+                    $session['user']['gems'] -= 1;
+                    apply_buff("sylvan_ward", [
+                        "name" => "`@Sylvan Ward`0",
+                        "defmod" => 1.25,
+                        "rounds" => 40,
+                        "allowinpvp" => 1,
+                        "allowintrain" => 1,
+                        "schema" => "module-raceelf",
+                    ]);
+                    output("`@You offer a gem to the altar. Wisps of wind surround you, forming a defensive sylvan ward (+25%% defense) for 40 rounds of combat!`n`n");
+                } elseif ($type == "focus") {
+                    $session['user']['gems'] -= 1;
+                    $session['user']['hitpoints'] = $session['user']['maxhitpoints'];
+                    output("`@You offer a gem to the altar. Gentle glowing leaves touch your wounds, completely healing your body!`n`n");
+                }
+            }
+        }
+        
+        output("`7You have `@%s gem(s)`7 to offer.`n`n", $session['user']['gems']);
+        
+        if ($session['user']['gems'] >= 1) {
+            addnav("Request Blessing");
+            if (!$blessed) {
+                addnav("Blessing of Grace (+2 Turns today)", "runmodule.php?module=raceelf&op=shrine&subop=bless&type=grace");
+            } else {
+                addnav("Blessing of Grace (Already received)", "");
+            }
+            addnav("Blessing of Wards (+25% Defense)", "runmodule.php?module=raceelf&op=shrine&subop=bless&type=wards");
+            addnav("Blessing of Focus (Full Heal)", "runmodule.php?module=raceelf&op=shrine&subop=bless&type=focus");
+        }
+        
+        addnav("Return to Gladehaven", "village.php");
+        page_footer();
+    } elseif ($op == "garden") {
+        page_header("Gladehaven Herb Garden");
+        output("`c`b`@Gladehaven Herb Garden`b`c`n`n");
+        output("`7A peaceful glade filled with sylvan flowers, glowing moss, and rare herbs. Once per day, you may forage for magical ingredients.`n`n");
+        
+        $foraged = get_module_pref("garden_foraged");
+        $subop = httpget('subop');
+        
+        if ($subop == "forage") {
+            if ($foraged) {
+                output("`\$You have already foraged the garden today. Let the plants grow back before foraging again.`n`n");
+            } else {
+                set_module_pref("garden_foraged", 1);
+                $foraged = true;
+                $roll = e_rand(1, 10);
+                if ($roll <= 4) {
+                    // Dewberry (Heal 50% HP)
+                    $heal = round($session['user']['maxhitpoints'] * 0.50);
+                    $session['user']['hitpoints'] = min($session['user']['maxhitpoints'], $session['user']['hitpoints'] + $heal);
+                    output("`@You search the canopy and discover a ripe `&Dewberry`@. You eat it, restoring `^%s`@ hitpoints!`n`n", $heal);
+                } elseif ($roll <= 7) {
+                    // Ironwood Bark (+20% def, 10 rounds)
+                    apply_buff("ironwood_bark", [
+                        "name" => "`^Ironwood Bark`0",
+                        "defmod" => 1.20,
+                        "rounds" => 10,
+                        "allowinpvp" => 1,
+                        "allowintrain" => 1,
+                        "schema" => "module-raceelf",
+                    ]);
+                    output("`@You forage and peel off a slice of `&Ironwood Bark`@. You chew it, hardening your skin (+20%% defense) for your next combat!`n`n");
+                } elseif ($roll <= 9) {
+                    // Sunpetal (+20% atk, 10 rounds)
+                    apply_buff("sunpetal", [
+                        "name" => "`&Sunpetal`0",
+                        "atkmod" => 1.20,
+                        "rounds" => 10,
+                        "allowinpvp" => 1,
+                        "allowintrain" => 1,
+                        "schema" => "module-raceelf",
+                    ]);
+                    output("`@You forage and pick a glowing `&Sunpetal`@. The sweet nectar fills you with combat adrenaline (+20%% attack) for your next combat!`n`n");
+                } else {
+                    output("`7You search the garden but find nothing of use today.`n`n");
+                }
+            }
+        }
+        
+        if (!$foraged) {
+            addnav("Forage");
+            addnav("Search for Herbs", "runmodule.php?module=raceelf&op=garden&subop=forage");
+        } else {
+            output("`&You have already foraged the herb garden today.`n`n");
+        }
+        
+        addnav("Return to Gladehaven", "village.php");
+        page_footer();
+    }
 }
 
 function raceelf_change() {

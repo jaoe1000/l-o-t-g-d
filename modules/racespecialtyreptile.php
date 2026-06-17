@@ -32,6 +32,8 @@ function racespecialtyreptile_getmoduleinfo() {
             "newdayset" => "Newday intercept at footer...,hidden|0", 
             "pagereturn" => "Return to what page after forced specialty change?,hidden|",
             "scoundrel" => "How many times has this user attempted to have the specialty without the race?,viewonly|0", 
+            "venom_today" => "Coated venom today,bool|0",
+            "mud_bath_today" => "Mud bath today,bool|0",
         ]
     ];
 }
@@ -62,6 +64,7 @@ function racespecialtyreptile_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
+    module_addhook("village");
     debug("Installed 'Reptile' specialty and race module.");
     return true;
 }
@@ -207,6 +210,9 @@ function racespecialtyreptile_dohook($hookname, $args) {
                 $amt = (int)(get_module_pref("skill") / 3);
                 if ($userSpec === $spec) $amt += $bonus;
                 set_module_pref("uses", $amt);
+                
+                set_module_pref("venom_today", 0);
+                set_module_pref("mud_bath_today", 0);
             }
             break;
 
@@ -481,6 +487,17 @@ function racespecialtyreptile_dohook($hookname, $args) {
                 }
             }
             break;
+
+        case "village":
+            if (($session['user']['location'] ?? '') === $city) {
+                // Add Witch Doctor's Hut to Sslyther Shacks
+                addnav($args['marketnav']);
+                addnav("Witch Doctor's Hut", "runmodule.php?module=racespecialtyreptile&op=witchdoctor");
+                // Add Venom Altar to Murky Muck
+                addnav($args['fightnav']);
+                addnav("Venom Altar", "runmodule.php?module=racespecialtyreptile&op=altar");
+            }
+            break;
     }
     return $args;
 }
@@ -490,6 +507,7 @@ function racespecialtyreptile_run() {
     $op = httpget('op');
     $spec = httpget('spec');
     $resline = httpget('resline');
+    $city = get_module_setting("villagename");
     
     if ($op == "") {
         page_header("Choose Reptile Specialty Path"); 
@@ -500,8 +518,121 @@ function racespecialtyreptile_run() {
         addnav("Lizard Path (Magic)", "newday.php?setspecialty=$spec&mc=magic&sc=1$resline"); 
         addnav("Snake Path (Melee)", "newday.php?setspecialty=$spec&mc=melee&sc=2$resline"); 
         addnav("Amphibian Path (Ranging)", "newday.php?setspecialty=$spec&mc=ranging&sc=3$resline"); 
+        page_footer();
+    } elseif ($op == "altar") {
+        page_header("Sslyther Venom Altar");
+        output("`c`b`2Sslyther Venom Altar`b`c`n`n");
+        output("`7Swamp gas rises around an altar filled with dark venomous glands and toxic swamp fauna. Here, you can offer gold to coat your weapon in lethal toxins.`n`n");
+        
+        $coated = get_module_pref("venom_today");
+        $cost = 100;
+        
+        $subop = httpget('subop');
+        if ($subop == "coat") {
+            if ($coated) {
+                output("`\$Your weapon is already dripping with venom today. Wasting more venom on it would be futile.`n`n");
+            } elseif ($session['user']['gold'] < $cost) {
+                output("`\$You do not have enough gold to purchase the altar toxins.`n`n");
+            } else {
+                $session['user']['gold'] -= $cost;
+                set_module_pref("venom_today", 1);
+                $coated = true;
+                apply_buff("toxic_coating", [
+                    "name" => "`2Toxic Coating`0",
+                    "atkmod" => 1.10,
+                    "badguydmgmod" => 0.95,
+                    "rounds" => 30,
+                    "allowinpvp" => 1,
+                    "allowintrain" => 1,
+                    "schema" => "module-racespecialtyreptile",
+                ]);
+                output("`@You pay `^%s`@ gold and plunge your weapon into the venom pool. Toxin bubbles sizzle on the blade (+10%% attack, -5%% enemy damage) for 30 rounds!`n`n", $cost);
+            }
+        }
+        
+        if (!$coated) {
+            addnav("Coat Weapon");
+            addnav("Apply Toxin (100 gold)", "runmodule.php?module=racespecialtyreptile&op=altar&subop=coat");
+        } else {
+            output("`2Your weapon is coated with toxic venom for the day.`n`n");
+        }
+        
+        addnav("Return to Sslyther", "village.php");
+        page_footer();
+    } elseif ($op == "witchdoctor") {
+        page_header("Sslyther Witch Doctor's Hut");
+        output("`c`b`2Witch Doctor's Hut`b`c`n`n");
+        output("`7Shamanic fetishes hang from the ceiling. A giant pot of bubbling swamp brew fills the room with pungent green vapor.`n`n");
+        
+        $mud_bath = get_module_pref("mud_bath_today");
+        $subop = httpget('subop');
+        
+        if ($subop == "mudbath") {
+            if ($mud_bath) {
+                output("`\$You have already taken a mud bath today.`n`n");
+            } elseif ($session['user']['gold'] < 100) {
+                output("`\$You do not have 100 gold to pay the Witch Doctor.`n`n");
+            } else {
+                $session['user']['gold'] -= 100;
+                set_module_pref("mud_bath_today", 1);
+                $mud_bath = true;
+                apply_buff("mud_bath", [
+                    "name" => "`2Swamp Mud Bath`0",
+                    "defmod" => 1.10,
+                    "rounds" => -1,
+                    "allowinpvp" => 1,
+                    "allowintrain" => 1,
+                    "schema" => "module-racespecialtyreptile",
+                ]);
+                output("`@You sink into the warm mud bath. The nutrient-rich muck hardens your skin, boosting defense (+10%% defense) for the rest of the day!`n`n");
+            }
+        } elseif ($subop == "brew") {
+            if ($session['user']['gold'] < 50) {
+                output("`\$You do not have 50 gold for the swamp brew.`n`n");
+            } else {
+                $session['user']['gold'] -= 50;
+                $roll = e_rand(1, 10);
+                if ($roll <= 5) {
+                    // Full Heal
+                    $session['user']['hitpoints'] = $session['user']['maxhitpoints'];
+                    output("`@You drink the brew. It tastes foul, but a rush of vitality completely restores your hitpoints!`n`n");
+                } elseif ($roll <= 8) {
+                    // Poison
+                    apply_buff("swamp_poison", [
+                        "name" => "`\$Swamp Poison`0",
+                        "atkmod" => 0.90,
+                        "rounds" => 5,
+                        "allowinpvp" => 1,
+                        "allowintrain" => 1,
+                        "schema" => "module-racespecialtyreptile",
+                    ]);
+                    output("`\$You drink the brew and immediately feel dizzy. The toxic concoction poisons your stomach (-10%% attack) for your next 5 rounds.`n`n");
+                } else {
+                    // Attack Rush (+15% attack, 5 rounds)
+                    apply_buff("brew_rush", [
+                        "name" => "`2Swamp Rush`0",
+                        "atkmod" => 1.15,
+                        "rounds" => 5,
+                        "allowinpvp" => 1,
+                        "allowintrain" => 1,
+                        "schema" => "module-racespecialtyreptile",
+                    ]);
+                    output("`@You drink the brew and feel your heart race with pure aggression (+15%% attack) for your next 5 rounds!`n`n");
+                }
+            }
+        }
+        
+        addnav("Witch Doctor Services");
+        if (!$mud_bath) {
+            addnav("Swamp Mud Bath (100 gold)", "runmodule.php?module=racespecialtyreptile&op=witchdoctor&subop=mudbath");
+        } else {
+            addnav("Swamp Mud Bath (Already taken)", "");
+        }
+        addnav("Drink Risky Brew (50 gold)", "runmodule.php?module=racespecialtyreptile&op=witchdoctor&subop=brew");
+        
+        addnav("Return to Sslyther", "village.php");
+        page_footer();
     }
-    page_footer();
 }
 
 function racespecialtyreptile_change() {
