@@ -50,6 +50,9 @@ function usechow_uninstall(){
 
 function usechow_runevent($type){
 		$uchow  = get_module_pref("chow");
+		$userchow = 0;
+		$done = 0;
+		$newchow = "";
 		for ($i=0;$i<6;$i+=1){
 		$chow[$i]=substr(strval($uchow),$i,1);
 		if ($chow[$i] > 0) $userchow++;
@@ -305,6 +308,8 @@ function usechow_run(){
 
 	$op = httpget('op');
 	$act = httpget('act');
+	$potty = 0;
+	$usedchow = "";
 
 	set_module_pref('restrict', 1);
 	if (is_module_active('potions')) {
@@ -412,6 +417,9 @@ function usechow_run(){
 
 function usechow_inn($act) {
 	global $session;
+	$op = httpget('op');
+	$userchow = 0;
+	$texts = array();
 
 	$uchow  = get_module_pref("chow");
 	$uhunger = get_module_pref("hunger");
