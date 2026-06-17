@@ -333,8 +333,8 @@ a:hover {
 .stats-grid {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 15px;
+  gap: 3px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
@@ -346,13 +346,7 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-  padding-bottom: 6px;
-}
-
-.stat-row:last-of-type {
-  border-bottom: none;
-  padding-bottom: 0;
+  padding: 2px 0;
 }
 
 /* Format experience bar and table rows to stack vertically and stretch full width */
@@ -361,8 +355,7 @@ a:hover {
   flex-direction: column;
   align-items: stretch;
   gap: 4px;
-  border-bottom: none;
-  padding-bottom: 4px;
+  padding: 6px 0;
 }
 
 /* Style legacy stat progress bar tables (Bladder, Odor, Hunger) to match Experience bar */
@@ -672,9 +665,38 @@ textarea:focus {
   box-shadow: 0 0 8px var(--accent-glow);
 }
 
+select option {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
 textarea {
   min-height: 100px;
   resize: vertical;
+}
+
+/* Theme Switcher in Sidebar */
+.theme-switcher-wrapper {
+  margin-top: 30px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.theme-switcher-wrapper label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.theme-switcher-wrapper select {
+  width: 100%;
 }
 
 /* Legacy Table Layout Styles */

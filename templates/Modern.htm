@@ -86,6 +86,38 @@
           {nav}
         </ul>
       </nav>
+
+      <!-- Theme Switcher -->
+      <div class="theme-switcher-wrapper">
+        <label for="theme-select">🎨 Switch Skin</label>
+        <select id="theme-select" onchange="document.cookie = 'template=' + this.value + '; path=/; max-age=31536000'; location.reload();">
+          <option value="Modern.htm">Modern</option>
+          <option value="Classic.htm">Classic</option>
+          <option value="Cupertino.htm">Cupertino</option>
+          <option value="Red.htm">Red</option>
+          <option value="Responsive.htm">Responsive</option>
+          <option value="jade.htm">Jade</option>
+          <option value="mer.htm">Mer</option>
+          <option value="mourn.htm">Mourn</option>
+          <option value="desert.htm">Desert</option>
+          <option value="volcano.htm">Volcano</option>
+        </select>
+        <script type="text/javascript">
+          (function() {
+            var cookies = document.cookie.split(';');
+            var template = 'Modern.htm';
+            for (var i = 0; i < cookies.length; i++) {
+              var parts = cookies[i].split('=');
+              if (parts[0].trim() === 'template') {
+                template = decodeURIComponent(parts[1].trim());
+                break;
+              }
+            }
+            var select = document.getElementById('theme-select');
+            if (select) select.value = template;
+          })();
+        </script>
+      </div>
     </aside>
 
     <!-- Main Content Panel -->
