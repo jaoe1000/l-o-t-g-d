@@ -202,12 +202,12 @@ a:hover {
 .nav-menu-header {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--accent-color);
+  color: var(--accent-gold);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: 25px;
+  letter-spacing: 1.5px;
+  margin-top: 22px;
   margin-bottom: 8px;
-  border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.15);
   padding-bottom: 4px;
 }
 
@@ -221,6 +221,7 @@ a:hover {
   padding: 4px 8px;
   margin-bottom: 5px;
   font-style: italic;
+  margin-left: 8px;
 }
 
 .nav-menu-item {
@@ -231,6 +232,7 @@ a:hover {
   border-radius: var(--radius-md);
   margin-bottom: 4px;
   border-left: 2px solid transparent;
+  margin-left: 8px; /* Visual nesting under headers */
 }
 
 .nav-menu-item:hover {
@@ -317,7 +319,7 @@ a:hover {
 /* ==========================================================================
    Stats Grid System
    ========================================================================== */
-.stats-grid {
+/*.stats-grid {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 8px 12px;
@@ -326,10 +328,75 @@ a:hover {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   margin-bottom: 20px;
+}*/
+
+.stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  padding-bottom: 6px;
+}
+
+.stat-row:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Format experience bar and table rows to stack vertically and stretch full width */
+.stat-row:has(.exp-bar-container),
+.stat-row:has(table) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+
+/* Style legacy stat progress bar tables (Bladder, Odor, Hunger) to match Experience bar */
+.stat-row table {
+  display: block;
+  width: 100% !important;
+  height: 20px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-sm) !important;
+  overflow: hidden;
+  margin: 4px 0 0 0 !important;
+  border-collapse: collapse;
+}
+
+.stat-row table tr {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.stat-row table td {
+  padding: 0 !important;
+  border: none !important;
+  height: 100% !important;
+}
+
+.stat-row table td[bgcolor] {
+  background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.4), rgba(255, 255, 255, 0.2)) !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  height: 100% !important;
 }
 
 .stats-grid-header {
-  grid-column: 1 / -1;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--accent-gold);
@@ -345,7 +412,6 @@ a:hover {
 }
 
 .stat-grid-label {
-  grid-column: 1;
   font-size: 0.85rem;
   color: var(--text-muted);
   display: flex;
@@ -353,7 +419,6 @@ a:hover {
 }
 
 .stat-grid-value {
-  grid-column: 2;
   font-size: 0.85rem;
   text-align: right;
   font-weight: 500;

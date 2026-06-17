@@ -68,6 +68,30 @@ function expbar_dohook(string $hookname, array $args): array
             
             // Update the display of Experience in character stats
             setcharstat("Vital Info", "Experience", $bar_html);
+            
+            global $charstat_info;
+            if (isset($charstat_info['Vital Info'])) {
+                $vital = $charstat_info['Vital Info'];
+                $new_vital = [];
+                foreach ($vital as $k => $v) {
+                    if ($k !== 'Experience' && $k !== 'Bladder' && $k !== 'Odor' && $k !== 'Hunger') {
+                        $new_vital[$k] = $v;
+                    }
+                }
+                if (isset($vital['Experience'])) {
+                    $new_vital['Experience'] = $vital['Experience'];
+                }
+                if (isset($vital['Bladder'])) {
+                    $new_vital['Bladder'] = $vital['Bladder'];
+                }
+                if (isset($vital['Odor'])) {
+                    $new_vital['Odor'] = $vital['Odor'];
+                }
+                if (isset($vital['Hunger'])) {
+                    $new_vital['Hunger'] = $vital['Hunger'];
+                }
+                $charstat_info['Vital Info'] = $new_vital;
+            }
         }
     }
     return $args;
