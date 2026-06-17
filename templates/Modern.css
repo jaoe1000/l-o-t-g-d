@@ -376,7 +376,7 @@ a:hover {
 }
 
 .stat-row table {
-  display: block;
+  display: table !important;
   position: absolute;
   top: 0;
   left: 0;
@@ -387,16 +387,17 @@ a:hover {
   border-radius: var(--radius-sm) !important;
   overflow: hidden;
   margin: 0 !important;
-  border-collapse: collapse;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
 }
 
 .stat-row table tr {
-  display: flex;
-  height: 100%;
-  width: 100%;
+  display: table-row !important;
+  height: 100% !important;
 }
 
 .stat-row table td {
+  display: table-cell !important;
   padding: 0 !important;
   border: none !important;
   height: 100% !important;
