@@ -103,7 +103,14 @@ function injectmodule($modulename,$force=false){
 					// Remove any old hooks (install will reset them)
 					module_wipehooks();
 					$fname = $modulename."_install";
-					if ($fname() === false) {
+					global $block_new_output;
+					$old_block_new_output = $block_new_output;
+					if (basename($_SERVER['SCRIPT_NAME'] ?? '') !== 'modules.php') {
+						$block_new_output = true;
+					}
+					$install_result = $fname();
+					$block_new_output = $old_block_new_output;
+					if ($install_result === false) {
 						return false;
 					}
 					invalidatedatacache("inject-$modulename");
