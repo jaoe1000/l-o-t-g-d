@@ -251,6 +251,15 @@ function racehuman_dohook($hookname, $args) {
                 $args['schemas']['marketnav'] = "module-racehuman";
                 $args['tavernnav'] = "The Boar's Head Tavern";
                 $args['schemas']['tavernnav'] = "module-racehuman";
+                
+                // Override standard location nav labels
+                $args['navs']['weapons'] = "Oakhaven Steel & Iron";
+                $args['navs']['armor'] = "Oakhaven Heavy Plates";
+                $args['navs']['train'] = "u?Oakhaven Training Academy";
+                $args['schemas']['navs']['weapons'] = "module-racehuman";
+                $args['schemas']['navs']['armor'] = "module-racehuman";
+                $args['schemas']['navs']['train'] = "module-racehuman";
+
                 unblocknav("stables.php");
             }
             break;

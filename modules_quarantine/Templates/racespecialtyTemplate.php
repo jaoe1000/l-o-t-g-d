@@ -319,6 +319,15 @@ function racespecialtytemplate_dohook($hookname, $args) {
                 $args['schemas']['marketnav'] = "module-racespecialtytemplate";
                 $args['tavernnav'] = "[PLACEHOLDER TAVERN NAV TEXT]";
                 $args['schemas']['tavernnav'] = "module-racespecialtytemplate";
+
+                // Override standard location nav labels
+                $args['navs']['weapons'] = "[PLACEHOLDER WEAPONRY NAME]";
+                $args['navs']['armor'] = "[PLACEHOLDER ARMOURY NAME]";
+                $args['navs']['train'] = "u?[PLACEHOLDER TRAINING NAME]";
+                $args['schemas']['navs']['weapons'] = "module-racespecialtytemplate";
+                $args['schemas']['navs']['armor'] = "module-racespecialtytemplate";
+                $args['schemas']['navs']['train'] = "module-racespecialtytemplate";
+
                 unblocknav("stables.php");
             }
             break;

@@ -12,6 +12,28 @@ require_once("lib/substitute.php");
 require_once("lib/villagenav.php");
 require_once("lib/experience.php");
 
+// Check if player is allowed to train here based on their race
+$userRace = $session['user']['race'] ?? '';
+$userLocation = $session['user']['location'] ?? '';
+
+$allowedCity = '';
+if ($userRace === 'Human' && is_module_active('racehuman')) {
+    $allowedCity = get_module_setting('villagename', 'racehuman') ?: 'Oakhaven';
+} elseif ($userRace === 'Elf' && is_module_active('raceelf')) {
+    $allowedCity = get_module_setting('villagename', 'raceelf') ?: 'Gladehaven';
+} elseif ($userRace === 'Reptile' && is_module_active('racespecialtyreptile')) {
+    $allowedCity = get_module_setting('villagename', 'racespecialtyreptile') ?: 'Sslyther';
+}
+
+if ($allowedCity !== '' && $userLocation !== $allowedCity) {
+    tlschema("train");
+    page_header("Warrior Training Restricted");
+    output("`^Your master does not reside in `&%s`^. You must travel to your race's home city of `&%s`^ to train and challenge your master.`0", $userLocation, $allowedCity);
+    addnav("Return to the Village", "village.php");
+    page_footer();
+    exit;
+}
+
 tlschema("train");
 
 $title = "Bluspring's Warrior Training";

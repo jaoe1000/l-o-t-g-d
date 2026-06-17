@@ -248,6 +248,15 @@ function raceelf_dohook($hookname, $args) {
                 $args['schemas']['marketnav'] = "module-raceelf";
                 $args['tavernnav'] = "The Dewdrop Inn";
                 $args['schemas']['tavernnav'] = "module-raceelf";
+
+                // Override standard location nav labels
+                $args['navs']['weapons'] = "Gladehaven Bowyer & Fletchery";
+                $args['navs']['armor'] = "Gladehaven Leaf & Hide";
+                $args['navs']['train'] = "u?Gladehaven Training Glade";
+                $args['schemas']['navs']['weapons'] = "module-raceelf";
+                $args['schemas']['navs']['armor'] = "module-raceelf";
+                $args['schemas']['navs']['train'] = "module-raceelf";
+
                 unblocknav("stables.php");
             }
             break;

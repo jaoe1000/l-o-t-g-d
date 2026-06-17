@@ -126,6 +126,22 @@ $navigation = [
 if (!getsetting('enablecompanions', false)) unset($navigation['gate']['mercenary']);
 if (!getsetting('pvp', true)) unset($navigation['gate']['pvp']);
 if (!getsetting('allowclans', true)) unset($navigation['gate']['clan']);
+
+// Lock race master training to home city only
+$userRace = $session['user']['race'] ?? '';
+$userLocation = $session['user']['location'] ?? '';
+$allowedCity = '';
+if ($userRace === 'Human' && is_module_active('racehuman')) {
+    $allowedCity = get_module_setting('villagename', 'racehuman') ?: 'Oakhaven';
+} elseif ($userRace === 'Elf' && is_module_active('raceelf')) {
+    $allowedCity = get_module_setting('villagename', 'raceelf') ?: 'Gladehaven';
+} elseif ($userRace === 'Reptile' && is_module_active('racespecialtyreptile')) {
+    $allowedCity = get_module_setting('villagename', 'racespecialtyreptile') ?: 'Sslyther';
+}
+
+if ($allowedCity !== '' && $userLocation !== $allowedCity) {
+    unset($navigation['fight']['train']);
+}
 if ($session['user']['superuser'] & SU_EDIT_COMMENTS) {
     $navigation['superuser']['moderate'] = 'moderate.php';
 }

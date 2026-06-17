@@ -302,6 +302,15 @@ function racespecialtyreptile_dohook($hookname, $args) {
                 $args['schemas']['marketnav'] = "module-racespecialtyreptile";
                 $args['tavernnav'] = "The Muddy Bog Tavern";
                 $args['schemas']['tavernnav'] = "module-racespecialtyreptile";
+
+                // Override standard location nav labels
+                $args['navs']['weapons'] = "Sslyther Bone & Fang";
+                $args['navs']['armor'] = "Sslyther Scale & Carapace";
+                $args['navs']['train'] = "u?Sslyther Training Pit";
+                $args['schemas']['navs']['weapons'] = "module-racespecialtyreptile";
+                $args['schemas']['navs']['armor'] = "module-racespecialtyreptile";
+                $args['schemas']['navs']['train'] = "module-racespecialtyreptile";
+
                 unblocknav("stables.php");
             }
             break;
