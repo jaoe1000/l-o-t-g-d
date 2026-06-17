@@ -46,17 +46,31 @@ function viewcommentaryargs_dohook($hook, $args)
             global $mysqli_resource;
             $accounts = db_prefix('accounts');
             $commentary = db_prefix('commentary');
-            preg_match("/bio.php\?char=(.*)&ret/", $args['commentline'], $matches);
-            $acctid = filter_var($matches[1], FILTER_SANITIZE_NUMBER_INT);
+            if (empty($args['commentline']) || !preg_match("/bio.php\?char=(.*?)&ret/", $args['commentline'], $matches)) {
+                break;
+            }
+            $acctid = (int)filter_var($matches[1], FILTER_SANITIZE_NUMBER_INT);
+            if ($acctid <= 0) {
+                break;
+            }
             $sql = db_query_cached(
                 "SELECT login, name FROM $accounts WHERE acctid = $acctid",
                 "commentary-author_name-$acctid",
                 86400
             );
+            if (!$sql) {
+                break;
+            }
             $row = db_fetch_assoc($sql);
-            $name = $row['name'];
-            $login = $row['login'];
-            $temp = explode($row['name'], $args['commentline']);
+            if (empty($row)) {
+                break;
+            }
+            $name = $row['name'] ?? '';
+            $login = $row['login'] ?? '';
+            $temp = explode($name, $args['commentline']);
+            if (!isset($temp[1])) {
+                break;
+            }
             $temp = str_replace('`3 says, "`#', '', $temp[1]);
             $temp = str_replace('`3"', '', $temp);
             $temp = str_replace('/me', '', $temp);
