@@ -100,7 +100,7 @@ function sprintf_translate(){
 	$setSchema = false;
 	// Handle if an array is passed in as the first arg
 	if (is_array($args[0])) {
-		$args[0] = call_user_func_array('sprintf_translate', $args[0]);
+		return call_user_func_array('sprintf_translate', $args[0]);
 	} else {
 		if (is_bool($args[0]) && array_shift($args)) {
 			tlschema(array_shift($args));
