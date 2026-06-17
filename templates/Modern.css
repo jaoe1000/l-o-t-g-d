@@ -200,15 +200,18 @@ a:hover {
 }
 
 .nav-menu-header {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--accent-gold);
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  margin-top: 22px;
+  margin-top: 24px;
   margin-bottom: 8px;
-  border-bottom: 1px solid rgba(245, 158, 11, 0.15);
-  padding-bottom: 4px;
+  padding: 6px 12px;
+  background: rgba(245, 158, 11, 0.04);
+  border-left: 3px solid var(--accent-gold);
+  border-radius: var(--radius-sm);
+  display: block;
 }
 
 .nav-menu-header:first-child {
@@ -221,7 +224,7 @@ a:hover {
   padding: 4px 8px;
   margin-bottom: 5px;
   font-style: italic;
-  margin-left: 8px;
+  margin-left: 12px;
 }
 
 .nav-menu-item {
@@ -232,7 +235,19 @@ a:hover {
   border-radius: var(--radius-md);
   margin-bottom: 4px;
   border-left: 2px solid transparent;
-  margin-left: 8px; /* Visual nesting under headers */
+  margin-left: 12px; /* Indent under the header block */
+  transition: var(--transition-smooth);
+}
+
+.nav-menu-item::before {
+  content: "›";
+  margin-right: 8px;
+  color: var(--accent-color);
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: var(--transition-smooth);
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .nav-menu-item:hover {
@@ -240,6 +255,12 @@ a:hover {
   background: rgba(255, 255, 255, 0.03);
   border-left-color: var(--accent-color);
   padding-left: 16px;
+}
+
+.nav-menu-item:hover::before {
+  color: #34d399;
+  margin-right: 12px;
+  text-shadow: 0 0 8px var(--accent-glow);
 }
 
 /* Main Content Panel */
