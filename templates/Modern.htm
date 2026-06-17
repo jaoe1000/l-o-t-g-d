@@ -41,19 +41,27 @@
     
     <!-- Top Header Bar -->
     <header class="app-header">
+      <button class="menu-toggle-btn" aria-label="Toggle Menu" onclick="document.body.classList.remove('stats-active'); document.body.classList.toggle('sidebar-active')">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+        </svg>
+      </button>
+
       <div class="brand">
         <span class="brand-logo">🐉</span>
         <span class="brand-name">Legend of the Green Dragon</span>
       </div>
+
       <div class="top-nav-links">
         <div class="top-nav-item">{motd}</div>
         <div class="top-nav-item">{mail}</div>
         <div class="top-nav-item">{petition}</div>
         {petitiondisplay}
       </div>
-      <button class="menu-toggle-btn" aria-label="Toggle Menu" onclick="document.body.classList.toggle('sidebar-active')">
+
+      <button class="stats-toggle-btn" aria-label="Toggle Stats" onclick="document.body.classList.remove('sidebar-active'); document.body.classList.toggle('stats-active')">
         <svg viewBox="0 0 24 24" width="24" height="24">
-          <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+          <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
         </svg>
       </button>
     </header>
@@ -63,6 +71,15 @@
       <div class="sidebar-header">
         <h3>Navigation</h3>
       </div>
+      
+      <!-- Mobile Quick Links (Shown only on mobile inside drawer) -->
+      <div class="sidebar-mobile-quick-links">
+        <div class="sidebar-quick-link-item">{motd}</div>
+        <div class="sidebar-quick-link-item">{mail}</div>
+        <div class="sidebar-quick-link-item">{petition}</div>
+        {petitiondisplay}
+      </div>
+
       <div class="nav-ad-wrapper">{navad}</div>
       <nav class="app-navigation-menu">
         <ul>
@@ -112,6 +129,9 @@
 
   <!-- Mobile Navigation Backdrop -->
   <div class="sidebar-mobile-backdrop" onclick="document.body.classList.remove('sidebar-active')"></div>
+  
+  <!-- Mobile Stats Backdrop -->
+  <div class="stats-mobile-backdrop" onclick="document.body.classList.remove('stats-active')"></div>
 </body>
 </html>
 <!--!statstart-->

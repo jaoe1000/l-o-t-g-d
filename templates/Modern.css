@@ -577,6 +577,102 @@ a:hover {
 }
 
 /* ==========================================================================
+   Global Inputs, Textareas, Selects & Tables
+   ========================================================================== */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+select,
+textarea {
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
+  max-width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Legacy Table Layout Styles */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 15px 0;
+}
+
+th, td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.trhead {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--accent-gold) !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.trlight {
+  background-color: rgba(255, 255, 255, 0.01) !important;
+}
+
+.trdark {
+  background-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.trhilight {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+}
+
+.main-card-body {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Sidebar and Stats Toggles */
+.stats-toggle-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.menu-toggle-btn:hover,
+.stats-toggle-btn:hover {
+  color: var(--accent-color);
+}
+
+/* Mobile navigation quick links (inside sidebar drawer on mobile) */
+.sidebar-mobile-quick-links {
+  display: none;
+}
+
+/* ==========================================================================
    Responsive Media Queries
    ========================================================================== */
 @media (max-width: 1024px) {
@@ -587,8 +683,43 @@ a:hover {
       "footer footer";
     grid-template-columns: var(--sidebar-width) 1fr;
   }
+  
+  .stats-toggle-btn {
+    display: block;
+  }
+  
   .app-right-panel {
-    display: none; /* Hide right stats panel, or we can collapse it */
+    position: fixed;
+    top: var(--header-height);
+    right: calc(-1 * var(--right-panel-width));
+    width: var(--right-panel-width);
+    height: calc(100vh - var(--header-height));
+    z-index: 90;
+    background-color: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    transition: var(--transition-smooth);
+    box-shadow: none;
+  }
+  
+  .stats-active .app-right-panel {
+    right: 0;
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+  }
+  
+  .stats-mobile-backdrop {
+    display: none;
+    position: fixed;
+    top: var(--header-height);
+    right: 0;
+    width: 100vw;
+    height: calc(100vh - var(--header-height));
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 80;
+  }
+  
+  .stats-active .stats-mobile-backdrop {
+    display: block;
   }
 }
 
@@ -646,7 +777,35 @@ a:hover {
   }
   
   .top-nav-links {
-    display: none; /* Hide top links on mobile, or move to drawer */
+    display: none; /* Hide top links on mobile */
+  }
+  
+  /* Show mobile quick links inside the sidebar drawer */
+  .sidebar-mobile-quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+  }
+  
+  .sidebar-quick-link-item {
+    font-size: 0.85rem;
+  }
+  
+  .sidebar-quick-link-item a {
+    color: var(--text-muted);
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-sm);
+    display: inline-block;
+  }
+  
+  .sidebar-quick-link-item a:hover {
+    color: var(--accent-color);
   }
 }
 
