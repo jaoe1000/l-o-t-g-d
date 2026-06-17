@@ -22,9 +22,7 @@ function racespecialtytemplate_getmoduleinfo() {
             "stableowner" => "Name of the city stable-owner,|[PLACEHOLDER STABLE OWNER]", // ***CHANGE
             "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|20", // ***CHANGE
             "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|3",
-            "(some of the specialities are quite strong- the DK limit is recommended),note",
-            "wepchange" => "Will weapons & armour change names?,bool|1", // ***CHANGE
-            "IE- an 'Adze' would become a '[PLACEHOLDER SUBCLASS] Adze',note", 
+            "(some of the specialities are quite strong- the DK limit is recommended),note", 
         ],
         // UNCOMMENT THIS BLOCK TO ENFORCE MODULE DEPENDENCIES
         /*
@@ -70,8 +68,6 @@ function racespecialtytemplate_install() {
     module_addhook("specialtycolor");
     module_addhook("dragonkill");
     module_addhook("newday-intercept");
-    module_addhook("boughtweapon");
-    module_addhook("boughtarmor");
     module_addhook("village");
     module_addhook("weaponstext");
     module_addhook("armortext");
@@ -134,7 +130,6 @@ function racespecialtytemplate_dohook($hookname, $args) {
             break;
 
         case "newday-intercept":
-            racespecialtytemplate_change();
             if (get_module_pref("newdayset") == 2) {
                 set_module_pref("scoundrel", (int)get_module_pref("scoundrel") + 1);
                 set_module_pref("newdayset", 0);
@@ -507,16 +502,6 @@ function racespecialtytemplate_dohook($hookname, $args) {
             $args[$spec] = $ccode;
             break;
 
-        case "boughtweapon":
-        case "boughtarmor":
-            if (get_module_setting("wepchange") == 1 && $userRace === $race && $userSpec === $spec) {
-                $nstr = "`%".racespecialtytemplate_namer("Y");
-                if (!preg_match('/' . preg_quote($nstr, '/') . '/', $args['name'] ?? '')) {
-                    $args['name'] = $nstr . " " . $args['name'];
-                }
-            }
-            break;
-
         case "village":
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
                 // Add custom links here for your hybrid race/specialty, e.g.:
@@ -527,24 +512,36 @@ function racespecialtytemplate_dohook($hookname, $args) {
 
         case "weaponstext":
             if (($session['user']['location'] ?? '') === $city) {
+                $tradeinvalue = round(($session['user']['weaponvalue'] * 0.75), 0);
                 $args['title'] = "[PLACEHOLDER WEAPON SHOP TITLE]";
                 $args['desc'] = [
                     "`&[PLACEHOLDER WEAPON SHOP DESCRIPTION]`n`n"
                 ];
                 $args['tradein'] = [
-                    "`7[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER]`n`n"
+                    "`7[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER]`n`n",
+                    [
+                        "`&[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER DETAIL WITH %s FOR VALUE AND %s FOR WEAPON NAME]`n`n",
+                        $tradeinvalue,
+                        $session['user']['weapon']
+                    ]
                 ];
             }
             break;
 
         case "armortext":
             if (($session['user']['location'] ?? '') === $city) {
+                $tradeinvalue = round(($session['user']['armorvalue'] * 0.75), 0);
                 $args['title'] = "[PLACEHOLDER ARMOR SHOP TITLE]";
                 $args['desc'] = [
                     "`&[PLACEHOLDER ARMOR SHOP DESCRIPTION]`n`n"
                 ];
                 $args['tradein'] = [
-                    "`7[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER]`n`n"
+                    "`7[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER]`n`n",
+                    [
+                        "`&[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER DETAIL WITH %s FOR VALUE AND %s FOR ARMOR NAME]`n`n",
+                        $tradeinvalue,
+                        $session['user']['armor']
+                    ]
                 ];
             }
             break;
@@ -596,25 +593,7 @@ function racespecialtytemplate_run() {
     page_footer();
 }
 
-function racespecialtytemplate_change() {
-    global $session;
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
-    $spec = "XX"; // ***CHANGE
-    
-    if (get_module_setting("wepchange") == 1 && ($session['user']['race'] ?? '') === $race && ($session['user']['specialty'] ?? '') === $spec) {
-        $nstr = "`%".racespecialtytemplate_namer("Y");
-        
-        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['weapon'] ?? '')) {
-            $n = $nstr." ".($session['user']['weapon'] ?? '');
-            if (strlen($n) < 50) $session['user']['weapon'] = $n;
-        }
-        
-        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['armor'] ?? '')) {
-            $n = $nstr." ".($session['user']['armor'] ?? '');
-            if (strlen($n) < 50) $session['user']['armor'] = $n;
-        }
-    }
-}
+
 
 function racespecialtytemplate_checkcity() {
     global $session, $SCRIPT_NAME;

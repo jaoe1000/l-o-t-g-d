@@ -18,7 +18,6 @@ function racehuman_getmoduleinfo() {
             "stableowner" => "Name of the city stable-owner,|Master Horatio", 
             "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|20", 
             "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|0",
-            "wepchange" => "Will weapons & armour change to race-specific names?,bool|1", 
             "ff" => "Extra forest fights per day,int|1",
         ],
         "prefs" => [
@@ -42,9 +41,6 @@ function racehuman_install() {
     module_addhook("raceminedeath");
     module_addhook("stablelocs");
     module_addhook("newday");
-    module_addhook("newday-intercept");
-    module_addhook("boughtweapon");
-    module_addhook("boughtarmor");
     module_addhook("village");
     module_addhook("weaponstext");
     module_addhook("armortext");
@@ -85,10 +81,6 @@ function racehuman_dohook($hookname, $args) {
     $userRace = $session['user']['race'] ?? '';
     
     switch($hookname) {
-        case "newday-intercept":
-            racehuman_change();
-            break;
-
         case "raceminedeath":
             if ($userRace === $race) {
                 $args['chance'] = get_module_setting("minedeathchance");
@@ -317,17 +309,6 @@ function racehuman_dohook($hookname, $args) {
             }
             break;
 
-        case "boughtweapon":
-        case "boughtarmor":
-            if (get_module_setting("wepchange") == 1 && $userRace === $race) {
-                $adjective = "Human"; 
-                $nstr = "`%" . $adjective;
-                if (!preg_match('/' . preg_quote($nstr, '/') . '/', $args['name'] ?? '')) {
-                    $args['name'] = $nstr . " " . $args['name'];
-                }
-            }
-            break;
-
         case "village":
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
                 // Add Commerce Guild to Merchant Square
@@ -341,6 +322,7 @@ function racehuman_dohook($hookname, $args) {
 
         case "weaponstext":
             if (($session['user']['location'] ?? '') === $city) {
+                $tradeinvalue = round(($session['user']['weaponvalue'] * 0.75), 0);
                 $args['title'] = "Oakhaven Steel & Iron";
                 $args['desc'] = [
                     "`&You enter Oakhaven's grand weaponry forge. Master Horatio's metalworkers are busy hammering out stout steel blades.`n`n",
@@ -348,13 +330,18 @@ function racehuman_dohook($hookname, $args) {
                 ];
                 $args['tradein'] = [
                     "`7You step up to the heavy counter and display your weapon.`n",
-                    "`&The chief blacksmith wipes sweat from his brow, looks at your gear and says, \"`#I'll give you `^%s`# trade-in value for your `5%s`#.\"`n`n"
+                    [
+                        "`&The chief blacksmith wipes sweat from his brow, looks at your gear and says, \"`#I'll give you `^%s`# trade-in value for your `5%s`#.\"`n`n",
+                        $tradeinvalue,
+                        $session['user']['weapon']
+                    ]
                 ];
             }
             break;
 
         case "armortext":
             if (($session['user']['location'] ?? '') === $city) {
+                $tradeinvalue = round(($session['user']['armorvalue'] * 0.75), 0);
                 $args['title'] = "Oakhaven Heavy Plates";
                 $args['desc'] = [
                     "`&Suits of polished plate mail, heavy iron breastplates, and stout shields stand in orderly rows inside the armoury.`n`n",
@@ -362,7 +349,11 @@ function racehuman_dohook($hookname, $args) {
                 ];
                 $args['tradein'] = [
                     "`7You show your current protection to the armorer.`n",
-                    "`&The armorer taps on your chestplate and nods. \"`#I can offer you `^%s`# trade-in value for your `5%s`#.\"`n`n"
+                    [
+                        "`&The armorer taps on your chestplate and nods. \"`#I can offer you `^%s`# trade-in value for your `5%s`#.\"`n`n",
+                        $tradeinvalue,
+                        $session['user']['armor']
+                    ]
                 ];
             }
             break;
@@ -502,25 +493,7 @@ function racehuman_run() {
     }
 }
 
-function racehuman_change() {
-    global $session;
-    $race = "Human"; 
-    $adjective = "Human"; 
-    
-    if (get_module_setting("wepchange") == 1 && ($session['user']['race'] ?? '') === $race) {
-        $nstr = "`%" . $adjective;
-        
-        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['weapon'] ?? '')) {
-            $n = $nstr." ".($session['user']['weapon'] ?? '');
-            if (strlen($n) < 50) $session['user']['weapon'] = $n;
-        }
-        
-        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['armor'] ?? '')) {
-            $n = $nstr." ".($session['user']['armor'] ?? '');
-            if (strlen($n) < 50) $session['user']['armor'] = $n;
-        }
-    }
-}
+
 
 function racehuman_checkcity() {
     global $session;

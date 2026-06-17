@@ -17,8 +17,7 @@ function raceelf_getmoduleinfo() {
             "villagename" => "Name for the Elf city,|Gladehaven", 
             "stableowner" => "Name of the city stable-owner,|Elandir", 
             "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|15", 
-            "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|0",
-            "wepchange" => "Will weapons & armour change to race-specific names?,bool|1", 
+            "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|0", 
         ],
         "prefs" => [
             "Elf - User Prefs,title", 
@@ -41,9 +40,6 @@ function raceelf_install() {
     module_addhook("raceminedeath");
     module_addhook("stablelocs");
     module_addhook("newday");
-    module_addhook("newday-intercept");
-    module_addhook("boughtweapon");
-    module_addhook("boughtarmor");
     module_addhook("village");
     module_addhook("weaponstext");
     module_addhook("armortext");
@@ -84,10 +80,6 @@ function raceelf_dohook($hookname, $args) {
     $userRace = $session['user']['race'] ?? '';
     
     switch($hookname) {
-        case "newday-intercept":
-            raceelf_change();
-            break;
-
         case "raceminedeath":
             if ($userRace === $race) {
                 $args['chance'] = get_module_setting("minedeathchance");
@@ -314,17 +306,6 @@ function raceelf_dohook($hookname, $args) {
             }
             break;
 
-        case "boughtweapon":
-        case "boughtarmor":
-            if (get_module_setting("wepchange") == 1 && $userRace === $race) {
-                $adjective = "Elven"; 
-                $nstr = "`%" . $adjective;
-                if (!preg_match('/' . preg_quote($nstr, '/') . '/', $args['name'] ?? '')) {
-                    $args['name'] = $nstr . " " . $args['name'];
-                }
-            }
-            break;
-
         case "village":
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
                 // Add Herb Garden to Treepath Bazaar
@@ -338,6 +319,7 @@ function raceelf_dohook($hookname, $args) {
 
         case "weaponstext":
             if (($session['user']['location'] ?? '') === $city) {
+                $tradeinvalue = round(($session['user']['weaponvalue'] * 0.75), 0);
                 $args['title'] = "Gladehaven Bowyer & Fletchery";
                 $args['desc'] = [
                     "`&You climb into a spacious treetop workshop. Elven fletchers and woodcarvers are crafting elegant longbows and lightweight blades.`n`n",
@@ -345,13 +327,18 @@ function raceelf_dohook($hookname, $args) {
                 ];
                 $args['tradein'] = [
                     "`7You place your weapon on the polished wooden counter.`n",
-                    "`&The master bowyer inspects it carefully. \"`#For this, I can credit you `^%s`# toward your next purchase. Elves require only the finest wood and steel.`\"`n`n"
+                    [
+                        "`&The master bowyer inspects it carefully. \"`#For this, I can credit you `^%s`# toward your next purchase. Elves require only the finest wood and steel.`\"`n`n",
+                        $tradeinvalue,
+                        $session['user']['weapon']
+                    ]
                 ];
             }
             break;
 
         case "armortext":
             if (($session['user']['location'] ?? '') === $city) {
+                $tradeinvalue = round(($session['user']['armorvalue'] * 0.75), 0);
                 $args['title'] = "Gladehaven Leaf & Hide";
                 $args['desc'] = [
                     "`&Rows of light leather jerkins, moon-blessed hide vests, and armors woven from resilient living leaves hang from the branches.`n`n",
@@ -359,7 +346,11 @@ function raceelf_dohook($hookname, $args) {
                 ];
                 $args['tradein'] = [
                     "`7You show your protection to the elven tanner.`n",
-                    "`&She feels the texture of your armor and nods. \"`#I will offer `^%s`# trade-in value for your `5%s`#.`\"`n`n"
+                    [
+                        "`&She feels the texture of your armor and nods. \"`#I will offer `^%s`# trade-in value for your `5%s`#.`\"`n`n",
+                        $tradeinvalue,
+                        $session['user']['armor']
+                    ]
                 ];
             }
             break;
@@ -513,25 +504,7 @@ function raceelf_run() {
     }
 }
 
-function raceelf_change() {
-    global $session;
-    $race = "Elf"; 
-    $adjective = "Elven"; 
-    
-    if (get_module_setting("wepchange") == 1 && ($session['user']['race'] ?? '') === $race) {
-        $nstr = "`%" . $adjective;
-        
-        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['weapon'] ?? '')) {
-            $n = $nstr." ".($session['user']['weapon'] ?? '');
-            if (strlen($n) < 50) $session['user']['weapon'] = $n;
-        }
-        
-        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['armor'] ?? '')) {
-            $n = $nstr." ".($session['user']['armor'] ?? '');
-            if (strlen($n) < 50) $session['user']['armor'] = $n;
-        }
-    }
-}
+
 
 function raceelf_checkcity() {
     global $session;

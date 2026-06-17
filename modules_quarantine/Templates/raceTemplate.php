@@ -20,9 +20,7 @@ function racetemplate_getmoduleinfo() {
             "villagename" => "Name for the [PLACEHOLDER RACE NAME] city,|[PLACEHOLDER CITY NAME]", // ***CHANGE
             "stableowner" => "Name of the city stable-owner,|[PLACEHOLDER STABLE OWNER]", // ***CHANGE
             "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|20", // ***CHANGE
-            "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|3",
-            "wepchange" => "Will weapons & armour change to race-specific names?,bool|1", // ***CHANGE
-            "IE- an 'Adze' would become an 'Elven Adze',note", 
+            "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|3", 
         ],
         // UNCOMMENT THIS BLOCK TO ENFORCE MODULE DEPENDENCIES
         /*
@@ -51,9 +49,6 @@ function racetemplate_install() {
     module_addhook("raceminedeath");
     module_addhook("stablelocs");
     module_addhook("newday");
-    module_addhook("newday-intercept");
-    module_addhook("boughtweapon");
-    module_addhook("boughtarmor");
     module_addhook("village");
     module_addhook("weaponstext");
     module_addhook("armortext");
@@ -94,10 +89,6 @@ function racetemplate_dohook($hookname, $args) {
     $userRace = $session['user']['race'] ?? '';
     
     switch($hookname) {
-        case "newday-intercept":
-            racetemplate_change();
-            break;
-
         case "raceminedeath":
             if ($userRace === $race) {
                 $args['chance'] = get_module_setting("minedeathchance");
@@ -324,17 +315,6 @@ function racetemplate_dohook($hookname, $args) {
             }
             break;
 
-        case "boughtweapon":
-        case "boughtarmor":
-            if (get_module_setting("wepchange") == 1 && $userRace === $race) {
-                $adjective = "[PLACEHOLDER ADJECTIVE]"; // ***CHANGE
-                $nstr = "`%" . $adjective;
-                if (!preg_match('/' . preg_quote($nstr, '/') . '/', $args['name'] ?? '')) {
-                    $args['name'] = $nstr . " " . $args['name'];
-                }
-            }
-            break;
-
         case "village":
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
                 // Add custom links here for your race, e.g.:
@@ -345,24 +325,36 @@ function racetemplate_dohook($hookname, $args) {
 
         case "weaponstext":
             if (($session['user']['location'] ?? '') === $city) {
+                $tradeinvalue = round(($session['user']['weaponvalue'] * 0.75), 0);
                 $args['title'] = "[PLACEHOLDER WEAPON SHOP TITLE]";
                 $args['desc'] = [
                     "`&[PLACEHOLDER WEAPON SHOP DESCRIPTION]`n`n"
                 ];
                 $args['tradein'] = [
-                    "`7[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER]`n`n"
+                    "`7[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER]`n`n",
+                    [
+                        "`&[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER DETAIL WITH %s FOR VALUE AND %s FOR WEAPON NAME]`n`n",
+                        $tradeinvalue,
+                        $session['user']['weapon']
+                    ]
                 ];
             }
             break;
 
         case "armortext":
             if (($session['user']['location'] ?? '') === $city) {
+                $tradeinvalue = round(($session['user']['armorvalue'] * 0.75), 0);
                 $args['title'] = "[PLACEHOLDER ARMOR SHOP TITLE]";
                 $args['desc'] = [
                     "`&[PLACEHOLDER ARMOR SHOP DESCRIPTION]`n`n"
                 ];
                 $args['tradein'] = [
-                    "`7[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER]`n`n"
+                    "`7[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER]`n`n",
+                    [
+                        "`&[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER DETAIL WITH %s FOR VALUE AND %s FOR ARMOR NAME]`n`n",
+                        $tradeinvalue,
+                        $session['user']['armor']
+                    ]
                 ];
             }
             break;
@@ -402,25 +394,7 @@ function racetemplate_run() {
     // If you want a custom shrine or training building in your race's city, build it here!
 }
 
-function racetemplate_change() {
-    global $session;
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
-    $adjective = "[PLACEHOLDER ADJECTIVE]"; // ***CHANGE: e.g. "Elven", "Dwarven"
-    
-    if (get_module_setting("wepchange") == 1 && ($session['user']['race'] ?? '') === $race) {
-        $nstr = "`%" . $adjective;
-        
-        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['weapon'] ?? '')) {
-            $n = $nstr." ".($session['user']['weapon'] ?? '');
-            if (strlen($n) < 50) $session['user']['weapon'] = $n;
-        }
-        
-        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['armor'] ?? '')) {
-            $n = $nstr." ".($session['user']['armor'] ?? '');
-            if (strlen($n) < 50) $session['user']['armor'] = $n;
-        }
-    }
-}
+
 
 function racetemplate_checkcity() {
     global $session;

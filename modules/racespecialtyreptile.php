@@ -19,9 +19,7 @@ function racespecialtyreptile_getmoduleinfo() {
             "stableowner" => "Name of the Reptile city stable-owner,|Sslippery Ssid", 
             "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|20", 
             "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|0",
-            "(some of the specialities are quite strong- the DK limit is recommended),note",
-            "wepchange" => "Will weapons & armour change names?,bool|1", 
-            "IE- an 'Adze' would become a 'Lizard Adze',note", 
+            "(some of the specialities are quite strong- the DK limit is recommended),note", 
         ],
         "prefs" => [
             "Reptile - Specialty User Prefs,title", 
@@ -62,8 +60,6 @@ function racespecialtyreptile_install() {
     module_addhook("specialtycolor");
     module_addhook("dragonkill");
     module_addhook("newday-intercept");
-    module_addhook("boughtweapon");
-    module_addhook("boughtarmor");
     module_addhook("village");
     module_addhook("weaponstext");
     module_addhook("armortext");
@@ -126,7 +122,6 @@ function racespecialtyreptile_dohook($hookname, $args) {
             break;
 
         case "newday-intercept":
-            racespecialtyreptile_change();
             if (get_module_pref("newdayset") == 2) {
                 set_module_pref("scoundrel", (int)get_module_pref("scoundrel") + 1);
                 set_module_pref("newdayset", 0);
@@ -482,16 +477,6 @@ function racespecialtyreptile_dohook($hookname, $args) {
             $args[$spec] = $ccode;
             break;
 
-        case "boughtweapon":
-        case "boughtarmor":
-            if (get_module_setting("wepchange") == 1 && $userRace === $race && $userSpec === $spec) {
-                $nstr = "`%".racespecialtyreptile_namer("Y");
-                if (!preg_match('/' . preg_quote($nstr, '/') . '/', $args['name'] ?? '')) {
-                    $args['name'] = $nstr . " " . $args['name'];
-                }
-            }
-            break;
-
         case "village":
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
                 // Add Witch Doctor's Hut to Sslyther Shacks
@@ -505,6 +490,7 @@ function racespecialtyreptile_dohook($hookname, $args) {
 
         case "weaponstext":
             if (($session['user']['location'] ?? '') === $city) {
+                $tradeinvalue = round(($session['user']['weaponvalue'] * 0.75), 0);
                 $args['title'] = "Sslyther Bone & Fang";
                 $args['desc'] = [
                     "`&You enter a dark shack built on stilts. Reptilian craftsmen are shaping jagged weapons from beast fangs and giant bones.`n`n",
@@ -512,13 +498,18 @@ function racespecialtyreptile_dohook($hookname, $args) {
                 ];
                 $args['tradein'] = [
                     "`7You lay your weapon on a table of damp moss.`n",
-                    "`&The master smith clicks his tongue. \"`#Sssimple tool. I give you `^%s`# trade-in value for your `5%s`#.`\"`n`n"
+                    [
+                        "`&The master smith clicks his tongue. \"`#Sssimple tool. I give you `^%s`# trade-in value for your `5%s`#.`\"`n`n",
+                        $tradeinvalue,
+                        $session['user']['weapon']
+                    ]
                 ];
             }
             break;
 
         case "armortext":
             if (($session['user']['location'] ?? '') === $city) {
+                $tradeinvalue = round(($session['user']['armorvalue'] * 0.75), 0);
                 $args['title'] = "Sslyther Scale & Carapace";
                 $args['desc'] = [
                     "`&Crude yet sturdy sets of armor made from lizard scales, heavy insect carapaces, and dried swamp hide hang on wooden spikes.`n`n",
@@ -526,7 +517,11 @@ function racespecialtyreptile_dohook($hookname, $args) {
                 ];
                 $args['tradein'] = [
                     "`7You show your armor to the old scaly leatherworker.`n",
-                    "`&He rubs his claws over it and hisses, \"`#Not tough enough. I'll credit `^%s`# for your `5%s`#.`\"`n`n"
+                    [
+                        "`&He rubs his claws over it and hisses, \"`#Not tough enough. I'll credit `^%s`# for your `5%s`#.`\"`n`n",
+                        $tradeinvalue,
+                        $session['user']['armor']
+                    ]
                 ];
             }
             break;
@@ -691,25 +686,7 @@ function racespecialtyreptile_run() {
     }
 }
 
-function racespecialtyreptile_change() {
-    global $session;
-    $race = "Reptile"; 
-    $spec = "RP"; 
-    
-    if (get_module_setting("wepchange") == 1 && ($session['user']['race'] ?? '') === $race && ($session['user']['specialty'] ?? '') === $spec) {
-        $nstr = "`%".racespecialtyreptile_namer("Y");
-        
-        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['weapon'] ?? '')) {
-            $n = $nstr." ".($session['user']['weapon'] ?? '');
-            if (strlen($n) < 50) $session['user']['weapon'] = $n;
-        }
-        
-        if (!preg_match('/' . preg_quote($nstr, '/') . '/', $session['user']['armor'] ?? '')) {
-            $n = $nstr." ".($session['user']['armor'] ?? '');
-            if (strlen($n) < 50) $session['user']['armor'] = $n;
-        }
-    }
-}
+
 
 function racespecialtyreptile_checkcity() {
     global $session, $SCRIPT_NAME;
