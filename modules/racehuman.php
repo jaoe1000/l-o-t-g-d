@@ -112,9 +112,9 @@ function racehuman_dohook($hookname, $args) {
 
         case "chooserace":
             if (($session['user']['dragonkills'] ?? 0) >= (int)get_module_setting("dklimit")) {
-                $atrans = translate_inline("Human"); 
-                $rtrans = translate_inline(" - Adaptable, ambitious, and unyielding.`n`n");
-                addnav("`&$race`0", "newday.php?setrace=$race$resline");
+                $atrans = translate_inline("In the bustling trade squares of %s"); 
+                $rtrans = translate_inline(", surrounded by ambitious merchants and unyielding stone walls.`n`n");
+                addnav(["%s (%s)", $city, $race], "newday.php?setrace=$race$resline");
                 output_notl("`0<a href='newday.php?setrace=$race$resline'>$atrans</a>$rtrans", $city, true);
                 addnav("", "newday.php?setrace=$race$resline");
             }

@@ -68,7 +68,7 @@ function injectmodule($modulename,$force=false){
 				$sql = "LOCK TABLES " . db_prefix("modules") . " WRITE";
 				db_query($sql);
 				//check again after the table has been locked.
-				$sql = "SELECT filemoddate FROM " . db_prefix("modules") . " WHERE modulename='$modulename'";
+				$sql = "SELECT filemoddate, infokeys, version FROM " . db_prefix("modules") . " WHERE modulename='$modulename'";
 				$result = db_query($sql);
 				$row = db_fetch_assoc($result);
 				if ($row['filemoddate']!=$filemoddate ||

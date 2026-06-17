@@ -183,9 +183,9 @@ function racespecialtytemplate_dohook($hookname, $args) {
                 */
 
                 if ($can_select) {
-                    $atrans = translate_inline("[PLACEHOLDER CHOOSE RACE LINK TEXT]"); // ***CHANGE
-                    $rtrans = translate_inline("[PLACEHOLDER CHOOSE RACE FLAVOR TEXT]`n`n"); // ***CHANGE
-                    addnav("`&$race`0", "newday.php?setrace=$race$resline");
+                    $atrans = translate_inline("In the town of %s"); // ***CHANGE
+                    $rtrans = translate_inline(", a place of peace and trade.`n`n"); // ***CHANGE
+                    addnav(["%s (%s)", $city, $race], "newday.php?setrace=$race$resline");
                     output_notl("`0<a href='newday.php?setrace=$race$resline'>$atrans</a>$rtrans", $city, true);
                     addnav("", "newday.php?setrace=$race$resline");
                 }

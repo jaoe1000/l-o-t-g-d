@@ -162,9 +162,9 @@ function racespecialtyreptile_dohook($hookname, $args) {
                 $can_select = true;
 
                 if ($can_select) {
-                    $atrans = translate_inline("Reptile"); 
-                    $rtrans = translate_inline(" - Cold-blooded, scaled, and highly resilient dwellers of the swamps.`n`n"); 
-                    addnav("`&$race`0", "newday.php?setrace=$race$resline");
+                    $atrans = translate_inline("Deep within the mist-veiled swamp pathways of %s"); 
+                    $rtrans = translate_inline(", under the watchful eyes of cold-blooded scaled dwellers.`n`n"); 
+                    addnav(["%s (%s)", $city, $race], "newday.php?setrace=$race$resline");
                     output_notl("`0<a href='newday.php?setrace=$race$resline'>$atrans</a>$rtrans", $city, true);
                     addnav("", "newday.php?setrace=$race$resline");
                 }
