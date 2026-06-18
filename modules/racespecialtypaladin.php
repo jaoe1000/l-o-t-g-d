@@ -28,6 +28,7 @@ function racespecialtypaladin_getmoduleinfo(){
 			"gain"=>"How much Alignment is gained when specialty is chosen,int|20",
 			"wepchange"=>"Will weapons & armour change names?,bool|1", 
 			"IE- an 'Adze' would become a 'Divine Adze',note", 
+			"training_villages" => "Villages where players of this race can train (comma-separated; leave blank to automatically restrict to their custom village if enabled, or no restriction if not),string|",
 		),
         // ENFORCED MODULE DEPENDENCIES
         "requires" => array(
@@ -76,6 +77,7 @@ function racespecialtypaladin_install(){
 	module_addhook("pointsdesc");
 	module_addhook("everyhit");
 	module_addhook("villagenav");
+	module_addhook("training-allowed-cities");
 	
 	// Unique Paladin Hooks
 	module_addhook("castlelib");
@@ -305,6 +307,24 @@ function racespecialtypaladin_dohook($hookname,$args){
 					tlschema("commentary");
 					$args["village-$race"]=sprintf_translate("City of %s", $city); 
 					tlschema();
+				}
+			}
+		break;
+		case "training-allowed-cities":
+			if ($session['user']['race'] == $race) {
+				$cfg = trim(get_module_setting("training_villages"));
+				if ($cfg !== "") {
+					$parts = explode(",", $cfg);
+					foreach ($parts as $p) {
+						$p = trim($p);
+						if ($p !== "") {
+							$args['cities'][] = $p;
+						}
+					}
+				} else {
+					if (get_module_setting("use_custom_village")) {
+						$args['cities'][] = $city;
+					}
 				}
 			}
 		break;
