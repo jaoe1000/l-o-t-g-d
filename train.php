@@ -12,15 +12,39 @@ require_once("lib/substitute.php");
 require_once("lib/villagenav.php");
 require_once("lib/experience.php");
 
+// Check if player is allowed to train here based on their race
+$userRace = $session['user']['race'] ?? '';
+$userLocation = $session['user']['location'] ?? '';
+
+$allowedCity = '';
+if ($userRace === 'Human' && is_module_active('racehuman')) {
+    $allowedCity = get_module_setting('villagename', 'racehuman') ?: 'Oakhaven';
+} elseif ($userRace === 'Elf' && is_module_active('raceelf')) {
+    $allowedCity = get_module_setting('villagename', 'raceelf') ?: 'Gladehaven';
+} elseif ($userRace === 'Reptile' && is_module_active('racespecialtyreptile')) {
+    $allowedCity = get_module_setting('villagename', 'racespecialtyreptile') ?: 'Sslyther';
+}
+
+if ($allowedCity !== '' && $userLocation !== $allowedCity) {
+    tlschema("train");
+    page_header("Warrior Training Restricted");
+    output("`^Your master does not reside in `&%s`^. You must travel to your race's home city of `&%s`^ to train and challenge your master.`0", $userLocation, $allowedCity);
+    addnav("Return to the Village", "village.php");
+    page_footer();
+    exit;
+}
+
 tlschema("train");
 
-page_header("Bluspring's Warrior Training");
+$title = "Bluspring's Warrior Training";
+$title = modulehook("trainingtitle", ["title"=>$title])["title"];
+page_header($title);
 
 $battle = false;
 $victory = false;
 $defeat = false;
 
-output("`b`cBluspring's Warrior Training`c`b");
+output("`b`c%s`c`b", $title);
 
 $mid = (int) httpget("master");
 if ($mid) {
@@ -43,6 +67,7 @@ if (db_num_rows($result) > 0 && $session['user']['level'] <= 14){
     $master['creaturewin'] = stripslashes($master['creaturewin']);
     $master['creaturelose'] = stripslashes($master['creaturelose']);
     $master['creatureweapon'] = stripslashes($master['creatureweapon']);
+    $master = modulehook("modify-master", $master);
     if ($master['creaturename'] == "Gadriel the Elven Ranger" &&
             $session['user']['race'] == "Elf") {
         $master['creaturewin'] = "You call yourself an Elf?? Maybe Half-Elf! Come back when you've been better trained.";

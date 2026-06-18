@@ -24,7 +24,7 @@ function villageevents_getmoduleinfo(){
 }
 
 function villageevents_install(){
-	$password=$_POST['pw'];
+	$password = isset($_POST['pw']) ? $_POST['pw'] : null;
 	if (!is_module_active('villageevents')){
 		output("`4Installing village events Module.`n");
 		if ($password){
@@ -36,9 +36,9 @@ function villageevents_install(){
 				output("`4village events install failed!`n");
 			}
 			$sql = "SELECT acctid FROM ".db_prefix("accounts")." where login = 'villageevents'";
-			$result = mysql_query($sql) or die(db_error(LINK));
+			$result = db_query($sql);
 			$row = db_fetch_assoc($result);
-			if ($row['acctid'] > 0){
+			if ($row && $row['acctid'] > 0){
 				set_module_setting("npcid",$row['acctid']);
 				output("`2Set Accout ID for village events to ".$row['acctid'].".`n");
 			}else{
@@ -46,9 +46,9 @@ function villageevents_install(){
 			}
 		}else{
 			$sqlz = "SELECT acctid FROM ".db_prefix("accounts")." where login = 'villageevents'";
-			$resultz = mysql_query($sqlz) or die(db_error(LINK));
+			$resultz = db_query($sqlz);
 			$rowz = db_fetch_assoc($resultz);
-			if ($rowz['acctid'] > 0){
+			if ($rowz && $rowz['acctid'] > 0){
 			}else{
 				output("village events's Login will be villageevents.`n");
 				output("What would you like the password for village events's account to be?`n");
@@ -73,7 +73,7 @@ function villageevents_install(){
 function villageevents_uninstall(){
 	output("`4Un-Installing village events Module.`n");
 	$sql = "DELETE FROM ".db_prefix("accounts")." where acctid='".get_module_setting('npcid')."'";
-	mysql_query($sql);
+	db_query($sql);
 	output("village events deleted.`n");
 	return true;
 }
@@ -83,9 +83,9 @@ function villageevents_dohook($hookname,$args){
 			if (get_module_setting('lastupdate') < date("Y-m-d H:i:s")){
 				set_module_setting('lastupdate',date("Y-m-d H:i:s",strtotime("- 5300 seconds")));
 				$sqlz2="UPDATE ".db_prefix("accounts")." SET laston = '".date("Y-m-d H:i:s",strtotime("- 5300 seconds"))."', alive = '1', lasthit = '".date("Y-m-d H:i:s",strtotime("- 5300 seconds"))."', location = '".get_module_setting('npcloc')."', hitpoints = '1000' WHERE acctid = '".get_module_setting('npcid')."'";
-				mysql_query($sqlz2) or die(db_error(LINK));
+				db_query($sqlz2) or die(db_error(LINK));
 				$sqlz2 = "DELETE FROM ".db_prefix("mail")." WHERE msgto='".get_module_setting('npcid')."'";
-				mysql_query($sqlz2) or die(db_error(LINK));
+				db_query($sqlz2) or die(db_error(LINK));
 			}
 			//now lets say something
 			$howmuch = e_rand(1,get_module_setting('howmuch'));
@@ -112,7 +112,8 @@ function villageevents_dohook($hookname,$args){
 						14=>"::A drunk villager stumbles from the inn muttering uninteligably.",
 						);
 			//end setup commentary array
-				mysql_query("INSERT INTO ".db_prefix("commentary")." (postdate,section,author,comment) VALUES (now(),'".$texts['section']."','".get_module_setting('npcid')."',\"".$sayit[$k]."\")");
+				$section = $args['commentary']['section'] ?? ($args['section'] ?? 'village');
+				db_query("INSERT INTO ".db_prefix("commentary")." (postdate,section,author,comment) VALUES (now(),'".$section."','".get_module_setting('npcid')."',\"".$sayit[$k]."\")");
 			}
 return $args;    
 }

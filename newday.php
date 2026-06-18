@@ -250,6 +250,8 @@ if ($dp < $dkills) {
     $session['user']['transferredtoday'] = 0;
     $session['user']['amountouttoday'] = 0;
     $session['user']['seendragon'] = 0;
+    require_once("lib/dragons.php");
+    reset_active_dragon();
     $session['user']['seenmaster'] = 0;
     $session['user']['fedmount'] = 0;
     if ($resurrection!="true"){

@@ -54,8 +54,10 @@ function vypera_dohook($hookname,$args){
     	case "village":
     		if ($session['user']['location'] == get_module_setting("shoploc")
 				&& $session['user']['dragonkills'] >= get_module_setting("mindk")) {
-				tlschema($args['schemas']['marketnav']);
-				addnav($args['marketnav']);
+				$marketnav = $args['marketnav'] ?? ($args['nav_headers']['market'] ?? 'Market');
+				$schema = $args['schemas']['marketnav'] ?? 'town';
+				tlschema($schema);
+				addnav($marketnav);
 				tlschema();
 				addnav("Vypera the Gainer","runmodule.php?module=vypera&op=enter");
 			}

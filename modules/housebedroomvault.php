@@ -25,14 +25,13 @@ function housebedroomvault_install() {
 	module_addhook ("houseroomswherecan");
 	$sql		= "SELECT acctid FROM ".db_prefix("accounts");
 	$result	= db_query($sql);
-	$row		= db_fetch_assoc($result);
 
-	for ($i=0;$i<db_num_rows($result);$i++){
+	while ($row = db_fetch_assoc($result)){
 		set_module_pref ("bedroomfull", 1, "houserooms", $row['acctid']);
 		set_module_pref ("bedroomnavs", 1, "houserooms", $row['acctid']);
 	}
 
-	output ("`^Doing a check on your preferences to ensure that a successful install has been made ...", $row2['name']);
+	output ("`^Doing a check on your preferences to ensure that a successful install has been made ...");
 
 	if (!get_module_pref ("bedroomfull", "houserooms")) {
 		output ("`n");
@@ -60,9 +59,8 @@ function housebedroomvault_install() {
 function housebedroomvault_uninstall() {
 	$sql		= "SELECT acctid FROM ".db_prefix("accounts");
 	$result	= db_query			($sql);
-	$row		= db_fetch_assoc	($result);
 
-	for ($i=0;$i<db_num_rows($result);$i++){
+	while ($row = db_fetch_assoc($result)){
 		set_module_pref ("bedroomfull", 0, "houserooms", $row['acctid']);
 		set_module_pref ("bedroomnavs", 0, "houserooms", $row['acctid']);
 	}
@@ -79,7 +77,7 @@ function housebedroomvault_uninstall() {
 	output ("worry if one or the above reports an error.");
 	output ("`n");
 
-	output ("`^Doing a check on your preferences to ensure that a successful uninstall has been made ...", $row2['name']);
+	output ("`^Doing a check on your preferences to ensure that a successful uninstall has been made ...");
 
 	if (get_module_pref ("bedroomfull", "houserooms")) {
 		output ("`n");

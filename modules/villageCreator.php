@@ -33,11 +33,8 @@ function villageCreator_install(): bool
 
 function villageCreator_uninstall()
 {
-    global $session, $mysqli_resource;
     output('village_creator.headers.uninstall');
-
-    $village = mysqli_real_escape_string(
-        $mysqli_resource,
+    $village = db_escape(
         getsetting('villagename', LOCATION_FIELDS)
     );
     $accountsTable = db_prefix('accounts');

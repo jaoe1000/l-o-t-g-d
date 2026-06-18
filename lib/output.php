@@ -974,7 +974,11 @@ function isNavigationInOutput(array $session): bool {
         'user' => ['acctid' => $acctId]
     ] = $session;
     unset($allowedNavs['']);
-    $output = file_get_contents("accounts-output/{$acctId}.html");
+    $filePath = "accounts-output/{$acctId}.html";
+    if (!is_file($filePath)) {
+        return false;
+    }
+    $output = file_get_contents($filePath);
     foreach (array_keys($allowedNavs) as $nav) {
         if (strlen($nav) === 0) {
             break;

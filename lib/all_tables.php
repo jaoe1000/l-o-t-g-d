@@ -128,7 +128,7 @@ return array(
 			'name'=>'charm', 'type'=>'int(11) unsigned', 'default'=>'0'
 			),
 		'specialinc'=>array(
-			'name'=>'specialinc', 'type'=>'varchar(50)', 'default' => serialize([])
+			'name'=>'specialinc', 'type'=>'varchar(50)', 'default' => ''
 			),
 		/**
 		 * @todo Create a MySQL trigger in the sql_updates.sql  

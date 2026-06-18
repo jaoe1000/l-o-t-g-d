@@ -96,7 +96,7 @@ function house_install(){
             `houseid` int( 11 ) unsigned NOT NULL default '0',
             `housename` varchar( 50 ) NOT NULL default '',
             `location` varchar( 50 ) NOT NULL default ''
-            ) TYPE = MYISAM ;");
+            ) ENGINE = MYISAM ;");
     }
     return true;
 }

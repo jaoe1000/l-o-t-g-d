@@ -53,6 +53,9 @@ function page_header(){
 	if (!$arguments || count($arguments) == 0) {
 		$arguments = ['common.title'];
 	}
+	if (is_array($arguments[0])) {
+		$arguments = $arguments[0];
+	}
     $title = array_shift($arguments);
 	$title = str_replace('`%', '`%%`', $title);
     if (isTranslateKey($title)) {
@@ -804,6 +807,30 @@ function charstats(){
 			addcharstat("Creature", $playermount['mountname'] . "`0");
 
 		modulehook("charstats");
+
+		global $charstat_info;
+		if (isset($charstat_info['Vital Info'])) {
+			$vital = $charstat_info['Vital Info'];
+			$new_vital = [];
+			foreach ($vital as $k => $v) {
+				if ($k !== 'Experience' && $k !== 'Bladder' && $k !== 'Odor' && $k !== 'Hunger') {
+					$new_vital[$k] = $v;
+				}
+			}
+			if (isset($vital['Experience'])) {
+				$new_vital['Experience'] = $vital['Experience'];
+			}
+			if (isset($vital['Bladder'])) {
+				$new_vital['Bladder'] = $vital['Bladder'];
+			}
+			if (isset($vital['Odor'])) {
+				$new_vital['Odor'] = $vital['Odor'];
+			}
+			if (isset($vital['Hunger'])) {
+				$new_vital['Hunger'] = $vital['Hunger'];
+			}
+			$charstat_info['Vital Info'] = $new_vital;
+		}
 
 		$charstat = getcharstats($buffs);
 

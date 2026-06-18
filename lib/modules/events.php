@@ -197,8 +197,8 @@ function module_collect_events($type, $allowinactive=false)
  */
 function module_addeventhook(string $type, string $chance): void
 {
-	global $mostrecentmodule, $mysqli_resource;
-    $chance = mysqli_real_escape_string($mysqli_resource, $chance);
+	global $mostrecentmodule;
+    $chance = db_escape($chance);
     $eventsTable = db_prefix('module_event_hooks');
     db_query(
         "DELETE FROM $eventsTable

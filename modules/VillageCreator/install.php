@@ -84,11 +84,11 @@ if (is_module_active('villageCreator')) {
 else {
 	output('village_creator.headers.install');
     $mainVillage = getsetting('villagename', LOCATION_FIELDS);
-    $blockedNavs = mysqli_escape_string($mysqli_resource, serialize([]));
+    $blockedNavs = db_escape(serialize([]));
     $sanitizedName = sanitize($mainVillage);
     $sanitizedName = str_replace(' ', '', $sanitizedName);
     $sanitizedName = strtolower($sanitizedName);
-    $sanitizedName = mysqli_escape_string($mysqli_resource, $sanitizedName);
+    $sanitizedName = db_escape($sanitizedName);
 	db_query(
         "INSERT INTO {$villagesTable}
             (`name`, `sanitized_name`, `type`, `author`, `active`, `block_navs`, `module`)

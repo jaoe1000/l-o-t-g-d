@@ -8,7 +8,7 @@
 // 		name at the end indicating which parts are copyright by you.
 // Eg:
 // Copyright 2002-2004, Game: Eric Stevens & JT Traub, modified by Your Name
-$copyright = "Game Design and Code: Copyright &copy; 2002-2005, Eric Stevens & JT Traub, &copy; 2006-2007, Dragonprime Development Team";
+$copyright = "Game Design and Code: Copyright &copy; 2002-2005, Eric Stevens & JT Traub, &copy; 2006-2007, Dragonprime Development Team, modified by jaoe1000 (<a href='https://github.com/jaoe1000/l-o-t-g-d' target='_blank'>Repository</a>)";
 // **** NOTICE ****
 // This series of scripts (collectively known as Legend of the Green Dragon
 // or LotGD) is copyright as per above.   Read the above paragraph for

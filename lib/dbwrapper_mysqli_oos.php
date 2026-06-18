@@ -207,4 +207,10 @@ function db_prefix($tablename, $force=false) {
 	}
 	return $prefix . $tablename;
 }
+
+function db_escape($string) {
+	global $mysqli_resource;
+	if (!$mysqli_resource) return addslashes($string);
+	return $mysqli_resource->real_escape_string($string);
+}
 ?>

@@ -91,9 +91,9 @@ function onlinelist_dohook($hookname, $args)
 			FROM $accounts
 			LEFT JOIN $userprefs
 				ON $accounts.acctid = $userprefs.userid
-			WHERE $userprefs.modulename = 'stafflist'
+				AND $userprefs.modulename = 'stafflist'
 				AND $userprefs.setting = 'rank'
-				AND $accounts.locked = 0
+			WHERE $accounts.locked = 0
 				AND $accounts.loggedin = 1
 				AND $accounts.laston > '" . date("Y-m-d H:i:s",strtotime("-".getsetting('LOGINTIMEOUT',900)." seconds")) . "'
 			ORDER BY $accounts.superuser, $accounts.donation DESC";

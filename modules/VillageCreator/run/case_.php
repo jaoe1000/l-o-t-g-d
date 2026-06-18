@@ -37,14 +37,8 @@ if ($sop) {
                 // 4. Invalidate caches
                 // 5. Delete Module Prefs
 
-                $safeDefault = mysqli_real_escape_string(
-                    $mysqli_resource,
-                    $defaultVillage
-                );
-                $safeName = mysqli_real_escape_string(
-                    $mysqli_resource,
-                    $villageName
-                );
+                $safeDefault = db_escape($defaultVillage);
+                $safeName = db_escape($villageName);
 
                 db_query(
                     "UPDATE $accountsTable

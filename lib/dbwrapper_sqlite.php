@@ -267,4 +267,10 @@ function db_prefix(string $tableName): string
     global $DB_PREFIX;
     return $DB_PREFIX . $tableName;
 }
+
+function db_escape($string) {
+    global $sqlite_resource;
+    if (!$sqlite_resource) return addslashes($string);
+    return $sqlite_resource->escapeString($string);
+}
 ?>

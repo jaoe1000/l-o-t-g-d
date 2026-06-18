@@ -9,20 +9,21 @@ require_once("lib/http.php");
 require_once("lib/buffs.php");
 require_once("lib/taunt.php");
 require_once("lib/names.php");
+require_once("lib/dragons.php");
+$dragon = get_active_dragon();
 
 tlschema("dragon");
 $battle = false;
-page_header("The Green Dragon!");
+page_header(sprintf_translate("The %s!", $dragon['name']));
 $op = httpget('op');
 if ($op==""){
     if (!httpget('nointro')) {
-        output("`\$Fighting down every urge to flee, you cautiously enter the cave entrance, intent on catching the great green dragon sleeping, so that you might slay it with a minimum of pain.");
-        output("Sadly, this is not to be the case, for as you round a corner within the cave you discover the great beast sitting on its haunches on a huge pile of gold, picking its teeth with a rib.");
+        output($dragon['intro']);
     }
     $badguy = array(
-        "creaturename"=>translate_inline("`@The Green Dragon`0"),
+        "creaturename"=>translate_inline($dragon['color'] . "The " . $dragon['name'] . "`0"),
         "creaturelevel"=>18,
-        "creatureweapon"=>translate_inline("Great Flaming Maw"),
+        "creatureweapon"=>translate_inline($dragon['weapon']),
         "creatureattack"=>45,
         "creaturedefense"=>25,
         "creaturehealth"=>300,
@@ -86,7 +87,7 @@ if ($op==""){
     output("Somewhere along the way you lose your weapon, and finally you trip on a stone in a shallow stream, sight now limited to only a small circle that seems to float around your head.");
     output("As you lay, staring up through the trees, you think that nearby you can hear the sounds of the village.");
     output("Your final thought is that although you defeated the dragon, you reflect on the irony that it defeated you.`n`n");
-    output("As your vision winks out, far away in the dragon's lair, an egg shuffles to its side, and a small crack appears in its thick leathery skin.");
+    output("As your vision winks out, far away in the dragon's lair, a %s egg shuffles to its side, and a small crack appears in its thick leathery skin.", $dragon['egg_color']);
 
     if ($flawless) {
         output("`n`nYou fall forward, and remember at the last moment that you at least managed to grab some of the dragon's treasure, so maybe it wasn't all a total loss.");
@@ -231,7 +232,7 @@ if ($op==""){
     $session['user']['companions'] = array();
 
     output("`n`nYou wake up in the midst of some trees.  Nearby you hear the sounds of a village.");
-    output("Dimly you remember that you are a new warrior, and something of a dangerous Green Dragon that is plaguing the area.  You decide you would like to earn a name for yourself by perhaps some day confronting this vile creature.");
+    output("Dimly you remember that you are a new warrior, and something of a dangerous %s%s`0 that is plaguing the area.  You decide you would like to earn a name for yourself by perhaps some day confronting this vile creature.", $dragon['color'], $dragon['name']);
     $session['user']['lasthit'] = date('Y-m-d H:i:s', strtotime('-1 day'));
     // allow explanative text as well.
     modulehook("dragonkilltext");
@@ -241,9 +242,11 @@ if ($op==""){
     if ($session['user']['dragonkills'] == 1) {
         addnews(
             sprintf_translate(
-                "`#%s`# has earned the title `&%s`# for having slain the `@Green Dragon`& `^%s`# time!",
+                "`#%s`# has earned the title `&%s`# for having slain the %s%s`0 `^%s`# time!",
                 $regname,
                 $session['user']['title'],
+                $dragon['color'],
+                $dragon['name'],
                 $session['user']['dragonkills']
             )
         );
@@ -251,9 +254,11 @@ if ($op==""){
     } else {
         addnews(
             sprintf_translate(
-                "`#%s`# has earned the title `&%s`# for having slain the `@Green Dragon`& `^%s`# times!",
+                "`#%s`# has earned the title `&%s`# for having slain the %s%s`0 `^%s`# times!",
                 $regname,
                 $session['user']['title'],
+                $dragon['color'],
+                $dragon['name'],
                 $session['user']['dragonkills']
             )
         );
@@ -266,6 +271,7 @@ if ($op==""){
     // Moved this hear to make some things easier.
     modulehook("dragonkill", array());
     invalidatedatacache("list.php-warsonline");
+    reset_active_dragon();
 }
 
 if ($op=="run"){
@@ -283,11 +289,13 @@ if ($battle){
         $flawless = 0;
         if ($badguy['diddamage'] != 1) $flawless = 1;
         $session['user']['dragonkills']++;
-        output("`&With a mighty final blow, `@The Green Dragon`& lets out a tremendous bellow and falls at your feet, dead at last.");
+        output("`&With a mighty final blow, %sThe %s`& lets out a tremendous bellow and falls at your feet, dead at last.", $dragon['color'], $dragon['name']);
         addnews(
             sprintf_translate(
-                "`&%s has slain the hideous creature known as `@The Green Dragon`&.  All across the land, people rejoice!",
-                $session['user']['name']
+                "`&%s has slain the hideous creature known as %sThe %s`&.  All across the land, people rejoice!",
+                $session['user']['name'],
+                $dragon['color'],
+                $dragon['name']
             )
         );
         tlschema("nav");
@@ -302,16 +310,20 @@ if ($battle){
             if ($session['user']['sex']){
                 addnews(
                     sprintf_translate(
-                        "`%%s`5 has been slain when she encountered `@The Green Dragon`5!!!  Her bones now litter the cave entrance, just like the bones of those who came before.`n%s",
+                        "`%%s`5 has been slain when she encountered %sThe %s`5!!!  Her bones now litter the cave entrance, just like the bones of those who came before.`n%s",
                         $session['user']['name'],
+                        $dragon['color'],
+                        $dragon['name'],
                         $taunt
                     )
                 );
             }else{
                 addnews(
                     sprintf_translate(
-                        "`%%s`5 has been slain when he encountered `@The Green Dragon`5!!!  His bones now litter the cave entrance, just like the bones of those who came before.`n%s",
+                        "`%%s`5 has been slain when he encountered %sThe %s`5!!!  His bones now litter the cave entrance, just like the bones of those who came before.`n%s",
                         $session['user']['name'],
+                        $dragon['color'],
+                        $dragon['name'],
                         $taunt
                     )
                 );
@@ -320,7 +332,7 @@ if ($battle){
             debuglog("lost {$session['user']['gold']} gold when they were slain");
             $session['user']['gold']=0;
             $session['user']['hitpoints']=0;
-            output("`b`&You have been slain by `@The Green Dragon`&!!!`n");
+            output("`b`&You have been slain by %sThe %s`&!!!`n", $dragon['color'], $dragon['name']);
             output("`4All gold on hand has been lost!`n");
             output("You may begin fighting again tomorrow.");
 

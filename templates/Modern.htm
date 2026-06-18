@@ -1,0 +1,215 @@
+<!--!popuphead-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <link href="templates/Modern.css" rel="stylesheet" type="text/css">
+  {headscript}{script}
+</head>
+<body class="popup-body">
+  <div class="popup-wrapper">
+    <header class="popup-header">
+      <h1 class="popup-title">{title}</h1>
+    </header>
+    <main class="popup-content">
+<!--!popupfoot-->
+    </main>
+    <footer class="popup-footer">
+      <div class="footer-copyright">{copyright}</div>
+      <div class="footer-links">{source}</div>
+    </footer>
+  </div>
+</body>
+</html>
+<!--!header-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <link href="templates/Modern.css" rel="stylesheet" type="text/css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  {headscript}{script}
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- Top Header Bar -->
+    <header class="app-header">
+      <button class="menu-toggle-btn" aria-label="Toggle Menu" onclick="document.body.classList.remove('stats-active'); document.body.classList.toggle('sidebar-active')">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+        </svg>
+      </button>
+
+      <div class="brand">
+        <span class="brand-logo">🐉</span>
+        <span class="brand-name">Legend of the Green Dragon</span>
+      </div>
+
+      <div class="top-nav-links">
+        <div class="top-nav-item">{motd}</div>
+        <div class="top-nav-item">{mail}</div>
+        <div class="top-nav-item">{petition}</div>
+        {petitiondisplay}
+      </div>
+
+      <button class="stats-toggle-btn" aria-label="Toggle Stats" onclick="document.body.classList.remove('sidebar-active'); document.body.classList.toggle('stats-active')">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
+        </svg>
+      </button>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <h3>Navigation</h3>
+      </div>
+      
+      <!-- Mobile Quick Links (Shown only on mobile inside drawer) -->
+      <div class="sidebar-mobile-quick-links">
+        <div class="sidebar-quick-link-item">{motd}</div>
+        <div class="sidebar-quick-link-item">{mail}</div>
+        <div class="sidebar-quick-link-item">{petition}</div>
+        {petitiondisplay}
+      </div>
+
+      <div class="nav-ad-wrapper">{navad}</div>
+      <nav class="app-navigation-menu">
+        <ul>
+          {nav}
+        </ul>
+      </nav>
+
+      <!-- Theme Switcher -->
+      <div class="theme-switcher-wrapper">
+        <label for="theme-select">🎨 Switch Skin</label>
+        <select id="theme-select" onchange="document.cookie = 'template=' + this.value + '; path=/; max-age=31536000'; location.reload();">
+          <option value="Modern.htm">Modern</option>
+          <option value="Classic.htm">Classic</option>
+          <option value="Cupertino.htm">Cupertino</option>
+          <option value="Red.htm">Red</option>
+          <option value="Responsive.htm">Responsive</option>
+          <option value="jade.htm">Jade</option>
+          <option value="mer.htm">Mer</option>
+          <option value="mourn.htm">Mourn</option>
+          <option value="desert.htm">Desert</option>
+          <option value="volcano.htm">Volcano</option>
+        </select>
+        <script type="text/javascript">
+          (function() {
+            var cookies = document.cookie.split(';');
+            var template = 'Modern.htm';
+            for (var i = 0; i < cookies.length; i++) {
+              var parts = cookies[i].split('=');
+              if (parts[0].trim() === 'template') {
+                template = decodeURIComponent(parts[1].trim());
+                break;
+              }
+            }
+            var select = document.getElementById('theme-select');
+            if (select) select.value = template;
+          })();
+        </script>
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="app-main-panel">
+      <div class="main-card">
+        <header class="main-card-header">
+          <h2 class="main-card-title">{title}</h2>
+        </header>
+        <section class="main-card-body">
+          {headerad}{bodyad}
+<!--!footer-->
+        </section>
+      </div>
+    </main>
+
+    <!-- Right Side Stats Panel -->
+    <aside class="app-right-panel">
+      <div class="panel-header">
+        <h3>Character Status</h3>
+      </div>
+      <div class="stats-panel-wrapper">
+        {stats}
+      </div>
+      <div class="paypal-panel-wrapper">
+        {paypal}
+        {verticalad}
+      </div>
+    </aside>
+
+    <!-- Global App Footer -->
+    <footer class="app-global-footer">
+      <div class="footer-left-content">
+        {copyright}
+      </div>
+      <div class="footer-right-content">
+        <span>{source}</span> | <span>{version}</span> | <span class="footer-loadtime">{pagegen}</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Mobile Navigation Backdrop -->
+  <div class="sidebar-mobile-backdrop" onclick="document.body.classList.remove('sidebar-active')"></div>
+  
+  <!-- Mobile Stats Backdrop -->
+  <div class="stats-mobile-backdrop" onclick="document.body.classList.remove('stats-active')"></div>
+</body>
+</html>
+<!--!statstart-->
+<div class="stats-grid">
+<!--!stathead-->
+  <div class="stats-grid-header">{title}</div>
+<!--!statrow-->
+  <div class="stat-row">
+    <div class="stat-grid-label">{title}</div>
+    <div class="stat-grid-value">{value}</div>
+  </div>
+<!--!statbuff-->
+  <div class="stat-grid-buff-header">{title}</div>
+  <div class="stat-grid-buff-value">{value}</div>
+<!--!statend-->
+</div>
+<!--!navhead-->
+<li class="nav-menu-header">{title}</li>
+<!--!navhelp-->
+<li class="nav-menu-help">{text}</li>
+<!--!navitem-->
+<li>
+  <a href="{link}" {accesskey} {popup} class="nav-menu-item">
+    <span>{text}</span>
+  </a>
+</li>
+<!--!petitioncount-->
+<span class="petition-badge-count">{petitioncount}</span>
+<!--!adwrapper-->
+<div class="ad-container-block">{content}</div>
+<!--!login-->
+<div class="modern-login-box">
+  <div class="login-fields">
+    <div class="login-input-group">
+      <input name="name" id="name" accesskey="u" autocomplete="username" placeholder="{username}">
+    </div>
+    <div class="login-input-group">
+      <input name="password" id="password" accesskey="p" type="password" autocomplete="current-password" placeholder="{password}">
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary login-btn">{button}</button>
+</div>
+<!--!loginfull-->
+<div class="modern-server-full">
+  <div class="server-full-badge">Server Full</div>
+  <p>The dragon's chambers are packed. Please try again in a few moments.</p>
+</div>
+<!--!collapse-->
+style:classic

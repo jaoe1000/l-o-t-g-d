@@ -249,7 +249,7 @@ function estbreak_run(){
 			"creaturedefense"=>$session['user']['defense']*$def,
 			"creaturehealth"=>round($session['user']['maxhitpoints']*$hp),
 			"diddamage"=>0,);
-			$session['user']['badguy'] = createstring($badguy);
+			$session['user']['badguy'] = serialize($badguy);
 			$op = "setup";
 			httpset('op', $op);
 		}elseif ($op=="goforit"){
@@ -431,7 +431,7 @@ function estbreak_run(){
 				addnav("Return to the Alleyway","runmodule.php?module=estbreak&op=attack");
 	        } else {
 		        $battle = true;
-			    $session['user']['badguy']=createstring($badguy);
+			    $session['user']['badguy']=serialize($badguy);
 				$session['user']['playerfights']--;
 	        }
 		}

@@ -40,7 +40,9 @@ function forest(bool $hideOutput = false): void
 			}
 		}
 		if ($isForest === 1 || count($validLocation) == 0) {
-			addnav('G?`@Seek Out the Green Dragon','forest.php?op=dragon');
+			require_once('lib/dragons.php');
+			$dragon = get_active_dragon();
+			addnav(array('G?%sSeek Out the %s`0', $dragon['color'], $dragon['name']), 'forest.php?op=dragon');
 		}
 	}
 	addnav('Other');

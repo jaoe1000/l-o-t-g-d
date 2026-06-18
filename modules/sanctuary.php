@@ -52,8 +52,10 @@ function sanctuary_dohook($hookname,$args) {
             break; 
         case "village": 
             if ($session['user']['location'] == get_module_setting("sanctuaryloc")) {
-                tlschema($args['schemas']['tavernnav']); 
-                addnav($args['tavernnav']); 
+                $tavernnav = $args['tavernnav'] ?? ($args['nav_headers']['tavern'] ?? 'Tavern');
+                $schema = $args['schemas']['tavernnav'] ?? 'town';
+                tlschema($schema); 
+                addnav($tavernnav); 
                 tlschema(); 
                 addnav("The Sanctuary","runmodule.php?module=sanctuary"); 
             } 

@@ -57,26 +57,26 @@ function petshop_getmoduleinfo(){
 function petshop_install(){
 	if (db_table_exists(db_prefix("pets"))) {
 		$sql = "Select petattack FROM ".db_prefix("pets")." LIMIT 1";
-		$result = mysql_query($sql);
+		$result = db_query($sql, false);
 	    if (!$result) db_query("ALTER TABLE ".db_prefix("pets")." ADD `petattack` tinyint(3) NOT NULL default '0'");
 	    $sql = "Select attacktype FROM ".db_prefix("pets")." LIMIT 1";
-		$result = mysql_query($sql);
+		$result = db_query($sql, false);
 	    if (!$result) db_query("ALTER TABLE ".db_prefix("pets")." ADD `attacktype` tinyint(3) NOT NULL default '0'");
 	    $sql = "Select mindamage FROM ".db_prefix("pets")." LIMIT 1";
-		$result = mysql_query($sql);
+		$result = db_query($sql, false);
 	    if (!$result) db_query("ALTER TABLE ".db_prefix("pets")." ADD `mindamage` int(11) NOT NULL default '0'");
 	    $sql = "Select maxdamage FROM ".db_prefix("pets")." LIMIT 1";
-		$result = mysql_query($sql);
+		$result = db_query($sql, false);
 	    if (!$result) db_query("ALTER TABLE ".db_prefix("pets")." ADD `maxdamage` int(11) NOT NULL default '0'");
 	    $sql = "Select petturns FROM ".db_prefix("pets")." LIMIT 1";
-		$result = mysql_query($sql);
+		$result = db_query($sql, false);
 	    if (!$result) db_query("ALTER TABLE ".db_prefix("pets")." ADD `petturns` int(11) NOT NULL default '0'");
 	
 	}else{
 	output("`6Installing the pets database now.`n");	
 	output("`6Presto. Done.`n`n");	
 	$sql = array(
-	"CREATE TABLE ".db_prefix("pets")." (petid INT(11) NOT NULL AUTO_INCREMENT ,petname VARCHAR(25) DEFAULT 'Unknown' NOT NULL ,petbreed TINYINT(3) DEFAULT '0' NOT NULL ,valuegold INT(11) DEFAULT '0' NOT NULL ,valuegems INT(11) DEFAULT '0' NOT NULL, upkeepgold INT(11) DEFAULT '0' NOT NULL ,upkeepgems INT(11) DEFAULT '0' NOT NULL ,petdk INT(11) DEFAULT '0' NOT NULL ,petcharm INT(11) DEFAULT '0' NOT NULL,petdesc VARCHAR(100) NOT NULL,newdaymsg VARCHAR(100) NOT NULL,villagemsg VARCHAR(100) NOT NULL,gardenmsg VARCHAR(100) NOT NULL,battlemsg VARCHAR(100) NOT NULL,petattack TINYINT(3) DEFAULT '0' NOT NULL, attacktype tinyint(3) default '0' NOT NULL, mindamage INT(11) DEFAULT '0' NOT NULL, maxdamage INT(11) DEFAULT '0' NOT NULL, petturns INT(11) DEFAULT '0' NOT NULL, PRIMARY KEY (petid)) TYPE = InnoDB;",			
+	"CREATE TABLE ".db_prefix("pets")." (petid INT(11) NOT NULL AUTO_INCREMENT ,petname VARCHAR(25) DEFAULT 'Unknown' NOT NULL ,petbreed TINYINT(3) DEFAULT '0' NOT NULL ,valuegold INT(11) DEFAULT '0' NOT NULL ,valuegems INT(11) DEFAULT '0' NOT NULL, upkeepgold INT(11) DEFAULT '0' NOT NULL ,upkeepgems INT(11) DEFAULT '0' NOT NULL ,petdk INT(11) DEFAULT '0' NOT NULL ,petcharm INT(11) DEFAULT '0' NOT NULL,petdesc VARCHAR(100) NOT NULL,newdaymsg VARCHAR(100) NOT NULL,villagemsg VARCHAR(100) NOT NULL,gardenmsg VARCHAR(100) NOT NULL,battlemsg VARCHAR(100) NOT NULL,petattack TINYINT(3) DEFAULT '0' NOT NULL, attacktype tinyint(3) default '0' NOT NULL, mindamage INT(11) DEFAULT '0' NOT NULL, maxdamage INT(11) DEFAULT '0' NOT NULL, petturns INT(11) DEFAULT '0' NOT NULL, PRIMARY KEY (petid)) ENGINE = InnoDB;",			
 	);	
 		foreach ($sql as $statement) {
 		db_query($statement);	
@@ -123,32 +123,48 @@ function petshop_dohook($hookname,$args){
 	$petgender3 = translate_inline($gender?"she":"he");
 	$petgender4 = translate_inline($gender?"her":"him");
 	//
-	$petid = get_module_pref("petid");
-	$sql = "SELECT newdaymsg,villagemsg,gardenmsg,battlemsg,upkeepgold FROM " . db_prefix("pets") . " WHERE petid='$petid'";
-	$result = db_query($sql);
-	$row = db_fetch_assoc($result);
-	if ($row['newdaymsg']>""){
-		$msg1 = translate_inline($row['newdaymsg']);
-	}else{
-		$msg1 = translate_inline("Your pet awakens and is ready for the new day.");
+	$msg1 = "";
+	$msg2 = "";
+	$msg3 = "";
+	$msg4 = "";
+	$upkeepgold = 0;
+	$neglect = 0;
+	if ($haspet == 1) {
+		$petid = get_module_pref("petid");
+		$sql = "SELECT newdaymsg,villagemsg,gardenmsg,battlemsg,upkeepgold FROM " . db_prefix("pets") . " WHERE petid='$petid'";
+		$result = db_query($sql);
+		$row = db_fetch_assoc($result);
+		if ($row) {
+			if (isset($row['newdaymsg']) && $row['newdaymsg'] > "") {
+				$msg1 = translate_inline($row['newdaymsg']);
+			} else {
+				$msg1 = translate_inline("Your pet awakens and is ready for the new day.");
+			}
+			if (isset($row['villagemsg']) && $row['villagemsg'] > "") {
+				$msg2 = translate_inline($row['villagemsg']);
+			} else {
+				$msg2 = translate_inline("Your pet keeps an eye out as you wander about the village.");
+			}
+			if (isset($row['gardenmsg']) && $row['gardenmsg'] > "") {
+				$msg3 = translate_inline($row['gardenmsg']);
+			} else {
+				$msg3 = translate_inline("Your pet looks for a comfy place to take a nap.");
+			}
+			if (isset($row['battlemsg']) && $row['battlemsg'] > "") {
+				$msg4 = translate_inline($row['battlemsg']);
+			} else {
+				$msg4 = translate_inline("Frightened, your pet retreats to the forest.");
+			}
+			$upkeepgold = $row['upkeepgold'];
+		} else {
+			$msg1 = translate_inline("Your pet awakens and is ready for the new day.");
+			$msg2 = translate_inline("Your pet keeps an eye out as you wander about the village.");
+			$msg3 = translate_inline("Your pet looks for a comfy place to take a nap.");
+			$msg4 = translate_inline("Frightened, your pet retreats to the forest.");
+			$upkeepgold = 0;
+		}
+		$neglect = get_module_pref("neglect");
 	}
-	if ($row['villagemsg']>""){
-	$msg2 = translate_inline($row['villagemsg']);
-	}else{
-		$msg2 = translate_inline("Your pet keeps an eye out as you wander about the village.");
-	}
-	if ($row['gardenmsg']>""){
-	$msg3 = translate_inline($row['gardenmsg']);
-	}else{
-		$msg3 = translate_inline("Your pet looks for a comfy place to take a nap.");
-	}
-	if ($row['battlemsg']>""){
-		$msg4 = translate_inline($row['battlemsg']);
-	}else{
-		$msg4 = translate_inline("Frightened, your pet retreats to the forest.");
-	}
-	$upkeepgold = $row['upkeepgold'];	
-	$neglect = get_module_pref("neglect");
 	//
 	switch ($hookname) {
 	case "battle":
@@ -449,7 +465,8 @@ function petshop_dohook($hookname,$args){
 	case "village":
 	$shopname = translate_inline(get_module_setting("petshopname"));
 	if ($session['user']['location'] == get_module_setting("petshoploc")) {	
-		addnav($args['marketnav']);			
+		$marketnav = $args['marketnav'] ?? ($args['nav_headers']['market'] ?? 'Market');
+		addnav($marketnav);			
 		addnav("$shopname",$from2);					
 	}
 	break;

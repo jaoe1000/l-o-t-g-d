@@ -68,7 +68,7 @@ function injectmodule($modulename,$force=false){
 				$sql = "LOCK TABLES " . db_prefix("modules") . " WRITE";
 				db_query($sql);
 				//check again after the table has been locked.
-				$sql = "SELECT filemoddate FROM " . db_prefix("modules") . " WHERE modulename='$modulename'";
+				$sql = "SELECT filemoddate, infokeys, version FROM " . db_prefix("modules") . " WHERE modulename='$modulename'";
 				$result = db_query($sql);
 				$row = db_fetch_assoc($result);
 				if ($row['filemoddate']!=$filemoddate ||
@@ -103,7 +103,14 @@ function injectmodule($modulename,$force=false){
 					// Remove any old hooks (install will reset them)
 					module_wipehooks();
 					$fname = $modulename."_install";
-					if ($fname() === false) {
+					global $block_new_output;
+					$old_block_new_output = $block_new_output;
+					if (basename($_SERVER['SCRIPT_NAME'] ?? '') !== 'modules.php') {
+						$block_new_output = true;
+					}
+					$install_result = $fname();
+					$block_new_output = $old_block_new_output;
+					if ($install_result === false) {
 						return false;
 					}
 					invalidatedatacache("inject-$modulename");

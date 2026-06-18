@@ -35,7 +35,7 @@ function handle_event($location, $baseLink=false, $needHeader=false)
 
 	$_POST['i_am_a_hack'] = 'true';
 
-	if ($session['user']['specialinc']!=""){
+	if ($session['user']['specialinc']!="" && $session['user']['specialinc']!="a:0:{}"){
 		$specialinc = $session['user']['specialinc'];
 		$session['user']['specialinc'] = "";
 		if ($needHeader !== false) {
