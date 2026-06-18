@@ -108,7 +108,7 @@ function sphinx_runevent($type,$link)
 			"diddamage"=>0,
 			"type"=>"sphinx"
 		);
-		$session['user']['badguy']=createstring($badguy);
+		$session['user']['badguy']=serialize($badguy);
             break;
             }
             if ($op == "fight"){
