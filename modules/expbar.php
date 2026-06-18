@@ -35,6 +35,10 @@ function expbar_dohook(string $hookname, array $args): array
             $u = $session['user'];
             $level = (int)$u['level'];
             
+            $container_class = 'exp-bar-container';
+            $can_click = false;
+            $target_url = "";
+
             if ($level >= 15) {
                 // Max level in base game
                 $pct = 100;
@@ -56,15 +60,43 @@ function expbar_dohook(string $hookname, array $args): array
                 if ($pct < 0) $pct = 0;
                 if ($pct > 100) $pct = 100;
                 
-                $display_val = "$current_exp / $next_req ($pct%)";
+                if ($current_exp >= $next_req) {
+                    $display_val = "Ready to Train! ($current_exp / $next_req)";
+                    $container_class .= ' ready-to-train';
+                    
+                    if (isset($session['allowednavs']) && is_array($session['allowednavs'])) {
+                        foreach (array_keys($session['allowednavs']) as $nav) {
+                            if (strpos($nav, 'train.php') === 0) {
+                                $target_url = $nav;
+                                $can_click = true;
+                                break;
+                            }
+                        }
+                        if (!$can_click) {
+                            foreach (array_keys($session['allowednavs']) as $nav) {
+                                if (strpos($nav, 'village.php') === 0) {
+                                    $target_url = $nav;
+                                    $can_click = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    $display_val = "$current_exp / $next_req ($pct%)";
+                }
             }
             
             // Build the progress bar HTML using modern CSS Grid/Flex styled classes
             $bar_html = "
-            <div class='exp-bar-container' title='{$display_val}'>
+            <div class='{$container_class}' title='{$display_val}'>
               <div class='exp-bar-fill' style='width: {$pct}%'></div>
               <span class='exp-bar-text'>{$display_val}</span>
             </div>";
+            
+            if ($can_click) {
+                $bar_html = "<a href='{$target_url}' class='exp-bar-link'>{$bar_html}</a>";
+            }
             
             // Update the display of Experience in character stats
             setcharstat("Vital Info", "Experience", $bar_html);

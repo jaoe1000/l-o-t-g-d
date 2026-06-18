@@ -986,3 +986,30 @@ th, td {
   pointer-events: none;
   white-space: nowrap;
 }
+
+/* Clickable Exp Bar styling */
+.exp-bar-link {
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.exp-bar-link:hover .exp-bar-container {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.exp-bar-container.ready-to-train {
+  border-color: #fbbf24; /* Amber/gold border */
+  box-shadow: 0 0 5px rgba(251, 191, 36, 0.4);
+}
+
+.exp-bar-container.ready-to-train .exp-bar-fill {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b); /* Gold gradient */
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+}
+
+.exp-bar-link:hover .exp-bar-container.ready-to-train {
+  border-color: #f59e0b;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.8);
+}
