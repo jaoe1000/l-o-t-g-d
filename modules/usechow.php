@@ -434,7 +434,7 @@ function usechow_inn($act) {
 		if ($chow[$i] > 0) $userchow+=1;
 	}
 	$pricebase=$session['user']['dragonkills']*2;
-	if ($op == "" and $act == "") {
+	if ($act == "") {
 		output("`2Here is a place to satisfy those pangs in your tummy.  The Diner is named after the");
 		output("great flaming dragon found in these parts.  You sit down and look at the menu.`n");
 		output("`b`c-=-=-=MENU=-=-=-`c`b`n");
