@@ -178,6 +178,7 @@ output("the baths.  There are curtains around all of the baths for privacy.  You
 output("would feel good about now.  The old woman looks at you and points to a sign on the wall.  The sign states");
 output("that a bath will cost you `65 `2gold.`n");
 addnav("Take a Bath","runmodule.php?module=odor&op=bathe");
+$texts = array();
 modulehook("bathhouse",$texts);
 addnav("Back to the Village","village.php");
 }
