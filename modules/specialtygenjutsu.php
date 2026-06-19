@@ -81,23 +81,6 @@ function specialtygenjutsu_dohook($hookname, $args) {
     ];
     
     switch($hookname) {
-        case "specialty-codex":
-            $args[$spec] = [
-                'name' => $name,
-                'color' => $ccode,
-                'desc' => 'A powerful discipline of elemental Ninjutsu.',
-                'techniques' => [
-                    1 => ['name' => 'Narakumi no Jutsu', 'cost' => 1, 'desc' => '"Narakumi no JutsuAn imaginary circle of leaves spin around and envelop the enemy, falling away shortly after." Lasts 5 rounds.'],
-                    2 => ['name' => 'Kokoni Arazu no jutsu', 'cost' => 3, 'desc' => '"Kokoni Arazu no JutsuYou disappear into the surroundings by changing the appearance of the area." Lasts 5 rounds.'],
-                    3 => ['name' => 'Nijuu Kokoni Arazu no Jutsu', 'cost' => 6, 'desc' => '"Nijuu Kokoni Arazu no JutsuYou disappear into the surroundings and create an illusion around the area." Lasts 5 rounds.'],
-                    4 => ['name' => 'Jubaku Satsu', 'cost' => 10, 'desc' => '"Jubaku SatsuA tree sprouts from underneath {badguy}." Lasts 3 rounds.'],
-                    5 => ['name' => 'Suzu - Kiri', 'cost' => 15, 'desc' => '"Suzu - KiriYou disappear into a cloud of rose petals." Lasts 10 rounds.'],
-                    6 => ['name' => 'Jigoku Kouka no Jutsu', 'cost' => 18, 'desc' => '"Jigoku Kouka no JutsuA large fire ball descend from the heavens and turns the area into a fiery hell." Lasts 3 rounds.'],
-                    7 => ['name' => 'Kokuangyou no Jutsu', 'cost' => 20, 'desc' => '"Kokuangyou no JutsuYou blind {badguy} with total darkness." Lasts 10 rounds.'],
-                ]
-            ];
-            break;
-
         case "newday-intercept":
             specialtygenjutsu_change();
             break;

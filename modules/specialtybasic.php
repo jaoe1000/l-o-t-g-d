@@ -77,19 +77,6 @@ function specialtybasic_dohook($hookname, $args) {
     ];
     
     switch($hookname) {
-        case "specialty-codex":
-            $args[$spec] = [
-                'name' => $name,
-                'color' => $ccode,
-                'desc' => 'A powerful discipline of elemental Ninjutsu.',
-                'techniques' => [
-                    1 => ['name' => 'Kawarimi no Jutsu', 'cost' => 1, 'desc' => '"Kawarimi no Jutsu!You switch places with a nearby item but can neither attack nor defend." Boosts attack power.'],
-                    2 => ['name' => 'Kakuremino no Jutsu', 'cost' => 1, 'desc' => '"Kakuremino no Jutsu!You make yourself invisible to get into a better attack position." Lasts 2 rounds.'],
-                    3 => ['name' => 'Bunshin no Jutsu', 'cost' => 1, 'desc' => '"Bunshin no Jutsu!You create some clones to cover up your current position" Boosts defense, lasts 5 rounds.'],
-                ]
-            ];
-            break;
-
         case "newday-intercept":
             specialtybasic_change();
             break;

@@ -82,24 +82,6 @@ function specialtymedical_dohook($hookname, $args) {
     ];
     
     switch($hookname) {
-        case "specialty-codex":
-            $args[$spec] = [
-                'name' => $name,
-                'color' => $ccode,
-                'desc' => 'A powerful discipline of elemental Ninjutsu.',
-                'techniques' => [
-                    1 => ['name' => 'Chikatsu Saisei no Jutsu', 'cost' => 1, 'desc' => '"Chikatsu Saisei no Jutsu!You concentrate healing chakra to the palm of your hand." Lasts 5 rounds.'],
-                    2 => ['name' => 'Dokugiri', 'cost' => 2, 'desc' => '"Dokugiri!You blow a cloud of poison gas at the enemy." Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
-                    3 => ['name' => 'Chakra Kyuuin no Jutsu', 'cost' => 5, 'desc' => '"Chakra Kyuuin no Jutsu!You grab on to {badguy} and begin absorbing chakra." Lasts 5 rounds.'],
-                    4 => ['name' => 'Ranshinshou', 'cost' => 8, 'desc' => '"Ranshinshou!You convert a small portion of chakra into electricity and hit the enemy" Lasts 10 rounds.'],
-                    5 => ['name' => 'In\\'yu Shoumetsu', 'cost' => 15, 'desc' => '"In" Lasts 12 rounds.'],
-                    6 => ['name' => 'Shousen Jutsu: attack muscles', 'cost' => 16, 'desc' => '"Shousen Jutsu: attack muscles!You focus your chakra into a blade and damage the enemy" Lasts 10 rounds.'],
-                    7 => ['name' => 'Shousen Jutsu: attack organs', 'cost' => 18, 'desc' => '"Shousen Jutsu: attack organs!You focus your chakra into a blade and damage the enemy" Lasts 10 rounds.'],
-                    8 => ['name' => 'Souzou Saisei', 'cost' => 20, 'desc' => '"Souzou Saisei!You release all the chakra you have stored up and heal all your wounds almost instantaneously." Boosts defense, lasts 10 rounds.'],
-                ]
-            ];
-            break;
-
         case "newday-intercept":
             specialtymedical_change();
             break;

@@ -81,23 +81,6 @@ function specialtysand_dohook($hookname, $args) {
     ];
     
     switch($hookname) {
-        case "specialty-codex":
-            $args[$spec] = [
-                'name' => $name,
-                'color' => $ccode,
-                'desc' => 'A powerful discipline of elemental Ninjutsu.',
-                'techniques' => [
-                    1 => ['name' => 'Suna Shuriken', 'cost' => 1, 'desc' => '"Suna Shuriken!You throw shuriken made from sand." Deals damage to all enemies, summons helper minion.'],
-                    2 => ['name' => 'Suna no Yoroi', 'cost' => 3, 'desc' => '"Suna no Yoroi!You cover yourself in a compacted layer of sand, providing you with additional defense." Boosts defense, lasts 5 rounds.'],
-                    3 => ['name' => 'Suna Bunshin', 'cost' => 5, 'desc' => '"Suna Bunshin!You create a clone out of sand." Deals direct damage, summons helper minion, lasts 10 rounds.'],
-                    4 => ['name' => 'Suna no Tate', 'cost' => 10, 'desc' => '"Suna no Tate!You surround and protect yourself with sand." Boosts attack power, boosts defense, lasts 10 rounds.'],
-                    5 => ['name' => 'Ryuusa Bakuryuu', 'cost' => 15, 'desc' => '"Ryuusa Bakuryuu!You create a massive amount of sand and send it towards {badguy} in the form of a wave." Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
-                    6 => ['name' => 'Sabaku Kyuu', 'cost' => 18, 'desc' => '"Sabaku Kyuu!You cover {badguy}" Lasts 5 rounds.'],
-                    7 => ['name' => 'Sabaku Sousou', 'cost' => 20, 'desc' => '"Sabaku Sousou!You cover {badguy}" Deals direct damage, summons helper minion.'],
-                ]
-            ];
-            break;
-
         case "newday-intercept":
             specialtysand_change();
             break;

@@ -81,23 +81,6 @@ function specialtyice_dohook($hookname, $args) {
     ];
     
     switch($hookname) {
-        case "specialty-codex":
-            $args[$spec] = [
-                'name' => $name,
-                'color' => $ccode,
-                'desc' => 'A powerful discipline of elemental Ninjutsu.',
-                'techniques' => [
-                    1 => ['name' => 'Hyourou no Jutsu', 'cost' => 1, 'desc' => '"Hyouton - Hyourou no Jutsu!You  trap {badguy} in ice."'],
-                    2 => ['name' => 'Tsubame Fubuki', 'cost' => 3, 'desc' => '"Hyouton - Tsubame Fubuki no Jutsu!You  create a cluster of ice needles in the shape of miniature swallows." Deals direct damage, summons helper minion, lasts 5 rounds.'],
-                    3 => ['name' => 'Haryuu Mouko', 'cost' => 6, 'desc' => '"Hyouton - Haryuu Mouko no Jutsu!You create a large tiger out of ice." Deals direct damage, summons helper minion, lasts 5 rounds.'],
-                    4 => ['name' => 'Ikkaku Hakugei', 'cost' => 8, 'desc' => '"Hyouton - Ikkaku Hakugei!You create a massive narwhal from summoned ice that jumps up and falls back down on {badguy}." Deals damage to all enemies, summons helper minion.'],
-                    5 => ['name' => 'Rouga Nadare no Jutsu', 'cost' => 12, 'desc' => '"Hyouton - Rouga Nadare no Jutsu!You create an avalanche of snow wolves." Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
-                    6 => ['name' => 'Kokuryuu Boufuusetsu', 'cost' => 16, 'desc' => '"Hyouton - Kokuryuu Boufuusetsu!You create an icy black dragon with red eyes and shoot it towards {badguy}." Deals direct damage, summons helper minion.'],
-                    7 => ['name' => 'Souryuu Boufuusetsu', 'cost' => 20, 'desc' => '"Hyouton - Souryuu Boufuusetsu!You releases two dragons of black snow that merge into a massive tornado at {badguy}." Deals direct damage, summons helper minion, lasts 3 rounds.'],
-                ]
-            ];
-            break;
-
         case "newday-intercept":
             specialtyice_change();
             break;

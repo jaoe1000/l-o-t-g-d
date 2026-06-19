@@ -71,37 +71,6 @@ function specialtybard_dohook($hookname, $args) {
     $userSpec = $session['user']['specialty'] ?? '';
     
     switch($hookname) {
-        case "specialty-codex":
-            $args[$spec] = [
-                'name' => $name,
-                'color' => $ccode,
-                'desc' => 'Melodies that alter the battlefield based on your class path.',
-                'subclasses' => [
-                    'magic' => [
-                        'name' => 'Cantor (Magic Path)',
-                        'techniques' => [
-                            1 => ['name' => 'Fascinating Melody', 'cost' => 1, 'desc' => 'Strum a soft tune. Reduces enemy attack by 40% (lasts 4-9 rounds based on charm).'],
-                            3 => ['name' => 'Mass Suggestion', 'cost' => 3, 'desc' => 'Sing an uplifting aria. Summons a sylvan beast helper minion (lasts 4-9 rounds based on charm).'],
-                        ]
-                    ],
-                    'melee' => [
-                        'name' => 'Blade (Melee Path)',
-                        'techniques' => [
-                            1 => ['name' => 'Defensive Flourish', 'cost' => 1, 'desc' => 'Flashy defensive flourish. Increases defense by 40% (lasts 4-9 rounds based on charm).'],
-                            3 => ['name' => 'Bardic Inspiration', 'cost' => 3, 'desc' => 'Combat coordination song. Increases attack by 40% and defense by 20% (lasts 4-9 rounds based on charm).'],
-                        ]
-                    ],
-                    'ranging' => [
-                        'name' => 'Troubadour (Ranging Path)',
-                        'techniques' => [
-                            1 => ['name' => 'Discordant Chord', 'cost' => 1, 'desc' => ' discordant note. Reduces enemy defense by 30% (lasts 4-9 rounds based on charm).'],
-                            3 => ['name' => 'Vampiric Melody', 'cost' => 3, 'desc' => 'Haunting tune. Drains life force from the enemy, healing player for 100% of damage dealt (lasts 4-9 rounds based on charm).'],
-                        ]
-                    ]
-                ]
-            ];
-            break;
-
         case "newday-intercept":
             specialtybard_change();
             break;
