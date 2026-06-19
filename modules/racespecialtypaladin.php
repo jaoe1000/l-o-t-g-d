@@ -127,6 +127,20 @@ function racespecialtypaladin_dohook($hookname,$args){
 	$ccode = "`#"; 
 	
 	switch($hookname){
+        case "specialty-codex":
+            $args[$spec] = [
+                'name' => $name,
+                'color' => $ccode,
+                'desc' => 'Holy powers tied to your righteous morality.',
+                'techniques' => [
+                    1 => ['name' => 'Smite Evil', 'cost' => 1, 'desc' => 'Righteous strike that boosts attack power by 50% (lasts 5 rounds).'],
+                    2 => ['name' => 'Divine Grace', 'cost' => 2, 'desc' => 'Angelical shield that boosts defense by 50% (lasts 10 rounds).'],
+                    3 => ['name' => 'Lay on Hands', 'cost' => 3, 'desc' => 'Miraculous healing power that regenerates 1.5 * level health per round (lasts 5 rounds).'],
+                    5 => ['name' => 'Paladin Mount', 'cost' => 5, 'desc' => 'Summons helper mount that deals 0.5x - 1.0x attack damage and absorbs half of all incoming blows (lasts 5 rounds).'],
+                ]
+            ];
+            break;
+
 		case "apply-specialties":
 			$skill = httpget('skill');
 			$l = httpget('l');

@@ -82,6 +82,24 @@ function specialtylightning_dohook($hookname, $args) {
     ];
     
     switch($hookname) {
+        case "specialty-codex":
+            $args[$spec] = [
+                'name' => $name,
+                'color' => $ccode,
+                'desc' => 'A powerful discipline of elemental Ninjutsu.',
+                'techniques' => [
+                    1 => ['name' => 'Raigeki no Yoroi', 'cost' => 1, 'desc' => '"Raigeki no Yoroi!You surround yourself with electricity." Lasts 5 rounds.'],
+                    2 => ['name' => 'Raikyuu', 'cost' => 3, 'desc' => '"Raikyuu!You create a ball of electrical energy and launch it at {badguy}." Deals direct damage, summons helper minion, lasts 10 rounds.'],
+                    3 => ['name' => 'Raiton: Hiraishin', 'cost' => 6, 'desc' => '"Raiton: Hiraishin!You summon lightning from the sky to your hand and then shoot it at your opponent." Deals direct damage, summons helper minion.'],
+                    4 => ['name' => 'Ikazuchi no Kiba', 'cost' => 10, 'desc' => '"Ikazuchi no Kiba!You send an electrical essence into the clouds, allowing you to create lightning strikes." Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
+                    5 => ['name' => 'Raizou Ikazuchi wo Utte', 'cost' => 15, 'desc' => '"Raizou Ikazuchi wo Utte!You create several thunderbolts that cut through the ground and chase after {badguy}." Deals direct damage, summons helper minion, lasts 10 rounds.'],
+                    6 => ['name' => 'Raiton: Kaminari Shibari', 'cost' => 16, 'desc' => '"Raiton: Kaminari Shibari! You create a three sided wall of electricity to bind {badguy}." Deals direct damage, summons helper minion, lasts 3 rounds.'],
+                    7 => ['name' => 'Rairyuu no Tatsumaki', 'cost' => 18, 'desc' => '"Rairyuu no Tatsumaki!You spin around very quickly, forming the electricity around you into a likeness of a dragon" Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
+                    8 => ['name' => 'Ikazuchi Hakai', 'cost' => 23, 'desc' => '"Ikazuchi Hakai!You place your hands on the ground and send an enormous bolt of lightning that cuts through the ground towards {badguy}." Deals damage to all enemies, summons helper minion.'],
+                ]
+            ];
+            break;
+
         case "newday-intercept":
             specialtylightning_change();
             break;

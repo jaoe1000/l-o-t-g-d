@@ -81,6 +81,23 @@ function specialtyfire_dohook($hookname, $args) {
     ];
     
     switch($hookname) {
+        case "specialty-codex":
+            $args[$spec] = [
+                'name' => $name,
+                'color' => $ccode,
+                'desc' => 'A powerful discipline of elemental Ninjutsu.',
+                'techniques' => [
+                    1 => ['name' => 'Gōkakyū no Jutsu', 'cost' => 1, 'desc' => '"Katon - Gōkakyū no Jutsu!You utilize your chakra and exhale a large ball of fire from your mouth." Deals damage to all enemies, summons helper minion.'],
+                    2 => ['name' => 'Hōsenka no Jutsu', 'cost' => 3, 'desc' => '"Katon - Hōsenka!You  send multiple balls of fire at {badguy}." Deals direct damage, summons helper minion, lasts 5 rounds.'],
+                    3 => ['name' => 'Ryūka no Jutsu', 'cost' => 6, 'desc' => '"Katon - Ryūka no Jutsu!You breath out a burst of flame towards {badguy}." Deals damage to all enemies, summons helper minion.'],
+                    4 => ['name' => 'Haisekishō', 'cost' => 10, 'desc' => '"Katon - Haisekishō!You breathe out a cloud of superheated ash." Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
+                    5 => ['name' => '`\$Kar`qyū `\$En`qdan', 'cost' => 15, 'desc' => '"Katon - Karyū Endan! You shoot an enormous ball of flame in the shape of a dragon from your mouth at {badguy}." Deals damage to all enemies, summons helper minion.'],
+                    6 => ['name' => '`\$Kar`qyū`Qdan', 'cost' => 18, 'desc' => '"Katon - Karyūdan, You create a likeness of a dragon" Deals damage to all enemies, summons helper minion.'],
+                    7 => ['name' => '`@Gamayo `\$Emu`qdan', 'cost' => 11, 'desc' => '"Katon -  Gamayou Emudan!You sent a fire blast from your mouth to Gamabunta" Deals damage to all enemies, summons helper minion, lasts 10 rounds.'],
+                ]
+            ];
+            break;
+
         case "newday-intercept":
             specialtyfire_change();
             break;

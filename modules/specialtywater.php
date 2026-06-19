@@ -82,6 +82,24 @@ function specialtywater_dohook($hookname, $args) {
     ];
     
     switch($hookname) {
+        case "specialty-codex":
+            $args[$spec] = [
+                'name' => $name,
+                'color' => $ccode,
+                'desc' => 'A powerful discipline of elemental Ninjutsu.',
+                'techniques' => [
+                    1 => ['name' => 'Kirigakure no Jutsu', 'cost' => 1, 'desc' => '"Suiton - Kirigakure no Jutsu!You envelop the surrounding area in a dense mist." Lasts 5 rounds.'],
+                    2 => ['name' => 'Kaihoudan', 'cost' => 3, 'desc' => '"Suiton - Kaihoudan!You shoot a strong stream of water from your mouth at {badguy}." Deals damage to all enemies, summons helper minion.'],
+                    3 => ['name' => 'Suijinheki', 'cost' => 5, 'desc' => '"Suiton - Suijinheki!You create a water barrier to protect yourself from attacks." Boosts defense, lasts 5 rounds.'],
+                    4 => ['name' => 'Suiryuudan no Jutsu', 'cost' => 10, 'desc' => '"Suiton - Suiryuudan no Jutsu!You create a huge current of water in the form of a dragon and sends it towards {badguy}." Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
+                    5 => ['name' => 'Goshokuzame', 'cost' => 15, 'desc' => '"Suiton - Goshokuzame!You trap {badguy} in water and send five attacking sharks after him." Deals direct damage, summons helper minion, lasts 5 rounds.'],
+                    6 => ['name' => 'Daibakufu no Jutsu', 'cost' => 16, 'desc' => '"Suiton - Daibakufu no Jutsu!You create a massive blast of water." Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
+                    7 => ['name' => 'Daibaku no Jutsu', 'cost' => 18, 'desc' => '"Suiton - Daibaku no Jutsu!You create a massive tidal wave." Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
+                    8 => ['name' => 'Daibakure no Jutsu', 'cost' => 20, 'desc' => '"Suiton - Daibakure no Jutsu!You create an enormous  inescapable maelstrom." Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
+                ]
+            ];
+            break;
+
         case "newday-intercept":
             specialtywater_change();
             break;

@@ -81,6 +81,23 @@ function specialtywind_dohook($hookname, $args) {
     ];
     
     switch($hookname) {
+        case "specialty-codex":
+            $args[$spec] = [
+                'name' => $name,
+                'color' => $ccode,
+                'desc' => 'A powerful discipline of elemental Ninjutsu.',
+                'techniques' => [
+                    1 => ['name' => 'Kaze no Yoroi', 'cost' => 1, 'desc' => 'Boosts defense, lasts 5 rounds.'],
+                    2 => ['name' => 'Kamaitachi no Jutsu', 'cost' => 3, 'desc' => 'Deals damage to all enemies, summons helper minion, lasts 3 rounds.'],
+                    3 => ['name' => 'Kaze Kiri', 'cost' => 6, 'desc' => 'Deals direct damage, summons helper minion.'],
+                    4 => ['name' => 'Daikamaitachi no Jutsu', 'cost' => 10, 'desc' => 'Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
+                    5 => ['name' => 'Kaze no Yaiba', 'cost' => 15, 'desc' => 'Deals damage to all enemies, summons helper minion.'],
+                    6 => ['name' => 'Fuuton - Tatsu no Oshigoto', 'cost' => 18, 'desc' => 'Deals damage to all enemies, summons helper minion, lasts 5 rounds.'],
+                    7 => ['name' => 'Renkuudan', 'cost' => 20, 'desc' => 'Deals damage to all enemies, summons helper minion.'],
+                ]
+            ];
+            break;
+
         case "newday-intercept":
             specialtywind_change();
             break;

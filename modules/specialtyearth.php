@@ -81,6 +81,23 @@ function specialtyearth_dohook($hookname, $args) {
     ];
     
     switch($hookname) {
+        case "specialty-codex":
+            $args[$spec] = [
+                'name' => $name,
+                'color' => $ccode,
+                'desc' => 'A powerful discipline of elemental Ninjutsu.',
+                'techniques' => [
+                    1 => ['name' => 'Retsudotenshou', 'cost' => 1, 'desc' => '"Doton - Restudotenshou!You attack {badguy} with nearby rocks." Deals damage to all enemies, summons helper minion.'],
+                    2 => ['name' => 'Doroku Gaeshi', 'cost' => 3, 'desc' => '"Doton - Doroku Gaeshi!You create a large wall of earth." Boosts defense, lasts 5 rounds.'],
+                    3 => ['name' => 'Iwayado Kuzushi', 'cost' => 5, 'desc' => '"Doton - Iwayado Kuzushi!Rocks are dislodged from above {badguy}." Deals damage to all enemies, summons helper minion.'],
+                    4 => ['name' => 'Doroudoumu', 'cost' => 10, 'desc' => '"Doton - Doroudoumu!You trap {badguy} inside a self-repairing dome of earth." Deals damage to all enemies, summons helper minion, lasts 10 rounds.'],
+                    5 => ['name' => 'Doryuu Dango', 'cost' => 15, 'desc' => '"Doton - Doryuu Dango!You hurl a large dumpling-shaped chunk of earth the size of a mausoleum at {badguy}." Deals damage to all enemies, summons helper minion.'],
+                    6 => ['name' => 'Doryuuheki', 'cost' => 16, 'desc' => '"Doton - Doryuuheki!You spit out a stream of mud that quickly grows and solidifies into a strong protective wall." Boosts defense, lasts 10 rounds.'],
+                    7 => ['name' => 'Doryuudan', 'cost' => 18, 'desc' => '"Doton - Doryuudan!You create a likeness of a dragon" Deals damage to all enemies, summons helper minion.'],
+                ]
+            ];
+            break;
+
         case "newday-intercept":
             specialtyearth_change();
             break;
