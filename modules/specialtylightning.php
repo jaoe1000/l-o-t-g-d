@@ -1,25 +1,25 @@
 <?php
 /**
- * Advanced Specialty Module - Rai Ninjutsu
+ * Advanced Specialty Module - Lightning Magic
  * Built from the Advanced Specialty Blueprint
  * Designed for PHP 8.4 Strict Compliance
  */
 
 function specialtylightning_getmoduleinfo() {
     return [
-        "name" => "Specialty - Rai Ninjutsu",
+        "name" => "Specialty - Lightning Magic",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Specialties",
         "download" => "", 
         "settings" => [
-            "Rai Ninjutsu - Settings,title",
+            "Lightning Magic - Settings,title",
             "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|0",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
-            "IE- an 'Adze' would become a 'Rai Ninjutsu Adze',note", 
+            "IE- an 'Adze' would become a 'Lightning Magic Adze',note", 
         ],
         "prefs" => [
-            "Rai Ninjutsu - User Prefs,title",
+            "Lightning Magic - User Prefs,title",
             "skill" => "Skill points in Specialty Powers,int|0", 
             "uses" => "Uses of Specialty Powers allowed,int|0", 
             "class" => "Main Class,enum,Unset,,Magic,magic,Melee,melee,Ranging,ranging|magic", 
@@ -42,7 +42,7 @@ function specialtylightning_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
-    debug("Installed 'Rai Ninjutsu' specialty module.");
+    debug("Installed 'Lightning Magic' specialty module.");
     return true;
 }
 
@@ -58,27 +58,27 @@ function specialtylightning_uninstall() {
         $session['user']['specialty'] = "";
     }
     
-    debug("Uninstalled 'Rai Ninjutsu' specialty module.");
+    debug("Uninstalled 'Lightning Magic' specialty module.");
     return true;
 }
 
 function specialtylightning_dohook($hookname, $args) {
     global $session, $resline;
     $spec = "LT"; 
-    $name = "Rai Ninjutsu"; 
+    $name = "Lightning Magic"; 
     $ccode = "`t"; 
     
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-        1 => ['name' => 'Raigeki no Yoroi', 'cost' => 1, 'code' => 'lightning1'],
-        2 => ['name' => 'Raikyuu', 'cost' => 3, 'code' => 'lightning2'],
-        3 => ['name' => 'Raiton: Hiraishin', 'cost' => 6, 'code' => 'lightning3'],
-        4 => ['name' => 'Ikazuchi no Kiba', 'cost' => 10, 'code' => 'lightning4'],
-        5 => ['name' => 'Raizou Ikazuchi wo Utte', 'cost' => 15, 'code' => 'lightning5'],
-        6 => ['name' => 'Raiton: Kaminari Shibari', 'cost' => 16, 'code' => 'lightning6'],
-        7 => ['name' => 'Rairyuu no Tatsumaki', 'cost' => 18, 'code' => 'lightning7'],
-        8 => ['name' => 'Ikazuchi Hakai', 'cost' => 23, 'code' => 'lightning8'],
+        1 => ['name' => 'Storm Armor', 'cost' => 1, 'code' => 'lightning1'],
+        2 => ['name' => 'Spark Sphere', 'cost' => 3, 'code' => 'lightning2'],
+        3 => ['name' => 'Lightning Spear', 'cost' => 6, 'code' => 'lightning3'],
+        4 => ['name' => 'Thunderous Roar', 'cost' => 10, 'code' => 'lightning4'],
+        5 => ['name' => 'Forked Lightning', 'cost' => 15, 'code' => 'lightning5'],
+        6 => ['name' => 'Storm Prison', 'cost' => 16, 'code' => 'lightning6'],
+        7 => ['name' => 'Storm Vortex', 'cost' => 18, 'code' => 'lightning7'],
+        8 => ['name' => 'Thunderous Ruin', 'cost' => 23, 'code' => 'lightning8'],
     ];
     
     switch($hookname) {
@@ -116,7 +116,7 @@ function specialtylightning_dohook($hookname, $args) {
 
                 if ($can_select) {
                     addnav("$ccode$name`0", "newday.php?setspecialty=".$spec."$resline");
-                    $t1 = translate_inline("Train in Rai Ninjutsu"); 
+                    $t1 = translate_inline("Train in Lightning Magic"); 
                     $t2 = appoencode(translate_inline("$ccode$name`0"));
                     rawoutput("<a href='newday.php?setspecialty=$spec$resline'>$t1 ($t2)</a><br>");
                     addnav("", "newday.php?setspecialty=$spec$resline");
@@ -127,8 +127,8 @@ function specialtylightning_dohook($hookname, $args) {
         case "set-specialty":
             if ($userSpec === $spec) {
                 page_header($name);
-                output("`#`c`bRai Ninjutsu Unlocked`b`c`n");
-                output("`@You have unlocked the secrets of Rai Ninjutsu! Focus your chakra and unleash your Jutsu in combat.`n");
+                output("`#`c`bLightning Magic Unlocked`b`c`n");
+                output("`@You have unlocked the secrets of Lightning Magic! Focus your mana and unleash your spells in combat.`n");
             }
             break;
 
@@ -142,28 +142,28 @@ function specialtylightning_dohook($hookname, $args) {
                 }
                 
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Raigeki no Yoroi')], $script."op=fight&skill=$spec&l=1", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Storm Armor')], $script."op=fight&skill=$spec&l=1", true);
                 }
                 if ($uses >= 3) {
-                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Raikyuu')], $script."op=fight&skill=$spec&l=2", true);
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Spark Sphere')], $script."op=fight&skill=$spec&l=2", true);
                 }
                 if ($uses >= 6) {
-                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Raiton: Hiraishin')], $script."op=fight&skill=$spec&l=3", true);
+                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Lightning Spear')], $script."op=fight&skill=$spec&l=3", true);
                 }
                 if ($uses >= 10) {
-                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Ikazuchi no Kiba')], $script."op=fight&skill=$spec&l=4", true);
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Thunderous Roar')], $script."op=fight&skill=$spec&l=4", true);
                 }
                 if ($uses >= 15) {
-                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Raizou Ikazuchi wo Utte')], $script."op=fight&skill=$spec&l=5", true);
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Forked Lightning')], $script."op=fight&skill=$spec&l=5", true);
                 }
                 if ($uses >= 16) {
-                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Raiton: Kaminari Shibari')], $script."op=fight&skill=$spec&l=6", true);
+                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Storm Prison')], $script."op=fight&skill=$spec&l=6", true);
                 }
                 if ($uses >= 18) {
-                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Rairyuu no Tatsumaki')], $script."op=fight&skill=$spec&l=7", true);
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Storm Vortex')], $script."op=fight&skill=$spec&l=7", true);
                 }
                 if ($uses >= 23) {
-                    addnav(["`@ &#149; %s`@ (23)`0", translate_inline('Ikazuchi Hakai')], $script."op=fight&skill=$spec&l=8", true);
+                    addnav(["`@ &#149; %s`@ (23)`0", translate_inline('Thunderous Ruin')], $script."op=fight&skill=$spec&l=8", true);
                 }
             }
             break;
@@ -180,8 +180,8 @@ function specialtylightning_dohook($hookname, $args) {
                     switch ($code) {
 case "lightning1":
 			apply_buff('lightning1',array(
-				"startmsg"=>"`i`tRaigeki no Yoroi!`i`n`qYou `vsurround yourself with electricity.`b",
-				"name"=>"`tRaigeki no Yoroi",
+				"startmsg"=>"`i`tStorm Armor!`i`n`qYou `vsurround yourself with crackling electricity.`b",
+				"name"=>"`tStorm Armor",
 				"rounds"=>5,
 				"wearoff"=>"The electricity around you was neutralized.",
 				"damageshield"=>0.20,
@@ -191,8 +191,8 @@ case "lightning1":
 			break;
 		case "lightning2":
 			apply_buff('lightning2',array(
-				"startmsg"=>"`i`tRaikyuu!`i`n`qYou `vcreate a ball of electrical energy and launch it at {badguy}.",
-				"name"=>"`tRaikyuu",
+				"startmsg"=>"`i`tSpark Sphere!`i`n`qYou `vcreate a ball of electrical energy and launch it at {badguy}.",
+				"name"=>"`tSpark Sphere",
 				"rounds"=>10,
 				"wearoff"=>"The electricity in {badguy}'s body has neutralized.",
 				"minbadguydamage"=>5,
@@ -204,8 +204,8 @@ case "lightning1":
 			break;
 		case "lightning3":
 			apply_buff('lightning3',array(
-				"startmsg"=>"`i`t`^Raiton: `yHiraishin!`i`n`qYou `vsummon lightning from the sky to your hand and then shoot it at your opponent.",
-				"name"=>"`^Raiton: `tHiraishin",
+				"startmsg"=>"`i`tLightning Spear!`i`n`qYou `vsummon lightning from the sky into your hand and hurl it at your opponent.",
+				"name"=>"`tLightning Spear",
 				"rounds"=>1,
 				"minbadguydamage"=>60+$session['user']['dragonkills'],
 				"maxbadguydamage"=>80+$session['user']['dragonkills'],
@@ -216,8 +216,8 @@ case "lightning1":
 			break;
 		case "lightning4":
 			apply_buff('lightning4',array(
-				"startmsg"=>"`i`tIkazuchi no Kiba!`i`n`qYou `vsend an electrical essence into the clouds, allowing you to create lightning strikes.",
-				"name"=>"`tIkazuchi no Kiba",
+				"startmsg"=>"`i`tThunderous Roar!`i`n`qYou `vsend electrical energy into the clouds, calling down lightning strikes.",
+				"name"=>"`tThunderous Roar",
 				"rounds"=>5,
 				"areadamage"=>true,
 				"wearoff"=>"The electrical essence in the clouds has neutralized.",
@@ -230,8 +230,8 @@ case "lightning1":
 			break;
 		case "lightning5":
 			apply_buff('lightning5',array(
-				"startmsg"=>"`i`tRaizou Ikazuchi wo Utte!`i`n`qYou `vcreate several thunderbolts that cut through the ground and chase after {badguy}.",
-				"name"=>"`tRaizou Ikazuchi wo Utte",
+				"startmsg"=>"`i`tForked Lightning!`i`n`qYou `vcreate several thunderbolts that arc through the ground, chasing {badguy}.",
+				"name"=>"`tForked Lightning",
 				"rounds"=>10,
 				"wearoff"=>"The thunderbolts were neutralized.",
 				"minbadguydamage"=>15+$session['user']['dragonkills'],
@@ -244,8 +244,8 @@ case "lightning1":
 			break;
 		case "lightning6":
 			apply_buff('lightning6',array(
-				"startmsg"=>"`i`^Raiton`i: `^K`taminari `^S`thibari! `i`n`qYou `vcreate a three sided wall of electricity to bind {badguy}.",
-				"name"=>"`^Raiton: `^K`taminari `^S`thibari",
+				"startmsg"=>"`i`tStorm Prison!`i`n`qYou `vcreate a wall of crackling electricity to bind {badguy}.",
+				"name"=>"`tStorm Prison",
 				"rounds"=>3,
 				"wearoff"=>"The wall has been broken.",
 				"invulnerable"=>true,
@@ -258,8 +258,8 @@ case "lightning1":
 			break;
 		case "lightning7":
 			apply_buff('lightning7',array(
-				"startmsg"=>"`i`tRairyuu no Tatsumaki!`i`n`qYou `vspin around very quickly, forming the electricity around you into a likeness of a dragon's head.",
-				"name"=>"`tRairyuu no Tatsumaki",
+				"startmsg"=>"`i`tStorm Vortex!`i`n`qYou `vform the electricity around you into a swirling tempest.",
+				"name"=>"`tStorm Vortex",
 				"rounds"=>5,
 				"areadamage"=>true,
 				"wearoff"=>"The electrical vortex has neutralized.",
@@ -273,8 +273,16 @@ case "lightning1":
 			break;
 		case "lightning8":
 			apply_buff('lightning8',array(
-				"startmsg"=>"`^I`tkazuchi `^H`takai!`i`n`qYou `vplace your hands on the ground and send an enormous bolt of lightning that cuts through the ground towards {badguy}.`b",
-				"name"=>"`^I`tkazuchi `^H`takai",
+				"startmsg"=>"`tThunderous Ruin!`i`n`qYou `vunleash an enormous bolt of lightning that tears through the ground towards {badguy}.`b",
+				"name"=>"`tThunderous Ruin",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"minbadguydamage"=>180+$session['user']['dragonkills'],
+				"maxbadguydamage"=>220+$session['user']['dragonkills'],
+				"minioncount"=>1,
+				"effectmsg"=>"The bolt of lightning causes devastating destruction on its path towards {badguy}, generated with heat and power that does {damage} damage!",
+				"schema"=>"module-specialtysystem_lightning"
+			));
 				"rounds"=>1,
 				"areadamage"=>true,
 				"minbadguydamage"=>180+$session['user']['dragonkills'],
@@ -365,7 +373,7 @@ function specialtylightning_change() {
 
 function specialtylightning_namer($type='X') {
     $class = [];
-    $class['1'] = "Rai Ninjutsu";
+    $class['1'] = "Lightning Magic";
     return $class['1'];
 }
 ?>

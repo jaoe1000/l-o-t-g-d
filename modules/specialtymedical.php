@@ -1,25 +1,25 @@
 <?php
 /**
- * Advanced Specialty Module - Medical Ninjutsu
+ * Advanced Specialty Module - Restoration Magic
  * Built from the Advanced Specialty Blueprint
  * Designed for PHP 8.4 Strict Compliance
  */
 
 function specialtymedical_getmoduleinfo() {
     return [
-        "name" => "Specialty - Medical Ninjutsu",
+        "name" => "Specialty - Restoration Magic",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Specialties",
         "download" => "", 
         "settings" => [
-            "Medical Ninjutsu - Settings,title",
+            "Restoration Magic - Settings,title",
             "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|4",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
-            "IE- an 'Adze' would become a 'Medical Ninjutsu Adze',note", 
+            "IE- an 'Adze' would become a 'Restoration Magic Adze',note", 
         ],
         "prefs" => [
-            "Medical Ninjutsu - User Prefs,title",
+            "Restoration Magic - User Prefs,title",
             "skill" => "Skill points in Specialty Powers,int|0", 
             "uses" => "Uses of Specialty Powers allowed,int|0", 
             "class" => "Main Class,enum,Unset,,Magic,magic,Melee,melee,Ranging,ranging|magic", 
@@ -42,7 +42,7 @@ function specialtymedical_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
-    debug("Installed 'Medical Ninjutsu' specialty module.");
+    debug("Installed 'Restoration Magic' specialty module.");
     return true;
 }
 
@@ -58,27 +58,27 @@ function specialtymedical_uninstall() {
         $session['user']['specialty'] = "";
     }
     
-    debug("Uninstalled 'Medical Ninjutsu' specialty module.");
+    debug("Uninstalled 'Restoration Magic' specialty module.");
     return true;
 }
 
 function specialtymedical_dohook($hookname, $args) {
     global $session, $resline;
     $spec = "MD"; 
-    $name = "Medical Ninjutsu"; 
+    $name = "Restoration Magic"; 
     $ccode = "`!"; 
     
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-        1 => ['name' => 'Chikatsu Saisei no Jutsu', 'cost' => 1, 'code' => 'medical1'],
-        2 => ['name' => 'Dokugiri', 'cost' => 2, 'code' => 'medical2'],
-        3 => ['name' => 'Chakra Kyuuin no Jutsu', 'cost' => 5, 'code' => 'medical3'],
-        4 => ['name' => 'Ranshinshou', 'cost' => 8, 'code' => 'medical4'],
-        5 => ['name' => 'In\'yu Shoumetsu', 'cost' => 15, 'code' => 'medical5'],
-        6 => ['name' => 'Shousen Jutsu: attack muscles', 'cost' => 16, 'code' => 'medical6'],
-        7 => ['name' => 'Shousen Jutsu: attack organs', 'cost' => 18, 'code' => 'medical7'],
-        8 => ['name' => 'Souzou Saisei', 'cost' => 20, 'code' => 'medical8'],
+        1 => ['name' => 'Restoration', 'cost' => 1, 'code' => 'medical1'],
+        2 => ['name' => 'Noxious Mist', 'cost' => 2, 'code' => 'medical2'],
+        3 => ['name' => 'Life Siphon', 'cost' => 5, 'code' => 'medical3'],
+        4 => ['name' => 'Synaptic Shock', 'cost' => 8, 'code' => 'medical4'],
+        5 => ['name' => 'Rejuvenation', 'cost' => 15, 'code' => 'medical5'],
+        6 => ['name' => 'Cripple', 'cost' => 16, 'code' => 'medical6'],
+        7 => ['name' => 'Sundering Blow', 'cost' => 18, 'code' => 'medical7'],
+        8 => ['name' => 'Ascendant Recovery', 'cost' => 20, 'code' => 'medical8'],
     ];
     
     switch($hookname) {
@@ -116,7 +116,7 @@ function specialtymedical_dohook($hookname, $args) {
 
                 if ($can_select) {
                     addnav("$ccode$name`0", "newday.php?setspecialty=".$spec."$resline");
-                    $t1 = translate_inline("Train in Medical Ninjutsu"); 
+                    $t1 = translate_inline("Train in Restoration Magic"); 
                     $t2 = appoencode(translate_inline("$ccode$name`0"));
                     rawoutput("<a href='newday.php?setspecialty=$spec$resline'>$t1 ($t2)</a><br>");
                     addnav("", "newday.php?setspecialty=$spec$resline");
@@ -127,8 +127,8 @@ function specialtymedical_dohook($hookname, $args) {
         case "set-specialty":
             if ($userSpec === $spec) {
                 page_header($name);
-                output("`#`c`bMedical Ninjutsu Unlocked`b`c`n");
-                output("`@You have unlocked the secrets of Medical Ninjutsu! Focus your chakra and unleash your Jutsu in combat.`n");
+                output("`#`c`bRestoration Magic Unlocked`b`c`n");
+                output("`@You have unlocked the secrets of Restoration Magic! Focus your mana and unleash your spells in combat.`n");
             }
             break;
 
@@ -142,28 +142,28 @@ function specialtymedical_dohook($hookname, $args) {
                 }
                 
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Chikatsu Saisei no Jutsu')], $script."op=fight&skill=$spec&l=1", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Restoration')], $script."op=fight&skill=$spec&l=1", true);
                 }
                 if ($uses >= 2) {
-                    addnav(["`@ &#149; %s`@ (2)`0", translate_inline('Dokugiri')], $script."op=fight&skill=$spec&l=2", true);
+                    addnav(["`@ &#149; %s`@ (2)`0", translate_inline('Noxious Mist')], $script."op=fight&skill=$spec&l=2", true);
                 }
                 if ($uses >= 5) {
-                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Chakra Kyuuin no Jutsu')], $script."op=fight&skill=$spec&l=3", true);
+                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Life Siphon')], $script."op=fight&skill=$spec&l=3", true);
                 }
                 if ($uses >= 8) {
-                    addnav(["`@ &#149; %s`@ (8)`0", translate_inline('Ranshinshou')], $script."op=fight&skill=$spec&l=4", true);
+                    addnav(["`@ &#149; %s`@ (8)`0", translate_inline('Synaptic Shock')], $script."op=fight&skill=$spec&l=4", true);
                 }
                 if ($uses >= 15) {
-                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('In\'yu Shoumetsu')], $script."op=fight&skill=$spec&l=5", true);
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Rejuvenation')], $script."op=fight&skill=$spec&l=5", true);
                 }
                 if ($uses >= 16) {
-                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Shousen Jutsu: attack muscles')], $script."op=fight&skill=$spec&l=6", true);
+                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Cripple')], $script."op=fight&skill=$spec&l=6", true);
                 }
                 if ($uses >= 18) {
-                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Shousen Jutsu: attack organs')], $script."op=fight&skill=$spec&l=7", true);
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Sundering Blow')], $script."op=fight&skill=$spec&l=7", true);
                 }
                 if ($uses >= 20) {
-                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Souzou Saisei')], $script."op=fight&skill=$spec&l=8", true);
+                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Ascendant Recovery')], $script."op=fight&skill=$spec&l=8", true);
                 }
             }
             break;
@@ -180,8 +180,8 @@ function specialtymedical_dohook($hookname, $args) {
                     switch ($code) {
 case "medical1":
 			apply_buff('medical1',array(
-				"startmsg"=>"`!`iChikatsu Saisei no Jutsu!`i`n`tYou concentrate healing chakra to the palm of your hand.",
-				"name"=>"`!Chikatsu Saisei no Jutsu",
+				"startmsg"=>"`!`iRestoration!`i`n`tYou concentrate healing magic to the palm of your hand.",
+				"name"=>"`!Restoration",
 				"rounds"=>5,
 				"wearoff"=>"You stopped healing yourself.",
 				"regen"=>$session['user']['level']+1,
@@ -192,8 +192,8 @@ case "medical1":
 			break;
 		case "medical2":
 			apply_buff('medical2',array(
-				"startmsg"=>"`!`iDokugiri!`i`n`tYou blow a cloud of poison gas at the enemy.",
-				"name"=>"`@Dokugiri",
+				"startmsg"=>"`!`iNoxious Mist!`i`n`tYou blow a cloud of poison gas at the enemy.",
+				"name"=>"`@Noxious Mist",
 				"rounds"=>5,
 				"wearoff"=>"The poison gas clears away.",
 				"areadamage"=>true,
@@ -206,21 +206,21 @@ case "medical1":
 			break;
 		case "medical3":
 			apply_buff('medical3',array(
-				"startmsg"=>"`!`iChakra Kyuuin no Jutsu!`i`n`tYou grab on to {badguy} and begin absorbing chakra.",
-				"name"=>"`!Chakra `1Kyuuin `vno `!Jutsu",
+				"startmsg"=>"`!`iLife Siphon!`i`n`tYou grab on to {badguy} and begin absorbing life essence.",
+				"name"=>"`!Life Siphon",
 				"rounds"=>5,
-				"wearoff"=>"You stopped absorbing chakra.",
+				"wearoff"=>"You stopped absorbing life essence.",
 				"regen"=>$session['user']['level']*2,
 				"badguyatkmod"=>0.60,
-				"effectmsg"=>"{badguy} loses chakra and is unable to attack well!",
-				"effectnodmgmsg"=>"{badguy} loses chakra and is unable to attack well!",
+				"effectmsg"=>"{badguy} loses energy and is unable to attack well!",
+				"effectnodmgmsg"=>"{badguy} loses energy and is unable to attack well!",
 				"schema"=>"module-specialtysystem_medical"
 			));
 			break;
 		case "medical4":
 			apply_buff('medical4',array(
-				"startmsg"=>"`!`iRanshinshou!`i`n`tYou convert a small portion of chakra into electricity and hit the enemy's brain stem.",
-				"name"=>"`!Ran`1shin`!shou",
+				"startmsg"=>"`!`iSynaptic Shock!`i`n`tYou convert a small portion of mana into electricity and hit the enemy's brain stem.",
+				"name"=>"`!Synaptic Shock",
 				"rounds"=>10,
 				"wearoff"=>"{badguy}'s movement returned to normal.",
 				"badguyatkmod"=>0.60,
@@ -231,8 +231,8 @@ case "medical1":
 			break;
 		case "medical5":
 			apply_buff('medical5',array(
-				"startmsg"=>"`!`iIn'yu Shoumetsu!`i`n`tYou concentrate healing chakra to the palm of your hand.",
-				"name"=>"`!In'`1yuu `!Sho`1me`!tsu",
+				"startmsg"=>"`!`iRejuvenation!`i`n`tYou concentrate strong healing magic to the palm of your hand.",
+				"name"=>"`!Rejuvenation",
 				"rounds"=>12,
 				"wearoff"=>"You stopped regenerating.",
 				"regen"=>round($session['user']['maxhitpoints']/10),
@@ -243,8 +243,8 @@ case "medical1":
 			break;
 		case "medical6":
 			apply_buff('medical6',array(
-				"startmsg"=>"`!`iShousen Jutsu: attack muscles!`i`n`tYou focus your chakra into a blade and damage the enemy's muscles.",
-				"name"=>"`!Shousen Jutsu: `\$attack muscles",
+				"startmsg"=>"`!`iCripple!`i`n`tYou focus your magic into a spectral blade and damage the enemy's muscles.",
+				"name"=>"`!Cripple",
 				"rounds"=>10,
 				"wearoff"=>"{badguy}'s damaged muscles have healed.",
 				"badguyatkmod"=>0.25,
@@ -254,8 +254,8 @@ case "medical1":
 			break;
 		case "medical7":
 			apply_buff('medical7',array(
-				"startmsg"=>"`!`iShousen Jutsu: attack organs!`i`n`tYou focus your chakra into a blade and damage the enemy's organs.",
-				"name"=>"`!Shousen Jutsu: `\$attack organs",
+				"startmsg"=>"`!`iSundering Blow!`i`n`tYou focus your magic into a spectral blade and damage the enemy's organs.",
+				"name"=>"`!Sundering Blow",
 				"rounds"=>10,
 				"wearoff"=>"{badguy}'s damaged organs have healed.",
 				"badguydefmod"=>0.25,
@@ -268,8 +268,8 @@ case "medical1":
    $session['user']['hitpoints']=$session['user']['maxhitpoints'];
 }
 			apply_buff('medical8',array(
-				"startmsg"=>"`!`iSouzou Saisei!`i`n`tYou release all the chakra you have stored up and heal all your wounds almost instantaneously.",
-				"name"=>"`!Sou`1zou `!Sa`1i`!se`1i",
+				"startmsg"=>"`!`iAscendant Recovery!`i`n`tYou release all the magic you have stored up and heal all your wounds almost instantaneously.",
+				"name"=>"`!Ascendant Recovery",
 				"rounds"=>10,
 				"wearoff"=>"You have exhausted all of your energy.",
 				"defmod"=>3.0,
@@ -357,7 +357,7 @@ function specialtymedical_change() {
 
 function specialtymedical_namer($type='X') {
     $class = [];
-    $class['1'] = "Medical Ninjutsu";
+    $class['1'] = "Restoration Magic";
     return $class['1'];
 }
 ?>

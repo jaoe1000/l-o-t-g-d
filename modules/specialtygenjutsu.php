@@ -1,25 +1,25 @@
 <?php
 /**
- * Advanced Specialty Module - Genjutsu
+ * Advanced Specialty Module - Illusion Magic
  * Built from the Advanced Specialty Blueprint
  * Designed for PHP 8.4 Strict Compliance
  */
 
 function specialtygenjutsu_getmoduleinfo() {
     return [
-        "name" => "Specialty - Genjutsu",
+        "name" => "Specialty - Illusion Magic",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Specialties",
         "download" => "", 
         "settings" => [
-            "Genjutsu - Settings,title",
+            "Illusion Magic - Settings,title",
             "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|0",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
-            "IE- an 'Adze' would become a 'Genjutsu Adze',note", 
+            "IE- an 'Adze' would become an 'Illusion Magic Adze',note", 
         ],
         "prefs" => [
-            "Genjutsu - User Prefs,title",
+            "Illusion Magic - User Prefs,title",
             "skill" => "Skill points in Specialty Powers,int|0", 
             "uses" => "Uses of Specialty Powers allowed,int|0", 
             "class" => "Main Class,enum,Unset,,Magic,magic,Melee,melee,Ranging,ranging|magic", 
@@ -42,7 +42,7 @@ function specialtygenjutsu_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
-    debug("Installed 'Genjutsu' specialty module.");
+    debug("Installed 'Illusion Magic' specialty module.");
     return true;
 }
 
@@ -58,26 +58,26 @@ function specialtygenjutsu_uninstall() {
         $session['user']['specialty'] = "";
     }
     
-    debug("Uninstalled 'Genjutsu' specialty module.");
+    debug("Uninstalled 'Illusion Magic' specialty module.");
     return true;
 }
 
 function specialtygenjutsu_dohook($hookname, $args) {
     global $session, $resline;
     $spec = "GJ"; 
-    $name = "Genjutsu"; 
+    $name = "Illusion Magic"; 
     $ccode = "`%"; 
     
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-        1 => ['name' => 'Narakumi no Jutsu', 'cost' => 1, 'code' => 'genjutsu1'],
-        2 => ['name' => 'Kokoni Arazu no jutsu', 'cost' => 3, 'code' => 'genjutsu2'],
-        3 => ['name' => 'Nijuu Kokoni Arazu no Jutsu', 'cost' => 6, 'code' => 'genjutsu3'],
-        4 => ['name' => 'Jubaku Satsu', 'cost' => 10, 'code' => 'genjutsu4'],
-        5 => ['name' => 'Suzu - Kiri', 'cost' => 15, 'code' => 'genjutsu5'],
-        6 => ['name' => 'Jigoku Kouka no Jutsu', 'cost' => 18, 'code' => 'genjutsu6'],
-        7 => ['name' => 'Kokuangyou no Jutsu', 'cost' => 20, 'code' => 'genjutsu7'],
+        1 => ['name' => 'Horrific Vision', 'cost' => 1, 'code' => 'genjutsu1'],
+        2 => ['name' => 'Disguise Self', 'cost' => 3, 'code' => 'genjutsu2'],
+        3 => ['name' => 'Veil of Shadows', 'cost' => 6, 'code' => 'genjutsu3'],
+        4 => ['name' => 'Spectral Bind', 'cost' => 10, 'code' => 'genjutsu4'],
+        5 => ['name' => 'Floral Veil', 'cost' => 15, 'code' => 'genjutsu5'],
+        6 => ['name' => 'Infernal Illusion', 'cost' => 18, 'code' => 'genjutsu6'],
+        7 => ['name' => 'Shroud of Night', 'cost' => 20, 'code' => 'genjutsu7'],
     ];
     
     switch($hookname) {
@@ -115,7 +115,7 @@ function specialtygenjutsu_dohook($hookname, $args) {
 
                 if ($can_select) {
                     addnav("$ccode$name`0", "newday.php?setspecialty=".$spec."$resline");
-                    $t1 = translate_inline("Train in Genjutsu"); 
+                    $t1 = translate_inline("Train in Illusion Magic"); 
                     $t2 = appoencode(translate_inline("$ccode$name`0"));
                     rawoutput("<a href='newday.php?setspecialty=$spec$resline'>$t1 ($t2)</a><br>");
                     addnav("", "newday.php?setspecialty=$spec$resline");
@@ -126,8 +126,8 @@ function specialtygenjutsu_dohook($hookname, $args) {
         case "set-specialty":
             if ($userSpec === $spec) {
                 page_header($name);
-                output("`#`c`bGenjutsu Unlocked`b`c`n");
-                output("`@You have unlocked the secrets of Genjutsu! Focus your chakra and unleash your Jutsu in combat.`n");
+                output("`#`c`bIllusion Magic Unlocked`b`c`n");
+                output("`@You have unlocked the secrets of Illusion Magic! Focus your mana and unleash your spells in combat.`n");
             }
             break;
 
@@ -141,25 +141,25 @@ function specialtygenjutsu_dohook($hookname, $args) {
                 }
                 
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Narakumi no Jutsu')], $script."op=fight&skill=$spec&l=1", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Horrific Vision')], $script."op=fight&skill=$spec&l=1", true);
                 }
                 if ($uses >= 3) {
-                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Kokoni Arazu no jutsu')], $script."op=fight&skill=$spec&l=2", true);
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Disguise Self')], $script."op=fight&skill=$spec&l=2", true);
                 }
                 if ($uses >= 6) {
-                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Nijuu Kokoni Arazu no Jutsu')], $script."op=fight&skill=$spec&l=3", true);
+                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Veil of Shadows')], $script."op=fight&skill=$spec&l=3", true);
                 }
                 if ($uses >= 10) {
-                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Jubaku Satsu')], $script."op=fight&skill=$spec&l=4", true);
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Spectral Bind')], $script."op=fight&skill=$spec&l=4", true);
                 }
                 if ($uses >= 15) {
-                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Suzu - Kiri')], $script."op=fight&skill=$spec&l=5", true);
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Floral Veil')], $script."op=fight&skill=$spec&l=5", true);
                 }
                 if ($uses >= 18) {
-                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Jigoku Kouka no Jutsu')], $script."op=fight&skill=$spec&l=6", true);
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Infernal Illusion')], $script."op=fight&skill=$spec&l=6", true);
                 }
                 if ($uses >= 20) {
-                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Kokuangyou no Jutsu')], $script."op=fight&skill=$spec&l=7", true);
+                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Shroud of Night')], $script."op=fight&skill=$spec&l=7", true);
                 }
             }
             break;
@@ -176,8 +176,8 @@ function specialtygenjutsu_dohook($hookname, $args) {
                     switch ($code) {
 case "genjutsu1":
 			apply_buff('genjutsu1',array(
-				"startmsg"=>"`%`iNarakumi no Jutsu`i`n`vAn imaginary circle of leaves spin around and envelop the enemy, falling away shortly after.",
-				"name"=>"`%Narakumi no Jutsu",
+				"startmsg"=>"`%`iHorrific Vision`i`n`vA swirl of illusory dark leaves surrounds the enemy, inflicting a terrifying phantasm.",
+				"name"=>"`%Horrific Vision",
 				"rounds"=>5,
 				"wearoff"=>"{badguy} snaps out of the illusion.",
 				"badguyatkmod"=>0.75,
@@ -188,8 +188,8 @@ case "genjutsu1":
 			break;
 		case "genjutsu2":
 			apply_buff('genjutsu1',array(
-				"startmsg"=>"`%`iKokoni Arazu no Jutsu`i`n`vYou disappear into the surroundings by changing the appearance of the area.",
-				"name"=>"`%Kokoni Arazu no Jutsu",
+				"startmsg"=>"`%`iDisguise Self`i`n`vYou disappear into the surroundings by altering the appearance of the area.",
+				"name"=>"`%Disguise Self",
 				"rounds"=>5,
 				"wearoff"=>"The illusion disappears.",
 				"badguydefmod"=>0.60,
@@ -199,8 +199,8 @@ case "genjutsu1":
 			break;
 		case "genjutsu3":
 			apply_buff('genjutsu1',array(
-				"startmsg"=>"`%`iNi`5juu `%Ko`5ko`%ni `5A`%ra`5zu `%no Jutsu`i`n`vYou disappear into the surroundings and create an illusion around the area.",
-				"name"=>"`%Ni`5juu `%Ko`5ko`%ni `5A`%ra`5zu `%no Jutsu",
+				"startmsg"=>"`%`iVeil of Shadows`i`n`vYou disappear into the surroundings and cast a heavy shroud of illusion over the area.",
+				"name"=>"`%Veil of Shadows",
 				"rounds"=>5,
 				"wearoff"=>"The illusion disappears.",
 				"badguyatkmod"=>0.50,
@@ -211,8 +211,8 @@ case "genjutsu1":
 			break;
 		case "genjutsu4":
 			apply_buff('genjutsu1',array(
-				"startmsg"=>"`%`iJu`5ba`%ku `5Sa`%tsu`i`n`vA tree sprouts from underneath {badguy}.",
-				"name"=>"`%Ju`5ba`%ku `5Sa`%tsu",
+				"startmsg"=>"`%`iSpectral Bind`i`n`vIllusory vines sprout from underneath {badguy}.",
+				"name"=>"`%Spectral Bind",
 				"rounds"=>3,
 				"wearoff"=>"{badguy} snaps out of the illusion.",
 				"invulnerable"=>true,
@@ -222,8 +222,8 @@ case "genjutsu1":
 			break;
 		case "genjutsu5":
 			apply_buff('genjutsu1',array(
-				"startmsg"=>"`%`iSuzu `5- `%Kiri`i`n`vYou disappear into a cloud of `R`brose petals`b.",
-				"name"=>"`%Suzu `5- `%Kiri",
+				"startmsg"=>"`%`iFloral Veil`i`n`vYou disappear into an illusory cloud of `R`brose petals`b.",
+				"name"=>"`%Floral Veil",
 				"rounds"=>10,
 				"wearoff"=>"The illusion disappears.",
 				"badguyatkmod"=>0.25,
@@ -234,8 +234,8 @@ case "genjutsu1":
 			break;
 		case "genjutsu6":
 			apply_buff('genjutsu1',array(
-				"startmsg"=>"`%`i`%Jigoku `5Kouka `%no `5Jutsu`i`n`v`\$A large fire ball descend from the heavens and turns the area into a `4fiery hell.",
-				"name"=>"`%Jigoku `5Kouka `%no `5Jutsu",
+				"startmsg"=>"`%`i`%Infernal Illusion`i`n`v`\$An illusory fire ball descends from the heavens, making the area appear to be a `4fiery hell.",
+				"name"=>"`%Infernal Illusion",
 				"rounds"=>3,
 				"wearoff"=>"The illusion disappears.",
 				"badguydefmod"=>0,
@@ -245,8 +245,15 @@ case "genjutsu1":
 			break;
 		case "genjutsu7":
 			apply_buff('genjutsu1',array(
-				"startmsg"=>"`%`i`%Kokuangyou `5no `%Jutsu`i`n`vYou blind {badguy} with total `~`bdarkness`b.",
-				"name"=>"`%Kokuangyou `5no `%Jutsu",
+				"startmsg"=>"`%`iShroud of Night`i`n`vYou blind {badguy} with total illusory `~`bdarkness`b.",
+				"name"=>"`%Shroud of Night",
+				"rounds"=>10,
+				"wearoff"=>"{badguy} snaps out of the illusion.",
+				"badguyatkmod"=>0.25,
+				"badguydefmod"=>0,
+				"roundmsg"=>"`%Your illusion conceals you from {badguy} totally!",
+				"schema"=>"module-specialtysystem_genjutsu"
+			));
 				"rounds"=>10,
 				"wearoff"=>"{badguy} snaps out of the illusion.",
 				"badguyatkmod"=>0.25,
@@ -336,7 +343,7 @@ function specialtygenjutsu_change() {
 
 function specialtygenjutsu_namer($type='X') {
     $class = [];
-    $class['1'] = "Genjutsu";
+    $class['1'] = "Illusion Magic";
     return $class['1'];
 }
 ?>

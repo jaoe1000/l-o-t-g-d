@@ -1,25 +1,25 @@
 <?php
 /**
- * Advanced Specialty Module - Suiton Ninjutsu
+ * Advanced Specialty Module - Water Magic
  * Built from the Advanced Specialty Blueprint
  * Designed for PHP 8.4 Strict Compliance
  */
 
 function specialtywater_getmoduleinfo() {
     return [
-        "name" => "Specialty - Suiton Ninjutsu",
+        "name" => "Specialty - Water Magic",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Specialties",
         "download" => "", 
         "settings" => [
-            "Suiton Ninjutsu - Settings,title",
+            "Water Magic - Settings,title",
             "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|1",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
-            "IE- an 'Adze' would become a 'Suiton Ninjutsu Adze',note", 
+            "IE- an 'Adze' would become a 'Water Magic Adze',note", 
         ],
         "prefs" => [
-            "Suiton Ninjutsu - User Prefs,title",
+            "Water Magic - User Prefs,title",
             "skill" => "Skill points in Specialty Powers,int|0", 
             "uses" => "Uses of Specialty Powers allowed,int|0", 
             "class" => "Main Class,enum,Unset,,Magic,magic,Melee,melee,Ranging,ranging|magic", 
@@ -42,7 +42,7 @@ function specialtywater_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
-    debug("Installed 'Suiton Ninjutsu' specialty module.");
+    debug("Installed 'Water Magic' specialty module.");
     return true;
 }
 
@@ -58,27 +58,27 @@ function specialtywater_uninstall() {
         $session['user']['specialty'] = "";
     }
     
-    debug("Uninstalled 'Suiton Ninjutsu' specialty module.");
+    debug("Uninstalled 'Water Magic' specialty module.");
     return true;
 }
 
 function specialtywater_dohook($hookname, $args) {
     global $session, $resline;
     $spec = "WT"; 
-    $name = "Suiton Ninjutsu"; 
+    $name = "Water Magic"; 
     $ccode = "`1"; 
     
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-        1 => ['name' => 'Kirigakure no Jutsu', 'cost' => 1, 'code' => 'water1'],
-        2 => ['name' => 'Kaihoudan', 'cost' => 3, 'code' => 'water2'],
-        3 => ['name' => 'Suijinheki', 'cost' => 5, 'code' => 'water3'],
-        4 => ['name' => 'Suiryuudan no Jutsu', 'cost' => 10, 'code' => 'water4'],
-        5 => ['name' => 'Goshokuzame', 'cost' => 15, 'code' => 'water5'],
-        6 => ['name' => 'Daibakufu no Jutsu', 'cost' => 16, 'code' => 'water6'],
-        7 => ['name' => 'Daibaku no Jutsu', 'cost' => 18, 'code' => 'water7'],
-        8 => ['name' => 'Daibakure no Jutsu', 'cost' => 20, 'code' => 'water8'],
+        1 => ['name' => 'Dense Mist', 'cost' => 1, 'code' => 'water1'],
+        2 => ['name' => 'Water Jet', 'cost' => 3, 'code' => 'water2'],
+        3 => ['name' => 'Water Barrier', 'cost' => 5, 'code' => 'water3'],
+        4 => ['name' => 'Water Dragon', 'cost' => 10, 'code' => 'water4'],
+        5 => ['name' => 'Feeding Frenzy', 'cost' => 15, 'code' => 'water5'],
+        6 => ['name' => 'Geyser Blast', 'cost' => 16, 'code' => 'water6'],
+        7 => ['name' => 'Tidal Wave', 'cost' => 18, 'code' => 'water7'],
+        8 => ['name' => 'Maelstrom', 'cost' => 20, 'code' => 'water8'],
     ];
     
     switch($hookname) {
@@ -116,7 +116,7 @@ function specialtywater_dohook($hookname, $args) {
 
                 if ($can_select) {
                     addnav("$ccode$name`0", "newday.php?setspecialty=".$spec."$resline");
-                    $t1 = translate_inline("Train in Suiton Ninjutsu"); 
+                    $t1 = translate_inline("Train in Water Magic"); 
                     $t2 = appoencode(translate_inline("$ccode$name`0"));
                     rawoutput("<a href='newday.php?setspecialty=$spec$resline'>$t1 ($t2)</a><br>");
                     addnav("", "newday.php?setspecialty=$spec$resline");
@@ -127,8 +127,8 @@ function specialtywater_dohook($hookname, $args) {
         case "set-specialty":
             if ($userSpec === $spec) {
                 page_header($name);
-                output("`#`c`bSuiton Ninjutsu Unlocked`b`c`n");
-                output("`@You have unlocked the secrets of Suiton Ninjutsu! Focus your chakra and unleash your Jutsu in combat.`n");
+                output("`#`c`bWater Magic Unlocked`b`c`n");
+                output("`@You have unlocked the secrets of Water Magic! Focus your mana and unleash your spells in combat.`n");
             }
             break;
 
@@ -142,28 +142,28 @@ function specialtywater_dohook($hookname, $args) {
                 }
                 
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Kirigakure no Jutsu')], $script."op=fight&skill=$spec&l=1", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Dense Mist')], $script."op=fight&skill=$spec&l=1", true);
                 }
                 if ($uses >= 3) {
-                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Kaihoudan')], $script."op=fight&skill=$spec&l=2", true);
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Water Jet')], $script."op=fight&skill=$spec&l=2", true);
                 }
                 if ($uses >= 5) {
-                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Suijinheki')], $script."op=fight&skill=$spec&l=3", true);
+                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Water Barrier')], $script."op=fight&skill=$spec&l=3", true);
                 }
                 if ($uses >= 10) {
-                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Suiryuudan no Jutsu')], $script."op=fight&skill=$spec&l=4", true);
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Water Dragon')], $script."op=fight&skill=$spec&l=4", true);
                 }
                 if ($uses >= 15) {
-                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Goshokuzame')], $script."op=fight&skill=$spec&l=5", true);
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Feeding Frenzy')], $script."op=fight&skill=$spec&l=5", true);
                 }
                 if ($uses >= 16) {
-                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Daibakufu no Jutsu')], $script."op=fight&skill=$spec&l=6", true);
+                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Geyser Blast')], $script."op=fight&skill=$spec&l=6", true);
                 }
                 if ($uses >= 18) {
-                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Daibaku no Jutsu')], $script."op=fight&skill=$spec&l=7", true);
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Tidal Wave')], $script."op=fight&skill=$spec&l=7", true);
                 }
                 if ($uses >= 20) {
-                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Daibakure no Jutsu')], $script."op=fight&skill=$spec&l=8", true);
+                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Maelstrom')], $script."op=fight&skill=$spec&l=8", true);
                 }
             }
             break;
@@ -180,8 +180,8 @@ function specialtywater_dohook($hookname, $args) {
                     switch ($code) {
 case "water1":
 			apply_buff('water1',array(
-				"startmsg"=>"`1`i`!Sui`1ton `&-`! Kirigakure no Jutsu!`i`n`qYou `\$envelop the surrounding area in a dense mist.",
-				"name"=>"`1Kirigakure no Jutsu",
+				"startmsg"=>"`1`iWater Magic `&-`! Dense Mist!`i`n`qYou `\$envelop the surrounding area in a dense mist.",
+				"name"=>"`1Dense Mist",
 				"rounds"=>5,
 				"wearoff"=>"The mist clears away.",
 				"badguyatkmod"=>0.85,
@@ -192,8 +192,8 @@ case "water1":
 			break;
 		case "water2":
 			apply_buff('water2',array(
-				"startmsg"=>"`1`i`!Sui`1ton `&-`! Kaihoudan!`i`n`qYou `\$shoot a strong stream of water from your mouth at {badguy}.",
-				"name"=>"`1Suiton - Kaihoudan",
+				"startmsg"=>"`1`iWater Magic `&-`! Water Jet!`i`n`qYou `\$shoot a strong stream of water at {badguy}.",
+				"name"=>"`1Water Jet",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"minbadguydamage"=>15+$session['user']['level'],
@@ -205,8 +205,8 @@ case "water1":
 			break;
 		case "water3":
 			apply_buff('water3',array(
-				"startmsg"=>"`1`i`!Sui`1ton `&-`! Suijinheki!`i`n`qYou `\$create a water barrier to protect yourself from attacks.",
-				"name"=>"`1Suiton - Suijinheki",
+				"startmsg"=>"`1`iWater Magic `&-`! Water Barrier!`i`n`qYou `\$create a water barrier to protect yourself from attacks.",
+				"name"=>"`1Water Barrier",
 				"rounds"=>5,
 				"wearoff"=>"The water barrier disappears.",
 				"defmod"=>1.80,
@@ -215,8 +215,8 @@ case "water1":
 			break;
 		case "water4":
 			apply_buff('water4',array(
-				"startmsg"=>"`1`i`!Sui`1ton `&-`! Suiryuudan no Jutsu!`i`n`qYou `\$create a huge current of water in the form of a dragon and sends it towards {badguy}.",
-				"name"=>"`1Suiton - Suiryuudan no Jutsu",
+				"startmsg"=>"`1`iWater Magic `&-`! Water Dragon!`i`n`qYou `\$create a huge current of water in the form of a dragon and send it towards {badguy}.",
+				"name"=>"`1Water Dragon",
 				"rounds"=>5,
 				"areadamage"=>true,
 				"wearoff"=>"The dragon returns to water.",
@@ -230,8 +230,8 @@ case "water1":
 			break;
 		case "water5":
 			apply_buff('water5',array(
-				"startmsg"=>"`1`i`!Sui`1ton `&-`! Goshokuzame!`i`n`qYou `\$trap {badguy} in water and send five attacking sharks after him.",
-				"name"=>"`1Suiton - Goshokuzame",
+				"startmsg"=>"`1`iWater Magic `&-`! Feeding Frenzy!`i`n`qYou `\$trap {badguy} in water and send five attacking sharks after them.",
+				"name"=>"`1Feeding Frenzy",
 				"rounds"=>5,
 				"wearoff"=>"The sharks disappear.",
 				"minbadguydamage"=>15+$session['user']['level'],
@@ -244,11 +244,11 @@ case "water1":
 			break;
 		case "water6":
 			apply_buff('water6',array(
-				"startmsg"=>"`1`i`!Sui`1ton `&-`! Daibakufu no Jutsu!`i`n`qYou `\$create a massive blast of water.",
-				"name"=>"`1Suiton - Daibakufu no Jutsu",
+				"startmsg"=>"`1`iWater Magic `&-`! Geyser Blast!`i`n`qYou `\$create a massive blast of water.",
+				"name"=>"`1Geyser Blast",
 				"rounds"=>5,
 				"areadamage"=>true,
-				"wearoff"=>"The massice blast of water washes everything away.",
+				"wearoff"=>"The massive blast of water washes everything away.",
 				"minbadguydamage"=>40+$session['user']['level']+$session['user']['dragonkills'],
 				"maxbadguydamage"=>60+$session['user']['level']+$session['user']['dragonkills'],
 				"minioncount"=>1,
@@ -258,8 +258,8 @@ case "water1":
 			break;
 		case "water7":
 			apply_buff('water7',array(
-				"startmsg"=>"`1`i`!Sui`1ton `&-`! Daibaku no Jutsu!`i`n`qYou `\$create a massive tidal wave.",
-				"name"=>"`1Suiton - Daibaku no Jutsu",
+				"startmsg"=>"`1`iWater Magic `&-`! Tidal Wave!`i`n`qYou `\$create a massive tidal wave.",
+				"name"=>"`1Tidal Wave",
 				"rounds"=>5,
 				"areadamage"=>true,
 				"wearoff"=>"You can't create anymore waves.",
@@ -273,8 +273,18 @@ case "water1":
 			break;
 		case "water8":
 			apply_buff('water8',array(
-				"startmsg"=>"`1`i`!Sui`1ton `&-`! Daibakure no Jutsu!`i`n`qYou `\$create an enormous  inescapable maelstrom.",
-				"name"=>"`1Suiton - Daibakure no Jutsu",
+				"startmsg"=>"`1`iWater Magic `&-`! Maelstrom!`i`n`qYou `\$create an inescapable maelstrom.",
+				"name"=>"`1Maelstrom",
+				"rounds"=>5,
+				"areadamage"=>true,
+				"wearoff"=>"The maelstrom disappears.",
+				"minbadguydamage"=>25+$session['user']['level']+$session['user']['dragonkills'],
+				"maxbadguydamage"=>40+$session['user']['level']+$session['user']['dragonkills'],
+				"minioncount"=>6,
+				"effectmsg"=>"{badguy} suffers {damage} damage from drowning!",
+				"effectnodmgmsg"=>"{badguy} manages to stay afloat!",
+				"schema"=>"module-specialtysystem_water"
+			));
 				"rounds"=>5,
 				"areadamage"=>true,
 				"wearoff"=>"The maelstrom disappears.",
@@ -367,7 +377,7 @@ function specialtywater_change() {
 
 function specialtywater_namer($type='X') {
     $class = [];
-    $class['1'] = "Suiton Ninjutsu";
+    $class['1'] = "Water Magic";
     return $class['1'];
 }
 ?>

@@ -1,25 +1,25 @@
 <?php
 /**
- * Advanced Specialty Module - Katon Ninjutsu
+ * Advanced Specialty Module - Fire Magic
  * Built from the Advanced Specialty Blueprint
  * Designed for PHP 8.4 Strict Compliance
  */
 
 function specialtyfire_getmoduleinfo() {
     return [
-        "name" => "Specialty - Katon Ninjutsu",
+        "name" => "Specialty - Fire Magic",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Specialties",
         "download" => "", 
         "settings" => [
-            "Katon Ninjutsu - Settings,title",
+            "Fire Magic - Settings,title",
             "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|6",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
-            "IE- an 'Adze' would become a 'Katon Ninjutsu Adze',note", 
+            "IE- an 'Adze' would become a 'Fire Magic Adze',note", 
         ],
         "prefs" => [
-            "Katon Ninjutsu - User Prefs,title",
+            "Fire Magic - User Prefs,title",
             "skill" => "Skill points in Specialty Powers,int|0", 
             "uses" => "Uses of Specialty Powers allowed,int|0", 
             "class" => "Main Class,enum,Unset,,Magic,magic,Melee,melee,Ranging,ranging|magic", 
@@ -42,7 +42,7 @@ function specialtyfire_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
-    debug("Installed 'Katon Ninjutsu' specialty module.");
+    debug("Installed 'Fire Magic' specialty module.");
     return true;
 }
 
@@ -58,26 +58,26 @@ function specialtyfire_uninstall() {
         $session['user']['specialty'] = "";
     }
     
-    debug("Uninstalled 'Katon Ninjutsu' specialty module.");
+    debug("Uninstalled 'Fire Magic' specialty module.");
     return true;
 }
 
 function specialtyfire_dohook($hookname, $args) {
     global $session, $resline;
     $spec = "FR"; 
-    $name = "Katon Ninjutsu"; 
+    $name = "Fire Magic"; 
     $ccode = "`$"; 
     
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-        1 => ['name' => 'Gōkakyū no Jutsu', 'cost' => 1, 'code' => 'fire1'],
-        2 => ['name' => 'Hōsenka no Jutsu', 'cost' => 3, 'code' => 'fire2'],
-        3 => ['name' => 'Ryūka no Jutsu', 'cost' => 6, 'code' => 'fire3'],
-        4 => ['name' => 'Haisekishō', 'cost' => 10, 'code' => 'fire4'],
-        5 => ['name' => '`\$Kar`qyū `\$En`qdan', 'cost' => 15, 'code' => 'fire5'],
-        6 => ['name' => '`\$Kar`qyū`Qdan', 'cost' => 18, 'code' => 'fire6'],
-        7 => ['name' => '`@Gamayo `\$Emu`qdan', 'cost' => 11, 'code' => 'gamaemudan'],
+        1 => ['name' => 'Fireball', 'cost' => 1, 'code' => 'fire1'],
+        2 => ['name' => 'Fiery Embers', 'cost' => 3, 'code' => 'fire2'],
+        3 => ['name' => 'Dragon\'s Breath', 'cost' => 6, 'code' => 'fire3'],
+        4 => ['name' => 'Cinder Cloud', 'cost' => 10, 'code' => 'fire4'],
+        5 => ['name' => '`\$In`qci`\$ne`qrate', 'cost' => 15, 'code' => 'fire5'],
+        6 => ['name' => '`\$La`qva `\$Bu`qrst', 'cost' => 18, 'code' => 'fire6'],
+        7 => ['name' => '`@Infernal `\$Blas`qt', 'cost' => 11, 'code' => 'gamaemudan'],
     ];
     
     switch($hookname) {
@@ -115,7 +115,7 @@ function specialtyfire_dohook($hookname, $args) {
 
                 if ($can_select) {
                     addnav("$ccode$name`0", "newday.php?setspecialty=".$spec."$resline");
-                    $t1 = translate_inline("Train in Katon Ninjutsu"); 
+                    $t1 = translate_inline("Train in Fire Magic"); 
                     $t2 = appoencode(translate_inline("$ccode$name`0"));
                     rawoutput("<a href='newday.php?setspecialty=$spec$resline'>$t1 ($t2)</a><br>");
                     addnav("", "newday.php?setspecialty=$spec$resline");
@@ -126,8 +126,8 @@ function specialtyfire_dohook($hookname, $args) {
         case "set-specialty":
             if ($userSpec === $spec) {
                 page_header($name);
-                output("`#`c`bKaton Ninjutsu Unlocked`b`c`n");
-                output("`@You have unlocked the secrets of Katon Ninjutsu! Focus your chakra and unleash your Jutsu in combat.`n");
+                output("`#`c`bFire Magic Unlocked`b`c`n");
+                output("`@You have unlocked the secrets of Fire Magic! Focus your mana and unleash your spells in combat.`n");
             }
             break;
 
@@ -141,25 +141,25 @@ function specialtyfire_dohook($hookname, $args) {
                 }
                 
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Gōkakyū no Jutsu')], $script."op=fight&skill=$spec&l=1", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Fireball')], $script."op=fight&skill=$spec&l=1", true);
                 }
                 if ($uses >= 3) {
-                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Hōsenka no Jutsu')], $script."op=fight&skill=$spec&l=2", true);
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Fiery Embers')], $script."op=fight&skill=$spec&l=2", true);
                 }
                 if ($uses >= 6) {
-                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Ryūka no Jutsu')], $script."op=fight&skill=$spec&l=3", true);
+                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Dragon\'s Breath')], $script."op=fight&skill=$spec&l=3", true);
                 }
                 if ($uses >= 10) {
-                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Haisekishō')], $script."op=fight&skill=$spec&l=4", true);
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Cinder Cloud')], $script."op=fight&skill=$spec&l=4", true);
                 }
                 if ($uses >= 15) {
-                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('`\$Kar`qyū `\$En`qdan')], $script."op=fight&skill=$spec&l=5", true);
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('`\$In`qci`\$ne`qrate')], $script."op=fight&skill=$spec&l=5", true);
                 }
                 if ($uses >= 18) {
-                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('`\$Kar`qyū`Qdan')], $script."op=fight&skill=$spec&l=6", true);
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('`\$La`qva `\$Bu`qrst')], $script."op=fight&skill=$spec&l=6", true);
                 }
                 if ($uses >= 11 && $session['user']['hashorse']==3) {
-                    addnav(["`@ &#149; %s`@ (11)`0", translate_inline('`@Gamayo `\$Emu`qdan')], $script."op=fight&skill=$spec&l=7", true);
+                    addnav(["`@ &#149; %s`@ (11)`0", translate_inline('`@Infernal `\$Blas`qt')], $script."op=fight&skill=$spec&l=7", true);
                 }
             }
             break;
@@ -176,8 +176,8 @@ function specialtyfire_dohook($hookname, $args) {
                     switch ($code) {
 case "fire1":
 			apply_buff('fire1',array(
-				"startmsg"=>"`i`qKa`\$ton `q-`\$ Gōkakyū no Jutsu!`i`n`qYou `\$utilize your chakra and exhale a large ball of `4fire `\$from your mouth.",
-				"name"=>"`\$Katon `4- `\$Gōkakyū `4no `\$Jutsu",
+				"startmsg"=>"`i`qFire Magic `q-`\$ Fireball!`i`n`qYou `\$cast a spell to exhale a large ball of `4fire `\$from your mouth.",
+				"name"=>"`\$Fireball",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"minbadguydamage"=>15,
@@ -189,8 +189,8 @@ case "fire1":
 			break;
 		case "fire2":
 			apply_buff('fire2',array(
-				"startmsg"=>"`i`qKa`\$ton `q-`\$ Hōsenka!`i`n`qYou `\$ send multiple balls of `4fire `\$at {badguy}.",
-				"name"=>"`\$Katon `4- `\$Hōsenka `4no `\$Jutsu",
+				"startmsg"=>"`i`qFire Magic `q-`\$ Fiery Embers!`i`n`qYou `\$ send multiple balls of `4fire `\$at {badguy}.",
+				"name"=>"`\$Fiery Embers",
 				"rounds"=>5,
 				"minbadguydamage"=>$session['user']['level'],
 				"maxbadguydamage"=>$session['user']['level']+5,
@@ -202,8 +202,8 @@ case "fire1":
 			break;
 		case "fire3":
 			apply_buff('fire3',array(
-				"startmsg"=>"`i`qKa`\$ton `q-`\$ Ryūka no Jutsu!`i`n`qYou `\$breath out a burst of flame towards {badguy}.",
-				"name"=>"`\$Katon `4- `\$Ryūka `4no `\$Jutsu",
+				"startmsg"=>"`i`qFire Magic `q-`\$ Dragon's Breath!`i`n`qYou `\$breath out a burst of flame towards {badguy}.",
+				"name"=>"`\$Dragon's Breath",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"minbadguydamage"=>15+$session['user']['dragonkills'],
@@ -215,8 +215,8 @@ case "fire1":
 			break;
 		case "fire4":
 			apply_buff('fire4',array(
-				"startmsg"=>"`i`qKa`\$ton `q-`\$ Hai`~seki`tshō!`i`n`qYou `\$breathe out a cloud of superheated ash.",
-				"name"=>"`\$Katon `4- `\$Ha`4i`~seki`tshō",
+				"startmsg"=>"`i`qFire Magic `q-`\$ Cinder Cloud!`i`n`qYou `\$breathe out a cloud of superheated ash.",
+				"name"=>"`\$Cinder Cloud",
 				"rounds"=>5,
 				"areadamage"=>true,
 				"wearoff"=>"The ash was blown away by the wind.",
@@ -230,8 +230,8 @@ case "fire1":
 			break;
 		case "fire5":
 			apply_buff('fire6',array(
-				"startmsg"=>"`\$Katon - `4Ka`\$ryū `4En`\$dan! You shoot an enormous ball of flame in the shape of a dragon from your mouth at {badguy}.",
-				"name"=>"`\$Katon - `4Ka`\$ryū `4En`\$dan",
+				"startmsg"=>"`\$Fire Magic - `4In`\$cinerate! You shoot an enormous ball of flame at {badguy}.",
+				"name"=>"`\$Incinerate",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"minbadguydamage"=>90+$session['user']['dragonkills'],
@@ -243,8 +243,8 @@ case "fire1":
 			break;
 		case "fire6":
 			apply_buff('fire7',array(
-				"startmsg"=>"`\$Katon - `4Ka`\$ryū`4dan, You create a likeness of a dragon's head out of mud and ignite the mud balls that it launches from its mouth.",
-				"name"=>"`\$Katon - `4Ka`\$ryū `4En`\$dan",
+				"startmsg"=>"`\$Fire Magic - `4Lava `\$Burst! You create and ignite lava-like projectiles to hurl at {badguy}.",
+				"name"=>"`\$Lava Burst",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"minbadguydamage"=>90+$session['user']['dragonkills'],
@@ -257,8 +257,18 @@ case "fire1":
 			break;
 		case "gamaemudan":
 			apply_buff('gamayoemudan',array(
-				"startmsg"=>"`i`qKa`\$ton `q-`\$  `\$Gama`qyou `\$Emu`qdan!`i`n`qYou `\$sent a fire blast from your mouth to Gamabunta's oil-blast... and engulf {badguy} in flames!",
-				"name"=>"`\$Gama`qyou `\$Emu`qdan",
+				"startmsg"=>"`i`qFire Magic `q-`\$  `\$Infernal `\$Blast!`i`n`qYou unleash a devastating storm of flame and engulf {badguy} in flames!",
+				"name"=>"`\$Infernal Blast",
+				"rounds"=>10,
+				"wearoff"=>"The fire extinguishes and only the ash remains.",
+				"areadamage"=>true,
+				"minbadguydamage"=>7+$session['user']['dragonkills'],
+				"maxbadguydamage"=>5+$session['user']['level']*3+$session['user']['dragonkills'],
+				"minioncount"=>3,
+				"effectmsg"=>"`q{badguy}`q suffers {damage} damage!",
+				"effectnodmgmsg"=>"`qYou only produce hot air.",
+				"schema"=>"module-specialtysystem_fire"
+			));
 				"rounds"=>10,
 				"wearoff"=>"The fire extinguishes and only the ash remains.",
 				"areadamage"=>true,
@@ -350,7 +360,7 @@ function specialtyfire_change() {
 
 function specialtyfire_namer($type='X') {
     $class = [];
-    $class['1'] = "Katon Ninjutsu";
+    $class['1'] = "Fire Magic";
     return $class['1'];
 }
 ?>

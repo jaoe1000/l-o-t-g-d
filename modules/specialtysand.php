@@ -1,25 +1,25 @@
 <?php
 /**
- * Advanced Specialty Module - Suna Ninjutsu
+ * Advanced Specialty Module - Sand Magic
  * Built from the Advanced Specialty Blueprint
  * Designed for PHP 8.4 Strict Compliance
  */
 
 function specialtysand_getmoduleinfo() {
     return [
-        "name" => "Specialty - Suna Ninjutsu",
+        "name" => "Specialty - Sand Magic",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Specialties",
         "download" => "", 
         "settings" => [
-            "Suna Ninjutsu - Settings,title",
+            "Sand Magic - Settings,title",
             "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|6",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
-            "IE- an 'Adze' would become a 'Suna Ninjutsu Adze',note", 
+            "IE- an 'Adze' would become a 'Sand Magic Adze',note", 
         ],
         "prefs" => [
-            "Suna Ninjutsu - User Prefs,title",
+            "Sand Magic - User Prefs,title",
             "skill" => "Skill points in Specialty Powers,int|0", 
             "uses" => "Uses of Specialty Powers allowed,int|0", 
             "class" => "Main Class,enum,Unset,,Magic,magic,Melee,melee,Ranging,ranging|magic", 
@@ -42,7 +42,7 @@ function specialtysand_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
-    debug("Installed 'Suna Ninjutsu' specialty module.");
+    debug("Installed 'Sand Magic' specialty module.");
     return true;
 }
 
@@ -58,26 +58,26 @@ function specialtysand_uninstall() {
         $session['user']['specialty'] = "";
     }
     
-    debug("Uninstalled 'Suna Ninjutsu' specialty module.");
+    debug("Uninstalled 'Sand Magic' specialty module.");
     return true;
 }
 
 function specialtysand_dohook($hookname, $args) {
     global $session, $resline;
     $spec = "SD"; 
-    $name = "Suna Ninjutsu"; 
+    $name = "Sand Magic"; 
     $ccode = "`6"; 
     
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-        1 => ['name' => 'Suna Shuriken', 'cost' => 1, 'code' => 'sand1'],
-        2 => ['name' => 'Suna no Yoroi', 'cost' => 3, 'code' => 'sand2'],
-        3 => ['name' => 'Suna Bunshin', 'cost' => 5, 'code' => 'sand3'],
-        4 => ['name' => 'Suna no Tate', 'cost' => 10, 'code' => 'sand4'],
-        5 => ['name' => 'Ryuusa Bakuryuu', 'cost' => 15, 'code' => 'sand5'],
-        6 => ['name' => 'Sabaku Kyuu', 'cost' => 18, 'code' => 'sand6'],
-        7 => ['name' => 'Sabaku Sousou', 'cost' => 20, 'code' => 'sand7'],
+        1 => ['name' => 'Sand Daggers', 'cost' => 1, 'code' => 'sand1'],
+        2 => ['name' => 'Earthen Shell', 'cost' => 3, 'code' => 'sand2'],
+        3 => ['name' => 'Sand Clone', 'cost' => 5, 'code' => 'sand3'],
+        4 => ['name' => 'Aegis of Sand', 'cost' => 10, 'code' => 'sand4'],
+        5 => ['name' => 'Quicksand Torrent', 'cost' => 15, 'code' => 'sand5'],
+        6 => ['name' => 'Desert Tomb', 'cost' => 18, 'code' => 'sand6'],
+        7 => ['name' => 'Sand Crush', 'cost' => 20, 'code' => 'sand7'],
     ];
     
     switch($hookname) {
@@ -115,7 +115,7 @@ function specialtysand_dohook($hookname, $args) {
 
                 if ($can_select) {
                     addnav("$ccode$name`0", "newday.php?setspecialty=".$spec."$resline");
-                    $t1 = translate_inline("Train in Suna Ninjutsu"); 
+                    $t1 = translate_inline("Train in Sand Magic"); 
                     $t2 = appoencode(translate_inline("$ccode$name`0"));
                     rawoutput("<a href='newday.php?setspecialty=$spec$resline'>$t1 ($t2)</a><br>");
                     addnav("", "newday.php?setspecialty=$spec$resline");
@@ -126,8 +126,8 @@ function specialtysand_dohook($hookname, $args) {
         case "set-specialty":
             if ($userSpec === $spec) {
                 page_header($name);
-                output("`#`c`bSuna Ninjutsu Unlocked`b`c`n");
-                output("`@You have unlocked the secrets of Suna Ninjutsu! Focus your chakra and unleash your Jutsu in combat.`n");
+                output("`#`c`bSand Magic Unlocked`b`c`n");
+                output("`@You have unlocked the secrets of Sand Magic! Focus your mana and unleash your spells in combat.`n");
             }
             break;
 
@@ -141,25 +141,25 @@ function specialtysand_dohook($hookname, $args) {
                 }
                 
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Suna Shuriken')], $script."op=fight&skill=$spec&l=1", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Sand Daggers')], $script."op=fight&skill=$spec&l=1", true);
                 }
                 if ($uses >= 3) {
-                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Suna no Yoroi')], $script."op=fight&skill=$spec&l=2", true);
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Earthen Shell')], $script."op=fight&skill=$spec&l=2", true);
                 }
                 if ($uses >= 5) {
-                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Suna Bunshin')], $script."op=fight&skill=$spec&l=3", true);
+                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Sand Clone')], $script."op=fight&skill=$spec&l=3", true);
                 }
                 if ($uses >= 10) {
-                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Suna no Tate')], $script."op=fight&skill=$spec&l=4", true);
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Aegis of Sand')], $script."op=fight&skill=$spec&l=4", true);
                 }
                 if ($uses >= 15) {
-                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Ryuusa Bakuryuu')], $script."op=fight&skill=$spec&l=5", true);
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Quicksand Torrent')], $script."op=fight&skill=$spec&l=5", true);
                 }
                 if ($uses >= 18) {
-                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Sabaku Kyuu')], $script."op=fight&skill=$spec&l=6", true);
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Desert Tomb')], $script."op=fight&skill=$spec&l=6", true);
                 }
                 if ($uses >= 20) {
-                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Sabaku Sousou')], $script."op=fight&skill=$spec&l=7", true);
+                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Sand Crush')], $script."op=fight&skill=$spec&l=7", true);
                 }
             }
             break;
@@ -176,22 +176,22 @@ function specialtysand_dohook($hookname, $args) {
                     switch ($code) {
 case "sand1":
 			apply_buff('sand1',array(
-				"startmsg"=>"`6`iSuna Shuriken`i!`n`qYou `Qthrow shuriken made from sand.",
-				"name"=>"`6Suna Shuriken",
+				"startmsg"=>"`6`iSand Daggers`i!`n`qYou `Qthrow sharp daggers made from sand.",
+				"name"=>"`6Sand Daggers",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"minbadguydamage"=>5+min($session['user']['dragonkills'],25),
 				"maxbadguydamage"=>10+min($session['user']['dragonkills'],25),
 				"minioncount"=>3,
-				"effectmsg"=>"{badguy} suffers {damage} damage from the shuriken!",
-				"effectnodmgmsg"=>"The shuriken misses!",
+				"effectmsg"=>"{badguy} suffers {damage} damage from the daggers!",
+				"effectnodmgmsg"=>"The daggers miss!",
 				"schema"=>"module-specialtysystem_sand"
 			));
 			break;
 		case "sand2":
 			apply_buff('sand2',array(
-				"startmsg"=>"`6`iSuna no Yoroi`i!`n`qYou `Qcover yourself in a compacted layer of sand, providing you with additional defense.",
-				"name"=>"`6Suna no Yoroi",
+				"startmsg"=>"`6`iEarthen Shell`i!`n`qYou `Qcover yourself in a compacted shell of sand, providing you with additional defense.",
+				"name"=>"`6Earthen Shell",
 				"rounds"=>5,
 				"wearoff"=>"The compacted layer of sand falls apart.",
 				"defmod"=>2,
@@ -201,8 +201,8 @@ case "sand1":
 			break;
 		case "sand3": //to be revised
 			apply_buff('sand3',array(
-				"startmsg"=>"`6`iSuna Bunshin`i!`n`qYou `Qcreate a clone out of sand.",
-				"name"=>"`6Suna Bunshin",
+				"startmsg"=>"`6`iSand Clone`i!`n`qYou `Qcreate a simulacrum out of sand.",
+				"name"=>"`6Sand Clone",
 				"rounds"=>10,
 				"wearoff"=>"The clone falls apart.",
 				"minbadguydamage"=>5+$session['user']['dragonkills'],
@@ -215,8 +215,8 @@ case "sand1":
 			break;
 		case "sand4":
 			apply_buff('sand4',array(
-				"startmsg"=>"`6`iSuna no Tate`i!`n`qYou `Qsurround and protect yourself with sand.",
-				"name"=>"`6Suna no Tate",
+				"startmsg"=>"`6`iAegis of Sand`i!`n`qYou `Qsurround and protect yourself with a shifting aegis of sand.",
+				"name"=>"`6Aegis of Sand",
 				"rounds"=>10,
 				"wearoff"=>"You lost the protection of the sand.",
 				"atkmod"=>0.5,
@@ -227,8 +227,8 @@ case "sand1":
 			break;
 		case "sand5":
 			apply_buff('sand5',array(
-				"startmsg"=>"`6`iRyuusa Bakuryuu`i!`n`qYou `Qcreate a massive amount of sand and send it towards {badguy} in the form of a wave.",
-				"name"=>"`6Ryuusa Bakuryuu",
+				"startmsg"=>"`6`iQuicksand Torrent`i!`n`qYou `Qcreate a massive amount of sand and send it towards {badguy} in a crushing wave.",
+				"name"=>"`6Quicksand Torrent",
 				"rounds"=>5,
 				"areadamage"=>true,
 				"wearoff"=>"The wave left the entire forest covered in sand.",
@@ -242,8 +242,8 @@ case "sand1":
 			break;
 		case "sand6":
 			apply_buff('sand6',array(
-				"startmsg"=>"`6`iSabaku Kyuu`i!`n`qYou `Qcover {badguy}'s entire body in sand.",
-				"name"=>"`6Sabaku Kyuu",
+				"startmsg"=>"`6`iDesert Tomb`i!`n`qYou `Qencase {badguy}'s entire body in heavy sand.",
+				"name"=>"`6Desert Tomb",
 				"rounds"=>5,
 				"wearoff"=>"The sand falls apart.",
 				"badguyatkmod"=>0,
@@ -254,8 +254,8 @@ case "sand1":
 			break;
 		case "sand7":
 			apply_buff('sand7',array(
-				"startmsg"=>"`6`iSabaku Sousou`i!`n`qYou `Qcover {badguy}'s entire body in sand and implode, crushing whatever is within",
-				"name"=>"`6Sabaku Sousou",
+				"startmsg"=>"`6`iSand Crush`i!`n`qYou `Qcover {badguy}'s entire body in sand and implode it, crushing whatever is within.",
+				"name"=>"`6Sand Crush",
 				"rounds"=>1,
 				"minbadguydamage"=>150+$session['user']['dragonkills']*4,
 				"maxbadguydamage"=>180+$session['user']['dragonkills']*4,
@@ -345,7 +345,7 @@ function specialtysand_change() {
 
 function specialtysand_namer($type='X') {
     $class = [];
-    $class['1'] = "Suna Ninjutsu";
+    $class['1'] = "Sand Magic";
     return $class['1'];
 }
 ?>

@@ -1,25 +1,25 @@
 <?php
 /**
- * Advanced Specialty Module - Doton Ninjutsu
+ * Advanced Specialty Module - Earth Magic
  * Built from the Advanced Specialty Blueprint
  * Designed for PHP 8.4 Strict Compliance
  */
 
 function specialtyearth_getmoduleinfo() {
     return [
-        "name" => "Specialty - Doton Ninjutsu",
+        "name" => "Specialty - Earth Magic",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Specialties",
         "download" => "", 
         "settings" => [
-            "Doton Ninjutsu - Settings,title",
+            "Earth Magic - Settings,title",
             "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|3",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
-            "IE- an 'Adze' would become a 'Doton Ninjutsu Adze',note", 
+            "IE- an 'Adze' would become an 'Earth Magic Adze',note", 
         ],
         "prefs" => [
-            "Doton Ninjutsu - User Prefs,title",
+            "Earth Magic - User Prefs,title",
             "skill" => "Skill points in Specialty Powers,int|0", 
             "uses" => "Uses of Specialty Powers allowed,int|0", 
             "class" => "Main Class,enum,Unset,,Magic,magic,Melee,melee,Ranging,ranging|magic", 
@@ -42,7 +42,7 @@ function specialtyearth_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
-    debug("Installed 'Doton Ninjutsu' specialty module.");
+    debug("Installed 'Earth Magic' specialty module.");
     return true;
 }
 
@@ -58,26 +58,26 @@ function specialtyearth_uninstall() {
         $session['user']['specialty'] = "";
     }
     
-    debug("Uninstalled 'Doton Ninjutsu' specialty module.");
+    debug("Uninstalled 'Earth Magic' specialty module.");
     return true;
 }
 
 function specialtyearth_dohook($hookname, $args) {
     global $session, $resline;
     $spec = "ER"; 
-    $name = "Doton Ninjutsu"; 
+    $name = "Earth Magic"; 
     $ccode = "`q"; 
     
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-        1 => ['name' => 'Retsudotenshou', 'cost' => 1, 'code' => 'earth1'],
-        2 => ['name' => 'Doroku Gaeshi', 'cost' => 3, 'code' => 'earth2'],
-        3 => ['name' => 'Iwayado Kuzushi', 'cost' => 5, 'code' => 'earth3'],
-        4 => ['name' => 'Doroudoumu', 'cost' => 10, 'code' => 'earth4'],
-        5 => ['name' => 'Doryuu Dango', 'cost' => 15, 'code' => 'earth5'],
-        6 => ['name' => 'Doryuuheki', 'cost' => 16, 'code' => 'earth6'],
-        7 => ['name' => 'Doryuudan', 'cost' => 18, 'code' => 'earth7'],
+        1 => ['name' => 'Stone Spike', 'cost' => 1, 'code' => 'earth1'],
+        2 => ['name' => 'Earthen Wall', 'cost' => 3, 'code' => 'earth2'],
+        3 => ['name' => 'Rockfall', 'cost' => 5, 'code' => 'earth3'],
+        4 => ['name' => 'Tomb of Stone', 'cost' => 10, 'code' => 'earth4'],
+        5 => ['name' => 'Boulder Toss', 'cost' => 15, 'code' => 'earth5'],
+        6 => ['name' => 'Clay Barrier', 'cost' => 16, 'code' => 'earth6'],
+        7 => ['name' => 'Gargoyle Breath', 'cost' => 18, 'code' => 'earth7'],
     ];
     
     switch($hookname) {
@@ -115,7 +115,7 @@ function specialtyearth_dohook($hookname, $args) {
 
                 if ($can_select) {
                     addnav("$ccode$name`0", "newday.php?setspecialty=".$spec."$resline");
-                    $t1 = translate_inline("Train in Doton Ninjutsu"); 
+                    $t1 = translate_inline("Train in Earth Magic"); 
                     $t2 = appoencode(translate_inline("$ccode$name`0"));
                     rawoutput("<a href='newday.php?setspecialty=$spec$resline'>$t1 ($t2)</a><br>");
                     addnav("", "newday.php?setspecialty=$spec$resline");
@@ -126,8 +126,8 @@ function specialtyearth_dohook($hookname, $args) {
         case "set-specialty":
             if ($userSpec === $spec) {
                 page_header($name);
-                output("`#`c`bDoton Ninjutsu Unlocked`b`c`n");
-                output("`@You have unlocked the secrets of Doton Ninjutsu! Focus your chakra and unleash your Jutsu in combat.`n");
+                output("`#`c`bEarth Magic Unlocked`b`c`n");
+                output("`@You have unlocked the secrets of Earth Magic! Focus your mana and unleash your spells in combat.`n");
             }
             break;
 
@@ -141,25 +141,25 @@ function specialtyearth_dohook($hookname, $args) {
                 }
                 
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Retsudotenshou')], $script."op=fight&skill=$spec&l=1", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Stone Spike')], $script."op=fight&skill=$spec&l=1", true);
                 }
                 if ($uses >= 3) {
-                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Doroku Gaeshi')], $script."op=fight&skill=$spec&l=2", true);
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Earthen Wall')], $script."op=fight&skill=$spec&l=2", true);
                 }
                 if ($uses >= 5) {
-                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Iwayado Kuzushi')], $script."op=fight&skill=$spec&l=3", true);
+                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Rockfall')], $script."op=fight&skill=$spec&l=3", true);
                 }
                 if ($uses >= 10) {
-                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Doroudoumu')], $script."op=fight&skill=$spec&l=4", true);
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Tomb of Stone')], $script."op=fight&skill=$spec&l=4", true);
                 }
                 if ($uses >= 15) {
-                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Doryuu Dango')], $script."op=fight&skill=$spec&l=5", true);
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Boulder Toss')], $script."op=fight&skill=$spec&l=5", true);
                 }
                 if ($uses >= 16) {
-                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Doryuuheki')], $script."op=fight&skill=$spec&l=6", true);
+                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Clay Barrier')], $script."op=fight&skill=$spec&l=6", true);
                 }
                 if ($uses >= 18) {
-                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Doryuudan')], $script."op=fight&skill=$spec&l=7", true);
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Gargoyle Breath')], $script."op=fight&skill=$spec&l=7", true);
                 }
             }
             break;
@@ -176,22 +176,22 @@ function specialtyearth_dohook($hookname, $args) {
                     switch ($code) {
 case "earth1":
 			apply_buff('earth1',array(
-				"startmsg"=>"`i`qDo`Qton `q-`t Restudotenshou!`i`n`qYou`Q attack {badguy} with nearby rocks.",
-				"name"=>"`qRetsudotenshou",
+				"startmsg"=>"`i`qEarth Magic `q-`t Stone Spike!`i`n`qYou`Q summon sharp stone spikes from the ground to pierce {badguy}.",
+				"name"=>"`qStone Spike",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"minbadguydamage"=>round(max($session['user']['level'],10)/3)+1,
 				"maxbadguydamage"=>round(max($session['user']['level'],10)/3)+5,
 				"minioncount"=>4,
-				"effectmsg"=>"{badguy} suffers {damage} damage from the rocks!",
-				"effectnodmgmsg"=>"The rocks barely hit!",
+				"effectmsg"=>"{badguy} suffers {damage} damage from the spikes!",
+				"effectnodmgmsg"=>"The spikes barely hit!",
 				"schema"=>"module-specialtysystem_earth"
 			));
 			break;
 		case "earth2":
 			apply_buff('earth2',array(
-				"startmsg"=>"`i`qDo`Qton `q-`t Doroku Gaeshi!`i`n`qYou`Q create a large wall of earth.",
-				"name"=>"`qDoroku Gaeshi",
+				"startmsg"=>"`i`qEarth Magic `q-`t Earthen Wall!`i`n`qYou`Q create a large wall of earth.",
+				"name"=>"`qEarthen Wall",
 				"rounds"=>5,
 				"wearoff"=>"The wall breaks.",
 				"defmod"=>1.5,
@@ -201,8 +201,8 @@ case "earth1":
 			break;
 		case "earth3":
 			apply_buff('earth3',array(
-				"startmsg"=>"`i`qDo`Qton `q-`t Iwayado Kuzushi!`i`n`QRocks are dislodged from above {badguy}.",
-				"name"=>"`qIwayado Kuzushi",
+				"startmsg"=>"`i`qEarth Magic `q-`t Rockfall!`i`n`QRocks are dislodged from above {badguy}.",
+				"name"=>"`qRockfall",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"maxbadguydamage"=>round($session['user']['attack']*3,0),
@@ -215,8 +215,8 @@ case "earth1":
 			break;
 		case "earth4":
 			apply_buff('earth4',array(
-				"startmsg"=>"`i`qDo`Qton `q-`t Doroudoumu!`i`n`qYou`Q trap {badguy} inside a self-repairing dome of earth.",
-				"name"=>"`qDoroudoumu",
+				"startmsg"=>"`i`qEarth Magic `q-`t Tomb of Stone!`i`n`qYou`Q trap {badguy} inside a self-repairing dome of earth.",
+				"name"=>"`qTomb of Stone",
 				"rounds"=>10,
 				"areadamage"=>true,
 				"wearoff"=>"The dome falls apart.",
@@ -230,8 +230,8 @@ case "earth1":
 			break;
 		case "earth5":
 			apply_buff('earth5',array(
-				"startmsg"=>"`i`qDo`Qton `q-`t Doryuu Dango!`i`n`qYou`Q hurl a large dumpling-shaped chunk of earth the size of a mausoleum at {badguy}.",
-				"name"=>"`qDoryuu Dango",
+				"startmsg"=>"`i`qEarth Magic `q-`t Boulder Toss!`i`n`qYou`Q hurl a massive boulder at {badguy}.",
+				"name"=>"`qBoulder Toss",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"maxbadguydamage"=>round($session['user']['dragonkills']*3+$session['user']['level'],0)+50,
@@ -243,8 +243,8 @@ case "earth1":
 			break;
 		case "earth6":
 			apply_buff('earth6',array(
-				"startmsg"=>"`i`qDo`Qton `q-`t Doryuuheki!`i`n`qYou`Q spit out a stream of mud that quickly grows and solidifies into a strong protective wall.",
-				"name"=>"`qDoryuuheki",
+				"startmsg"=>"`i`qEarth Magic `q-`t Clay Barrier!`i`n`qYou`Q raise a strong protective wall of clay.",
+				"name"=>"`qClay Barrier",
 				"rounds"=>10,
 				"wearoff"=>"The wall breaks.",
 				"defmod"=>2,
@@ -255,8 +255,8 @@ case "earth1":
 			break;
 		case "earth7":
 			apply_buff('earth7',array(
-				"startmsg"=>"`i`qDo`Qton `q-`t Doryuudan!`i`n`qYou`Q create a likeness of a dragon's head that launches mud balls from its mouth at {badguy}.",
-				"name"=>"`qDoryuudan",
+				"startmsg"=>"`i`qEarth Magic `q-`t Gargoyle Breath!`i`n`qYou`Q summon an earthen gargoyle head to launch mud balls at {badguy}.",
+				"name"=>"`qGargoyle Breath",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"maxbadguydamage"=>round($session['user']['dragonkills']*3+$session['user']['level'],0)+55,
@@ -348,7 +348,7 @@ function specialtyearth_change() {
 
 function specialtyearth_namer($type='X') {
     $class = [];
-    $class['1'] = "Doton Ninjutsu";
+    $class['1'] = "Earth Magic";
     return $class['1'];
 }
 ?>

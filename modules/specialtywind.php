@@ -1,25 +1,25 @@
 <?php
 /**
- * Advanced Specialty Module - Fuuton Ninjutsu
+ * Advanced Specialty Module - Wind Magic
  * Built from the Advanced Specialty Blueprint
  * Designed for PHP 8.4 Strict Compliance
  */
 
 function specialtywind_getmoduleinfo() {
     return [
-        "name" => "Specialty - Fuuton Ninjutsu",
+        "name" => "Specialty - Wind Magic",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Specialties",
         "download" => "", 
         "settings" => [
-            "Fuuton Ninjutsu - Settings,title",
+            "Wind Magic - Settings,title",
             "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|12",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
-            "IE- an 'Adze' would become a 'Fuuton Ninjutsu Adze',note", 
+            "IE- an 'Adze' would become a 'Wind Magic Adze',note", 
         ],
         "prefs" => [
-            "Fuuton Ninjutsu - User Prefs,title",
+            "Wind Magic - User Prefs,title",
             "skill" => "Skill points in Specialty Powers,int|0", 
             "uses" => "Uses of Specialty Powers allowed,int|0", 
             "class" => "Main Class,enum,Unset,,Magic,magic,Melee,melee,Ranging,ranging|magic", 
@@ -42,7 +42,7 @@ function specialtywind_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
-    debug("Installed 'Fuuton Ninjutsu' specialty module.");
+    debug("Installed 'Wind Magic' specialty module.");
     return true;
 }
 
@@ -58,26 +58,26 @@ function specialtywind_uninstall() {
         $session['user']['specialty'] = "";
     }
     
-    debug("Uninstalled 'Fuuton Ninjutsu' specialty module.");
+    debug("Uninstalled 'Wind Magic' specialty module.");
     return true;
 }
 
 function specialtywind_dohook($hookname, $args) {
     global $session, $resline;
     $spec = "WN"; 
-    $name = "Fuuton Ninjutsu"; 
+    $name = "Wind Magic"; 
     $ccode = "`2"; 
     
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-        1 => ['name' => 'Kaze no Yoroi', 'cost' => 1, 'code' => 'wind1'],
-        2 => ['name' => 'Kamaitachi no Jutsu', 'cost' => 3, 'code' => 'wind2'],
-        3 => ['name' => 'Kaze Kiri', 'cost' => 6, 'code' => 'wind3'],
-        4 => ['name' => 'Daikamaitachi no Jutsu', 'cost' => 10, 'code' => 'wind4'],
-        5 => ['name' => 'Kaze no Yaiba', 'cost' => 15, 'code' => 'wind5'],
-        6 => ['name' => 'Fuuton - Tatsu no Oshigoto', 'cost' => 18, 'code' => 'wind6'],
-        7 => ['name' => 'Renkuudan', 'cost' => 20, 'code' => 'renkuudan'],
+        1 => ['name' => 'Wind Armor', 'cost' => 1, 'code' => 'wind1'],
+        2 => ['name' => 'Gale Slash', 'cost' => 3, 'code' => 'wind2'],
+        3 => ['name' => 'Wind Blade', 'cost' => 6, 'code' => 'wind3'],
+        4 => ['name' => 'Gale Torrent', 'cost' => 10, 'code' => 'wind4'],
+        5 => ['name' => 'Blade of Wind', 'cost' => 15, 'code' => 'wind5'],
+        6 => ['name' => 'Tornado Strike', 'cost' => 18, 'code' => 'wind6'],
+        7 => ['name' => 'Wind Blast', 'cost' => 20, 'code' => 'renkuudan'],
     ];
     
     switch($hookname) {
@@ -115,7 +115,7 @@ function specialtywind_dohook($hookname, $args) {
 
                 if ($can_select) {
                     addnav("$ccode$name`0", "newday.php?setspecialty=".$spec."$resline");
-                    $t1 = translate_inline("Train in Fuuton Ninjutsu"); 
+                    $t1 = translate_inline("Train in Wind Magic"); 
                     $t2 = appoencode(translate_inline("$ccode$name`0"));
                     rawoutput("<a href='newday.php?setspecialty=$spec$resline'>$t1 ($t2)</a><br>");
                     addnav("", "newday.php?setspecialty=$spec$resline");
@@ -126,8 +126,8 @@ function specialtywind_dohook($hookname, $args) {
         case "set-specialty":
             if ($userSpec === $spec) {
                 page_header($name);
-                output("`#`c`bFuuton Ninjutsu Unlocked`b`c`n");
-                output("`@You have unlocked the secrets of Fuuton Ninjutsu! Focus your chakra and unleash your Jutsu in combat.`n");
+                output("`#`c`bWind Magic Unlocked`b`c`n");
+                output("`@You have unlocked the secrets of Wind Magic! Focus your mana and unleash your spells in combat.`n");
             }
             break;
 
@@ -141,25 +141,25 @@ function specialtywind_dohook($hookname, $args) {
                 }
                 
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Kaze no Yoroi')], $script."op=fight&skill=$spec&l=1", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Wind Armor')], $script."op=fight&skill=$spec&l=1", true);
                 }
                 if ($uses >= 3) {
-                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Kamaitachi no Jutsu')], $script."op=fight&skill=$spec&l=2", true);
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Gale Slash')], $script."op=fight&skill=$spec&l=2", true);
                 }
                 if ($uses >= 6) {
-                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Kaze Kiri')], $script."op=fight&skill=$spec&l=3", true);
+                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Wind Blade')], $script."op=fight&skill=$spec&l=3", true);
                 }
                 if ($uses >= 10) {
-                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Daikamaitachi no Jutsu')], $script."op=fight&skill=$spec&l=4", true);
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Gale Torrent')], $script."op=fight&skill=$spec&l=4", true);
                 }
                 if ($uses >= 15) {
-                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Kaze no Yaiba')], $script."op=fight&skill=$spec&l=5", true);
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Blade of Wind')], $script."op=fight&skill=$spec&l=5", true);
                 }
                 if ($uses >= 18) {
-                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Fuuton - Tatsu no Oshigoto')], $script."op=fight&skill=$spec&l=6", true);
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Tornado Strike')], $script."op=fight&skill=$spec&l=6", true);
                 }
                 if ($uses >= 20 && $session['user']['hashorse']==12) {
-                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Renkuudan')], $script."op=fight&skill=$spec&l=7", true);
+                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Wind Blast')], $script."op=fight&skill=$spec&l=7", true);
                 }
             }
             break;
@@ -261,9 +261,8 @@ the violent wind!",
 			break;
 		case "renkuudan":
 			apply_buff('renkuudan',array(
-				"startmsg"=>"`i`lRen`gku`ldan!`i`n`q`6Shukaku `ltakes a deep breath 
-and shoots a large ball of compressed air and chakra at {badguy}!",
-				"name"=>"`lRen`gku`ldan",
+				"startmsg"=>"`i`2Wind Blast!`i`n`qYou unleash a large ball of compressed air and magical energy at {badguy}!",
+				"name"=>"`2Wind Blast",
 				"rounds"=>1,
 				"areadamage"=>true,
 				"minbadguydamage"=>120+$session['user']['dragonkills']*5,
@@ -353,7 +352,7 @@ function specialtywind_change() {
 
 function specialtywind_namer($type='X') {
     $class = [];
-    $class['1'] = "Fuuton Ninjutsu";
+    $class['1'] = "Wind Magic";
     return $class['1'];
 }
 ?>

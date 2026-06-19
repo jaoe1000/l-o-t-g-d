@@ -1,25 +1,25 @@
 <?php
 /**
- * Advanced Specialty Module - Basic Ninjutsu
+ * Advanced Specialty Module - Arcane Basics
  * Built from the Advanced Specialty Blueprint
  * Designed for PHP 8.4 Strict Compliance
  */
 
 function specialtybasic_getmoduleinfo() {
     return [
-        "name" => "Specialty - Basic Ninjutsu",
+        "name" => "Specialty - Arcane Basics",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Specialties",
         "download" => "", 
         "settings" => [
-            "Basic Ninjutsu - Settings,title",
+            "Arcane Basics - Settings,title",
             "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|0",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
-            "IE- an 'Adze' would become a 'Basic Ninjutsu Adze',note", 
+            "IE- an 'Adze' would become an 'Arcane Basics Adze',note", 
         ],
         "prefs" => [
-            "Basic Ninjutsu - User Prefs,title",
+            "Arcane Basics - User Prefs,title",
             "skill" => "Skill points in Specialty Powers,int|0", 
             "uses" => "Uses of Specialty Powers allowed,int|0", 
             "class" => "Main Class,enum,Unset,,Magic,magic,Melee,melee,Ranging,ranging|magic", 
@@ -42,7 +42,7 @@ function specialtybasic_install() {
     module_addhook("newday-intercept");
     module_addhook("boughtweapon");
     module_addhook("boughtarmor");
-    debug("Installed 'Basic Ninjutsu' specialty module.");
+    debug("Installed 'Arcane Basics' specialty module.");
     return true;
 }
 
@@ -58,22 +58,22 @@ function specialtybasic_uninstall() {
         $session['user']['specialty'] = "";
     }
     
-    debug("Uninstalled 'Basic Ninjutsu' specialty module.");
+    debug("Uninstalled 'Arcane Basics' specialty module.");
     return true;
 }
 
 function specialtybasic_dohook($hookname, $args) {
     global $session, $resline;
     $spec = "BS"; 
-    $name = "Basic Ninjutsu"; 
+    $name = "Arcane Basics"; 
     $ccode = "`v"; 
     
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-        1 => ['name' => 'Kawarimi no Jutsu', 'cost' => 1, 'code' => 'basic1'],
-        2 => ['name' => 'Kakuremino no Jutsu', 'cost' => 1, 'code' => 'basic2'],
-        3 => ['name' => 'Bunshin no Jutsu', 'cost' => 1, 'code' => 'basic3'],
+        1 => ['name' => 'Blink Decoy', 'cost' => 1, 'code' => 'basic1'],
+        2 => ['name' => 'Invisibility', 'cost' => 1, 'code' => 'basic2'],
+        3 => ['name' => 'Mirror Image', 'cost' => 1, 'code' => 'basic3'],
     ];
     
     switch($hookname) {
@@ -111,7 +111,7 @@ function specialtybasic_dohook($hookname, $args) {
 
                 if ($can_select) {
                     addnav("$ccode$name`0", "newday.php?setspecialty=".$spec."$resline");
-                    $t1 = translate_inline("Train in Basic Ninjutsu"); 
+                    $t1 = translate_inline("Train in Arcane Basics"); 
                     $t2 = appoencode(translate_inline("$ccode$name`0"));
                     rawoutput("<a href='newday.php?setspecialty=$spec$resline'>$t1 ($t2)</a><br>");
                     addnav("", "newday.php?setspecialty=$spec$resline");
@@ -122,8 +122,8 @@ function specialtybasic_dohook($hookname, $args) {
         case "set-specialty":
             if ($userSpec === $spec) {
                 page_header($name);
-                output("`#`c`bBasic Ninjutsu Unlocked`b`c`n");
-                output("`@You have unlocked the secrets of Basic Ninjutsu! Focus your chakra and unleash your Jutsu in combat.`n");
+                output("`#`c`bArcane Basics Unlocked`b`c`n");
+                output("`@You have unlocked the secrets of Arcane Basics! Focus your mana and unleash your spells in combat.`n");
             }
             break;
 
@@ -137,13 +137,13 @@ function specialtybasic_dohook($hookname, $args) {
                 }
                 
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Kawarimi no Jutsu')], $script."op=fight&skill=$spec&l=1", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Blink Decoy')], $script."op=fight&skill=$spec&l=1", true);
                 }
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Kakuremino no Jutsu')], $script."op=fight&skill=$spec&l=2", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Invisibility')], $script."op=fight&skill=$spec&l=2", true);
                 }
                 if ($uses >= 1) {
-                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Bunshin no Jutsu')], $script."op=fight&skill=$spec&l=3", true);
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Mirror Image')], $script."op=fight&skill=$spec&l=3", true);
                 }
             }
             break;
@@ -160,8 +160,8 @@ function specialtybasic_dohook($hookname, $args) {
                     switch ($code) {
 case "basic1":
 			apply_buff('basic1',array(
-				"startmsg"=>"`v`iKawarimi no Jutsu!`i`n`tYou `qswitch places with a nearby item but can neither attack nor defend.",
-				"name"=>"`vKawarimi no Jutsu",
+				"startmsg"=>"`v`iBlink Decoy!`i`n`tYou `qblink away, leaving a decoy in your place. You can neither attack nor defend.",
+				"name"=>"`vBlink Decoy",
 				"rounds"=>1,
 				"badguyatkmod"=>max(0.1,0.5-($u['intelligence']/100)),
 				"badguydefmod"=>0,
@@ -171,8 +171,8 @@ case "basic1":
 			break;
 		case "basic2":
 			apply_buff('basic2',array(
-				"startmsg"=>"`v`iKakuremino no Jutsu!`i`n`tYou `qmake yourself invisible to get into a better attack position.",
-				"name"=>"`vKakuremino no Jutsu",
+				"startmsg"=>"`v`iInvisibility!`i`n`tYou `qturn invisible to get into a better attack position.",
+				"name"=>"`vInvisibility",
 				"rounds"=>2,
 				"wearoff"=>"You fail to hide any longer.",
 				"badguyatkmod"=>0.8,
@@ -192,7 +192,7 @@ case "basic1":
 			));*/
 			$amount=min(5,round($u['intelligence']/7));
 			$comp=array(
-				"name"=>$session['user']['name'].translate_inline(" Bunshin"),
+				"name"=>$session['user']['name'].translate_inline(" Mirror Image"),
 				"attack"=>0,
 				"defense"=>0,
 				"hitpoints"=>5,
@@ -201,7 +201,7 @@ case "basic1":
 				"jointext"=>'',
 				"cannotdie"=>0,
 				"cannotbehealed"=>1,
-				"dyingtext"=>"*poof*",
+				"dyingtext"=>"*fades*",
 				"expireafterfight"=>1,
 				"abilities"=>array(
 					"fight"=>0,
@@ -299,7 +299,7 @@ function specialtybasic_change() {
 
 function specialtybasic_namer($type='X') {
     $class = [];
-    $class['1'] = "Basic Ninjutsu";
+    $class['1'] = "Arcane Basics";
     return $class['1'];
 }
 ?>
