@@ -135,8 +135,8 @@ function activate_buffs($tag) {
 			$session['user']['hitpoints'] += $hptoregen;
 			// Now, take abs value just incase this was a damaging buff
 			$hptoregen = abs($hptoregen);
-			if ($hptoregen == 0) $msg = $buff['effectnodmgmsg'];
-			else $msg = $buff['effectmsg'];
+			if ($hptoregen == 0) $msg = $buff['effectnodmgmsg'] ?? '';
+			else $msg = $buff['effectmsg'] ?? '';
 
 			if (is_array($msg)) {
 				$msg = sprintf_translate($msg);
@@ -205,11 +205,11 @@ function activate_buffs($tag) {
 					$session['user']['hitpoints'] -= $damage;
 				}
 				if ($damage < 0) {
-					$msg = $buff['effectfailmsg'];
+					$msg = $buff['effectfailmsg'] ?? '';
 				} else if ($damage == 0) {
-					$msg = $buff['effectnodmgmsg'];
+					$msg = $buff['effectnodmgmsg'] ?? '';
 				} else if ($damage > 0) {
-					$msg = $buff['effectmsg'];
+					$msg = $buff['effectmsg'] ?? '';
 				}
 				if (is_array($msg)) {
 					$msg = sprintf_translate($msg);
