@@ -79,8 +79,12 @@ function villages_dohook($hookname,$args)
 	global $session;
 
 	$village = getsetting('villagename', LOCATION_FIELDS);
-	$home = $session['user']['location'] == get_module_pref('home_village');
-	$capital = $session['user']['location'] == $village;
+	$home = false;
+	$capital = false;
+	if (isset($session['user']['location'])) {
+		$home = $session['user']['location'] == get_module_pref('home_village');
+		$capital = $session['user']['location'] == $village;
+	}
 
 	switch($hookname) {
 		case 'validatesettings':
