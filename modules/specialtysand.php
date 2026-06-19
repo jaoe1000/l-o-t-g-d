@@ -14,7 +14,7 @@ function specialtysand_getmoduleinfo() {
         "download" => "", 
         "settings" => [
             "Suna Ninjutsu - Settings,title",
-            "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|0",
+            "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|6",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
             "IE- an 'Adze' would become a 'Suna Ninjutsu Adze',note", 
         ],
@@ -71,7 +71,13 @@ function specialtysand_dohook($hookname, $args) {
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-
+        1 => ['name' => 'Suna Shuriken', 'cost' => 1, 'code' => 'sand1'],
+        2 => ['name' => 'Suna no Yoroi', 'cost' => 3, 'code' => 'sand2'],
+        3 => ['name' => 'Suna Bunshin', 'cost' => 5, 'code' => 'sand3'],
+        4 => ['name' => 'Suna no Tate', 'cost' => 10, 'code' => 'sand4'],
+        5 => ['name' => 'Ryuusa Bakuryuu', 'cost' => 15, 'code' => 'sand5'],
+        6 => ['name' => 'Sabaku Kyuu', 'cost' => 18, 'code' => 'sand6'],
+        7 => ['name' => 'Sabaku Sousou', 'cost' => 20, 'code' => 'sand7'],
     ];
     
     switch($hookname) {
@@ -134,7 +140,27 @@ function specialtysand_dohook($hookname, $args) {
                     addnav(["$ccode $name (%s points)`0", $uses], "");
                 }
                 
-
+                if ($uses >= 1) {
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Suna Shuriken')], $script."op=fight&skill=$spec&l=1", true);
+                }
+                if ($uses >= 3) {
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Suna no Yoroi')], $script."op=fight&skill=$spec&l=2", true);
+                }
+                if ($uses >= 5) {
+                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Suna Bunshin')], $script."op=fight&skill=$spec&l=3", true);
+                }
+                if ($uses >= 10) {
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Suna no Tate')], $script."op=fight&skill=$spec&l=4", true);
+                }
+                if ($uses >= 15) {
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Ryuusa Bakuryuu')], $script."op=fight&skill=$spec&l=5", true);
+                }
+                if ($uses >= 18) {
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Sabaku Kyuu')], $script."op=fight&skill=$spec&l=6", true);
+                }
+                if ($uses >= 20) {
+                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Sabaku Sousou')], $script."op=fight&skill=$spec&l=7", true);
+                }
             }
             break;
 
@@ -145,6 +171,7 @@ function specialtysand_dohook($hookname, $args) {
             if ($skill === $spec) {
                 $cost = $techniques[$l]['cost'] ?? 0;
                 if ((int)get_module_pref("uses") >= $cost) {
+                    $u = &$session['user']; // define $u for compatibility with raw buffs
                     $code = $techniques[$l]['code'] ?? '';
                     switch ($code) {
 case "sand1":
@@ -156,7 +183,87 @@ case "sand1":
 				"minbadguydamage"=>5+min($session['user']['dragonkills'],25),
 				"maxbadguydamage"=>10+min($session['user']['dragonkills'],25),
 				"minioncount"=>3,
-				"effectmsg"=>"{badgu
+				"effectmsg"=>"{badguy} suffers {damage} damage from the shuriken!",
+				"effectnodmgmsg"=>"The shuriken misses!",
+				"schema"=>"module-specialtysystem_sand"
+			));
+			break;
+		case "sand2":
+			apply_buff('sand2',array(
+				"startmsg"=>"`6`iSuna no Yoroi`i!`n`qYou `Qcover yourself in a compacted layer of sand, providing you with additional defense.",
+				"name"=>"`6Suna no Yoroi",
+				"rounds"=>5,
+				"wearoff"=>"The compacted layer of sand falls apart.",
+				"defmod"=>2,
+				"roundmsg"=>"Your sand armor covers you!",
+				"schema"=>"module-specialtysystem_sand"
+			));
+			break;
+		case "sand3": //to be revised
+			apply_buff('sand3',array(
+				"startmsg"=>"`6`iSuna Bunshin`i!`n`qYou `Qcreate a clone out of sand.",
+				"name"=>"`6Suna Bunshin",
+				"rounds"=>10,
+				"wearoff"=>"The clone falls apart.",
+				"minbadguydamage"=>5+$session['user']['dragonkills'],
+				"maxbadguydamage"=>15+$session['user']['dragonkills'],
+				"minioncount"=>1,
+				"effectmsg"=>"Your clone hit {badguy} for {damage} damage!",
+				"effectnodmgmsg"=>"Your clone misses!",
+				"schema"=>"module-specialtysystem_sand"
+			));
+			break;
+		case "sand4":
+			apply_buff('sand4',array(
+				"startmsg"=>"`6`iSuna no Tate`i!`n`qYou `Qsurround and protect yourself with sand.",
+				"name"=>"`6Suna no Tate",
+				"rounds"=>10,
+				"wearoff"=>"You lost the protection of the sand.",
+				"atkmod"=>0.5,
+				"defmod"=>3,
+				"roundmsg"=>"Your shield gives you ample protection",
+				"schema"=>"module-specialtysystem_sand"
+			));
+			break;
+		case "sand5":
+			apply_buff('sand5',array(
+				"startmsg"=>"`6`iRyuusa Bakuryuu`i!`n`qYou `Qcreate a massive amount of sand and send it towards {badguy} in the form of a wave.",
+				"name"=>"`6Ryuusa Bakuryuu",
+				"rounds"=>5,
+				"areadamage"=>true,
+				"wearoff"=>"The wave left the entire forest covered in sand.",
+				"minbadguydamage"=>30+$session['user']['dragonkills'],
+				"maxbadguydamage"=>60+$session['user']['dragonkills'],
+				"minioncount"=>6,
+				"effectmsg"=>"{badguy} was swallowed by the sand and suffers {damage} damage!",
+				"effectnodmgmsg"=>"The sand only rushes by {badguy}!",
+				"schema"=>"module-specialtysystem_sand"
+			));
+			break;
+		case "sand6":
+			apply_buff('sand6',array(
+				"startmsg"=>"`6`iSabaku Kyuu`i!`n`qYou `Qcover {badguy}'s entire body in sand.",
+				"name"=>"`6Sabaku Kyuu",
+				"rounds"=>5,
+				"wearoff"=>"The sand falls apart.",
+				"badguyatkmod"=>0,
+				"badguydefmod"=>0,
+				"roundmsg"=>"The sand renders {badguy} immobile!",
+				"schema"=>"module-specialtysystem_sand"
+			));
+			break;
+		case "sand7":
+			apply_buff('sand7',array(
+				"startmsg"=>"`6`iSabaku Sousou`i!`n`qYou `Qcover {badguy}'s entire body in sand and implode, crushing whatever is within",
+				"name"=>"`6Sabaku Sousou",
+				"rounds"=>1,
+				"minbadguydamage"=>150+$session['user']['dragonkills']*4,
+				"maxbadguydamage"=>180+$session['user']['dragonkills']*4,
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} was crushed and suffers {damage} damage!",
+				"schema"=>"module-specialtysystem_sand"
+			));
+			break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);
                 }

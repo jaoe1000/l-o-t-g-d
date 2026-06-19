@@ -14,7 +14,7 @@ function specialtywater_getmoduleinfo() {
         "download" => "", 
         "settings" => [
             "Suiton Ninjutsu - Settings,title",
-            "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|0",
+            "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|1",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
             "IE- an 'Adze' would become a 'Suiton Ninjutsu Adze',note", 
         ],
@@ -71,7 +71,14 @@ function specialtywater_dohook($hookname, $args) {
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-
+        1 => ['name' => 'Kirigakure no Jutsu', 'cost' => 1, 'code' => 'water1'],
+        2 => ['name' => 'Kaihoudan', 'cost' => 3, 'code' => 'water2'],
+        3 => ['name' => 'Suijinheki', 'cost' => 5, 'code' => 'water3'],
+        4 => ['name' => 'Suiryuudan no Jutsu', 'cost' => 10, 'code' => 'water4'],
+        5 => ['name' => 'Goshokuzame', 'cost' => 15, 'code' => 'water5'],
+        6 => ['name' => 'Daibakufu no Jutsu', 'cost' => 16, 'code' => 'water6'],
+        7 => ['name' => 'Daibaku no Jutsu', 'cost' => 18, 'code' => 'water7'],
+        8 => ['name' => 'Daibakure no Jutsu', 'cost' => 20, 'code' => 'water8'],
     ];
     
     switch($hookname) {
@@ -134,7 +141,30 @@ function specialtywater_dohook($hookname, $args) {
                     addnav(["$ccode $name (%s points)`0", $uses], "");
                 }
                 
-
+                if ($uses >= 1) {
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Kirigakure no Jutsu')], $script."op=fight&skill=$spec&l=1", true);
+                }
+                if ($uses >= 3) {
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Kaihoudan')], $script."op=fight&skill=$spec&l=2", true);
+                }
+                if ($uses >= 5) {
+                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Suijinheki')], $script."op=fight&skill=$spec&l=3", true);
+                }
+                if ($uses >= 10) {
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Suiryuudan no Jutsu')], $script."op=fight&skill=$spec&l=4", true);
+                }
+                if ($uses >= 15) {
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Goshokuzame')], $script."op=fight&skill=$spec&l=5", true);
+                }
+                if ($uses >= 16) {
+                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Daibakufu no Jutsu')], $script."op=fight&skill=$spec&l=6", true);
+                }
+                if ($uses >= 18) {
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Daibaku no Jutsu')], $script."op=fight&skill=$spec&l=7", true);
+                }
+                if ($uses >= 20) {
+                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Daibakure no Jutsu')], $script."op=fight&skill=$spec&l=8", true);
+                }
             }
             break;
 
@@ -145,6 +175,7 @@ function specialtywater_dohook($hookname, $args) {
             if ($skill === $spec) {
                 $cost = $techniques[$l]['cost'] ?? 0;
                 if ((int)get_module_pref("uses") >= $cost) {
+                    $u = &$session['user']; // define $u for compatibility with raw buffs
                     $code = $techniques[$l]['code'] ?? '';
                     switch ($code) {
 case "water1":
@@ -155,7 +186,106 @@ case "water1":
 				"wearoff"=>"The mist clears away.",
 				"badguyatkmod"=>0.85,
 				"badguydefmod"=>0.85,
-				"roundmsg"=>"The mist conceals you from {badgu
+				"roundmsg"=>"The mist conceals you from {badguy} a bit!",
+				"schema"=>"module-specialtysystem_water"
+			));
+			break;
+		case "water2":
+			apply_buff('water2',array(
+				"startmsg"=>"`1`i`!Sui`1ton `&-`! Kaihoudan!`i`n`qYou `\$shoot a strong stream of water from your mouth at {badguy}.",
+				"name"=>"`1Suiton - Kaihoudan",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"minbadguydamage"=>15+$session['user']['level'],
+				"maxbadguydamage"=>30+$session['user']['level']*2,
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the blast!",
+				"schema"=>"module-specialtysystem_water"
+			));
+			break;
+		case "water3":
+			apply_buff('water3',array(
+				"startmsg"=>"`1`i`!Sui`1ton `&-`! Suijinheki!`i`n`qYou `\$create a water barrier to protect yourself from attacks.",
+				"name"=>"`1Suiton - Suijinheki",
+				"rounds"=>5,
+				"wearoff"=>"The water barrier disappears.",
+				"defmod"=>1.80,
+				"schema"=>"module-specialtysystem_water"
+			));
+			break;
+		case "water4":
+			apply_buff('water4',array(
+				"startmsg"=>"`1`i`!Sui`1ton `&-`! Suiryuudan no Jutsu!`i`n`qYou `\$create a huge current of water in the form of a dragon and sends it towards {badguy}.",
+				"name"=>"`1Suiton - Suiryuudan no Jutsu",
+				"rounds"=>5,
+				"areadamage"=>true,
+				"wearoff"=>"The dragon returns to water.",
+				"minbadguydamage"=>15+$session['user']['level'],
+				"maxbadguydamage"=>25+$session['user']['level'],
+				"minioncount"=>3,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the blast!",
+				"effectnodmgmsg"=>"{badguy} manages to dodge out of the way.",
+				"schema"=>"module-specialtysystem_water"
+			));
+			break;
+		case "water5":
+			apply_buff('water5',array(
+				"startmsg"=>"`1`i`!Sui`1ton `&-`! Goshokuzame!`i`n`qYou `\$trap {badguy} in water and send five attacking sharks after him.",
+				"name"=>"`1Suiton - Goshokuzame",
+				"rounds"=>5,
+				"wearoff"=>"The sharks disappear.",
+				"minbadguydamage"=>15+$session['user']['level'],
+				"maxbadguydamage"=>25+$session['user']['level'],
+				"minioncount"=>5,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the shark attack!",
+				"effectnodmgmsg"=>"The shark miss!",
+				"schema"=>"module-specialtysystem_water"
+			));
+			break;
+		case "water6":
+			apply_buff('water6',array(
+				"startmsg"=>"`1`i`!Sui`1ton `&-`! Daibakufu no Jutsu!`i`n`qYou `\$create a massive blast of water.",
+				"name"=>"`1Suiton - Daibakufu no Jutsu",
+				"rounds"=>5,
+				"areadamage"=>true,
+				"wearoff"=>"The massice blast of water washes everything away.",
+				"minbadguydamage"=>40+$session['user']['level']+$session['user']['dragonkills'],
+				"maxbadguydamage"=>60+$session['user']['level']+$session['user']['dragonkills'],
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the blast!",
+				"schema"=>"module-specialtysystem_water"
+			));
+			break;
+		case "water7":
+			apply_buff('water7',array(
+				"startmsg"=>"`1`i`!Sui`1ton `&-`! Daibaku no Jutsu!`i`n`qYou `\$create a massive tidal wave.",
+				"name"=>"`1Suiton - Daibaku no Jutsu",
+				"rounds"=>5,
+				"areadamage"=>true,
+				"wearoff"=>"You can't create anymore waves.",
+				"minbadguydamage"=>20+$session['user']['level']+$session['user']['dragonkills'],
+				"maxbadguydamage"=>40+$session['user']['level']+$session['user']['dragonkills'],
+				"minioncount"=>5,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the crushing wave!",
+				"effectnodmgmsg"=>"{badguy} escapes the crushing wave!",
+				"schema"=>"module-specialtysystem_water"
+			));
+			break;
+		case "water8":
+			apply_buff('water8',array(
+				"startmsg"=>"`1`i`!Sui`1ton `&-`! Daibakure no Jutsu!`i`n`qYou `\$create an enormous  inescapable maelstrom.",
+				"name"=>"`1Suiton - Daibakure no Jutsu",
+				"rounds"=>5,
+				"areadamage"=>true,
+				"wearoff"=>"The maelstrom disappears.",
+				"minbadguydamage"=>25+$session['user']['level']+$session['user']['dragonkills'],
+				"maxbadguydamage"=>40+$session['user']['level']+$session['user']['dragonkills'],
+				"minioncount"=>6,
+				"effectmsg"=>"{badguy} suffers {damage} damage from drowning!",
+				"effectnodmgmsg"=>"{badguy} manages to stay afloat!",
+				"schema"=>"module-specialtysystem_water"
+			));
+			break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);
                 }

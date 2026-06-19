@@ -71,7 +71,9 @@ function specialtybasic_dohook($hookname, $args) {
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-
+        1 => ['name' => 'Kawarimi no Jutsu', 'cost' => 1, 'code' => 'basic1'],
+        2 => ['name' => 'Kakuremino no Jutsu', 'cost' => 1, 'code' => 'basic2'],
+        3 => ['name' => 'Bunshin no Jutsu', 'cost' => 1, 'code' => 'basic3'],
     ];
     
     switch($hookname) {
@@ -134,7 +136,15 @@ function specialtybasic_dohook($hookname, $args) {
                     addnav(["$ccode $name (%s points)`0", $uses], "");
                 }
                 
-
+                if ($uses >= 1) {
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Kawarimi no Jutsu')], $script."op=fight&skill=$spec&l=1", true);
+                }
+                if ($uses >= 1) {
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Kakuremino no Jutsu')], $script."op=fight&skill=$spec&l=2", true);
+                }
+                if ($uses >= 1) {
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Bunshin no Jutsu')], $script."op=fight&skill=$spec&l=3", true);
+                }
             }
             break;
 
@@ -145,6 +155,7 @@ function specialtybasic_dohook($hookname, $args) {
             if ($skill === $spec) {
                 $cost = $techniques[$l]['cost'] ?? 0;
                 if ((int)get_module_pref("uses") >= $cost) {
+                    $u = &$session['user']; // define $u for compatibility with raw buffs
                     $code = $techniques[$l]['code'] ?? '';
                     switch ($code) {
 case "basic1":
@@ -165,7 +176,48 @@ case "basic1":
 				"rounds"=>2,
 				"wearoff"=>"You fail to hide any longer.",
 				"badguyatkmod"=>0.8,
-				"roundmsg"=>"{badgu
+				"roundmsg"=>"{badguy} is not completely sure where you are!",
+				"schema"=>"module-specialtysystem_basic"
+			));
+			break;
+		case "basic3":
+			/*apply_buff('basic3',array( //to be revised
+				"startmsg"=>"`v`iBunshin no Jutsu!`i`n`tYou `qcreate some clones to cover up your current position",
+				"name"=>"`vBunshin no Jutsu",
+				"rounds"=>5,
+				"wearoff"=>"Your bunshins crumble.",
+				"defmod"=>1.1,
+				"roundmsg"=>"Your bunshin cover up for you a bit!",
+				"schema"=>"module-specialtysystem_basic"
+			));*/
+			$amount=min(5,round($u['intelligence']/7));
+			$comp=array(
+				"name"=>$session['user']['name'].translate_inline(" Bunshin"),
+				"attack"=>0,
+				"defense"=>0,
+				"hitpoints"=>5,
+				"maxhitpoints"=>5,
+				"companionactive"=>1,
+				"jointext"=>'',
+				"cannotdie"=>0,
+				"cannotbehealed"=>1,
+				"dyingtext"=>"*poof*",
+				"expireafterfight"=>1,
+				"abilities"=>array(
+					"fight"=>0,
+					"heal"=>0,
+					"magic"=>0,
+					"defend"=>1,
+					),
+				"schema"=>"module-specialtysystem_basic"
+			);
+			for ($i=1;$i<=$amount;$i++) {
+				$new=$comp;
+				$new['name'].=" #".$i;
+				apply_companion(sanitize($new['name']),$new,true);
+			}
+			break;
+		break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);
                 }

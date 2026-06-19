@@ -14,7 +14,7 @@ function specialtyearth_getmoduleinfo() {
         "download" => "", 
         "settings" => [
             "Doton Ninjutsu - Settings,title",
-            "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|0",
+            "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|3",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
             "IE- an 'Adze' would become a 'Doton Ninjutsu Adze',note", 
         ],
@@ -71,7 +71,13 @@ function specialtyearth_dohook($hookname, $args) {
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-
+        1 => ['name' => 'Retsudotenshou', 'cost' => 1, 'code' => 'earth1'],
+        2 => ['name' => 'Doroku Gaeshi', 'cost' => 3, 'code' => 'earth2'],
+        3 => ['name' => 'Iwayado Kuzushi', 'cost' => 5, 'code' => 'earth3'],
+        4 => ['name' => 'Doroudoumu', 'cost' => 10, 'code' => 'earth4'],
+        5 => ['name' => 'Doryuu Dango', 'cost' => 15, 'code' => 'earth5'],
+        6 => ['name' => 'Doryuuheki', 'cost' => 16, 'code' => 'earth6'],
+        7 => ['name' => 'Doryuudan', 'cost' => 18, 'code' => 'earth7'],
     ];
     
     switch($hookname) {
@@ -134,7 +140,27 @@ function specialtyearth_dohook($hookname, $args) {
                     addnav(["$ccode $name (%s points)`0", $uses], "");
                 }
                 
-
+                if ($uses >= 1) {
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Retsudotenshou')], $script."op=fight&skill=$spec&l=1", true);
+                }
+                if ($uses >= 3) {
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Doroku Gaeshi')], $script."op=fight&skill=$spec&l=2", true);
+                }
+                if ($uses >= 5) {
+                    addnav(["`@ &#149; %s`@ (5)`0", translate_inline('Iwayado Kuzushi')], $script."op=fight&skill=$spec&l=3", true);
+                }
+                if ($uses >= 10) {
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Doroudoumu')], $script."op=fight&skill=$spec&l=4", true);
+                }
+                if ($uses >= 15) {
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Doryuu Dango')], $script."op=fight&skill=$spec&l=5", true);
+                }
+                if ($uses >= 16) {
+                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Doryuuheki')], $script."op=fight&skill=$spec&l=6", true);
+                }
+                if ($uses >= 18) {
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Doryuudan')], $script."op=fight&skill=$spec&l=7", true);
+                }
             }
             break;
 
@@ -145,11 +171,102 @@ function specialtyearth_dohook($hookname, $args) {
             if ($skill === $spec) {
                 $cost = $techniques[$l]['cost'] ?? 0;
                 if ((int)get_module_pref("uses") >= $cost) {
+                    $u = &$session['user']; // define $u for compatibility with raw buffs
                     $code = $techniques[$l]['code'] ?? '';
                     switch ($code) {
 case "earth1":
 			apply_buff('earth1',array(
-				"startmsg"=>"`i`qDo`Qton `q-`t Restudotenshou!`i`n`qYou`Q attack {badgu
+				"startmsg"=>"`i`qDo`Qton `q-`t Restudotenshou!`i`n`qYou`Q attack {badguy} with nearby rocks.",
+				"name"=>"`qRetsudotenshou",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"minbadguydamage"=>round(max($session['user']['level'],10)/3)+1,
+				"maxbadguydamage"=>round(max($session['user']['level'],10)/3)+5,
+				"minioncount"=>4,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the rocks!",
+				"effectnodmgmsg"=>"The rocks barely hit!",
+				"schema"=>"module-specialtysystem_earth"
+			));
+			break;
+		case "earth2":
+			apply_buff('earth2',array(
+				"startmsg"=>"`i`qDo`Qton `q-`t Doroku Gaeshi!`i`n`qYou`Q create a large wall of earth.",
+				"name"=>"`qDoroku Gaeshi",
+				"rounds"=>5,
+				"wearoff"=>"The wall breaks.",
+				"defmod"=>1.5,
+				"roundmsg"=>"`qThe wall protects you.",
+				"schema"=>"module-specialtysystem_earth"
+			));
+			break;
+		case "earth3":
+			apply_buff('earth3',array(
+				"startmsg"=>"`i`qDo`Qton `q-`t Iwayado Kuzushi!`i`n`QRocks are dislodged from above {badguy}.",
+				"name"=>"`qIwayado Kuzushi",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"maxbadguydamage"=>round($session['user']['attack']*3,0),
+				"minbadguydamage"=>round($session['user']['attack']*1.5,0),
+				"minioncount"=>2,
+				"effectmsg"=>"{badguy} suffers {damage} damage from falling a rock!",
+				"effectnodmgmsg"=>"The rock misses!",
+				"schema"=>"module-specialtysystem_earth"
+			));
+			break;
+		case "earth4":
+			apply_buff('earth4',array(
+				"startmsg"=>"`i`qDo`Qton `q-`t Doroudoumu!`i`n`qYou`Q trap {badguy} inside a self-repairing dome of earth.",
+				"name"=>"`qDoroudoumu",
+				"rounds"=>10,
+				"areadamage"=>true,
+				"wearoff"=>"The dome falls apart.",
+				"badguyatkmod"=>0.75,
+				"minbadguydamage"=>5,
+				"maxbadguydamage"=>10,
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} loses {damage} hitpoints!",
+				"schema"=>"module-specialtysystem_earth"
+			));
+			break;
+		case "earth5":
+			apply_buff('earth5',array(
+				"startmsg"=>"`i`qDo`Qton `q-`t Doryuu Dango!`i`n`qYou`Q hurl a large dumpling-shaped chunk of earth the size of a mausoleum at {badguy}.",
+				"name"=>"`qDoryuu Dango",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"maxbadguydamage"=>round($session['user']['dragonkills']*3+$session['user']['level'],0)+50,
+				"minbadguydamage"=>round($session['user']['dragonkills']*1.5+$session['user']['level'],0)+75,
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} suffers {damage} damage from being crushed!",
+				"schema"=>"module-specialtysystem_earth"
+			));
+			break;
+		case "earth6":
+			apply_buff('earth6',array(
+				"startmsg"=>"`i`qDo`Qton `q-`t Doryuuheki!`i`n`qYou`Q spit out a stream of mud that quickly grows and solidifies into a strong protective wall.",
+				"name"=>"`qDoryuuheki",
+				"rounds"=>10,
+				"wearoff"=>"The wall breaks.",
+				"defmod"=>2,
+				"badguyatkmod"=>0.5,
+				"effectnodmgmsg"=>"The wall protects you from harm!",
+				"schema"=>"module-specialtysystem_earth"
+			));
+			break;
+		case "earth7":
+			apply_buff('earth7',array(
+				"startmsg"=>"`i`qDo`Qton `q-`t Doryuudan!`i`n`qYou`Q create a likeness of a dragon's head that launches mud balls from its mouth at {badguy}.",
+				"name"=>"`qDoryuudan",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"maxbadguydamage"=>round($session['user']['dragonkills']*3+$session['user']['level'],0)+55,
+				"minbadguydamage"=>round($session['user']['dragonkills']*1.5+$session['user']['level'],0)+65,
+				"minioncount"=>3,
+				"effectmsg"=>"The mud ball impact {badguy} for {damage} damage!",
+				"effectnodmgmsg"=>"The mud ball misses!",
+				"schema"=>"module-specialtysystem_earth"
+			));
+			break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);
                 }

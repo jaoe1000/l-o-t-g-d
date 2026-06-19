@@ -14,7 +14,7 @@ function specialtyice_getmoduleinfo() {
         "download" => "", 
         "settings" => [
             "Hyouton Ninjutsu - Settings,title",
-            "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|0",
+            "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|8",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
             "IE- an 'Adze' would become a 'Hyouton Ninjutsu Adze',note", 
         ],
@@ -71,7 +71,13 @@ function specialtyice_dohook($hookname, $args) {
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-
+        1 => ['name' => 'Hyourou no Jutsu', 'cost' => 1, 'code' => 'ice1'],
+        2 => ['name' => 'Tsubame Fubuki', 'cost' => 3, 'code' => 'ice2'],
+        3 => ['name' => 'Haryuu Mouko', 'cost' => 6, 'code' => 'ice3'],
+        4 => ['name' => 'Ikkaku Hakugei', 'cost' => 8, 'code' => 'ice4'],
+        5 => ['name' => 'Rouga Nadare no Jutsu', 'cost' => 12, 'code' => 'ice5'],
+        6 => ['name' => 'Kokuryuu Boufuusetsu', 'cost' => 16, 'code' => 'ice6'],
+        7 => ['name' => 'Souryuu Boufuusetsu', 'cost' => 20, 'code' => 'ice7'],
     ];
     
     switch($hookname) {
@@ -134,7 +140,27 @@ function specialtyice_dohook($hookname, $args) {
                     addnav(["$ccode $name (%s points)`0", $uses], "");
                 }
                 
-
+                if ($uses >= 1) {
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Hyourou no Jutsu')], $script."op=fight&skill=$spec&l=1", true);
+                }
+                if ($uses >= 3) {
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Tsubame Fubuki')], $script."op=fight&skill=$spec&l=2", true);
+                }
+                if ($uses >= 6) {
+                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Haryuu Mouko')], $script."op=fight&skill=$spec&l=3", true);
+                }
+                if ($uses >= 8) {
+                    addnav(["`@ &#149; %s`@ (8)`0", translate_inline('Ikkaku Hakugei')], $script."op=fight&skill=$spec&l=4", true);
+                }
+                if ($uses >= 12) {
+                    addnav(["`@ &#149; %s`@ (12)`0", translate_inline('Rouga Nadare no Jutsu')], $script."op=fight&skill=$spec&l=5", true);
+                }
+                if ($uses >= 16) {
+                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Kokuryuu Boufuusetsu')], $script."op=fight&skill=$spec&l=6", true);
+                }
+                if ($uses >= 20) {
+                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Souryuu Boufuusetsu')], $script."op=fight&skill=$spec&l=7", true);
+                }
             }
             break;
 
@@ -145,11 +171,102 @@ function specialtyice_dohook($hookname, $args) {
             if ($skill === $spec) {
                 $cost = $techniques[$l]['cost'] ?? 0;
                 if ((int)get_module_pref("uses") >= $cost) {
+                    $u = &$session['user']; // define $u for compatibility with raw buffs
                     $code = $techniques[$l]['code'] ?? '';
                     switch ($code) {
 case "ice1":
 			apply_buff('ice1',array(
-				"startmsg"=>"`l`i`1Hyou`vton `q-`v Hyourou no Jutsu!`i`n`1You `v trap {badgu
+				"startmsg"=>"`l`i`1Hyou`vton `q-`v Hyourou no Jutsu!`i`n`1You `v trap {badguy} in ice.",
+				"name"=>"`lHyourou",
+				"rounds"=>1,
+				"badguyatkmod"=>0,
+				"roundmsg"=>"{badguy} could not attack for one round!",
+				"schema"=>"module-specialtysystem_ice"
+			));
+			break;
+		case "ice2":
+			apply_buff('ice2',array(
+				"startmsg"=>"`l`i`1Hyou`vton `q-`v Tsubame Fubuki no Jutsu!`i`n`1You `v create a cluster of ice needles in the shape of miniature swallows.",
+				"name"=>"`1Tsubame Fubuki",
+				"rounds"=>5,
+				"wearoff"=>"You ran out of swallows.",
+				"minbadguydamage"=>5+min(35 ,$session['user']['dragonkills']),
+				"maxbadguydamage"=>15+min(75,$session['user']['dragonkills']),
+				"minioncount"=>3+$session['user']['level']/5,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the sharp wings!",
+				"effectnodmgmsg"=>"The swallows miss!",
+				"schema"=>"module-specialtysystem_ice"
+			));
+			break;
+		case "ice3":
+			apply_buff('ice3',array(
+				"startmsg"=>"`i`1Hyou`vton `q-`v Haryuu Mouko no Jutsu!`i`n`1You `vcreate a large tiger out of ice.",
+				"name"=>"`1Haryuu Mouko",
+				"rounds"=>5,
+				"wearoff"=>"The ice tiger scatters.",
+				"minbadguydamage"=>15+min(35,$session['user']['dragonkills']),
+				"maxbadguydamage"=>30+min(75,$session['user']['dragonkills']),
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the tiger's sharp claws!",
+				"effectnodmgmsg"=>"{badguy} manages to dodge the attack!",
+				"schema"=>"module-specialtysystem_ice"
+			));
+			break;
+		case "ice4":
+			apply_buff('ice4',array(
+				"startmsg"=>"`i`1Hyou`vton `q-`v Ikkaku Hakugei!`i`n`1You `vcreate a massive narwhal from summoned ice that jumps up and falls back down on {badguy}.",
+				"name"=>"`lIkkaku Hakugei",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"minbadguydamage"=>30+$session['user']['dragonkills'],
+				"maxbadguydamage"=>90+$session['user']['dragonkills'],
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the impact!",
+				"effectnodmgmsg"=>"{badguy} manages to escape to safety!",
+				"schema"=>"module-specialtysystem_ice"
+			));
+			break;
+		case "ice5":
+			apply_buff('ice5',array(
+				"startmsg"=>"`i`1Hyou`vton `q-`v Rouga Nadare no Jutsu!`i`n`1You `vcreate an avalanche of snow wolves.",
+				"name"=>"`lRouga Nadare no Jutsu",
+				"rounds"=>5,
+				"areadamage"=>true,
+				"wearoff"=>"The avalanche has stopped.",
+				"minbadguydamage"=>15+$session['user']['dragonkills'],
+				"maxbadguydamage"=>50+$session['user']['dragonkills'],
+				"minioncount"=>4,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the biting and crushing!",
+				"effectnodmgmsg"=>"The wolves only rush by {badguy}!",
+				"schema"=>"module-specialtysystem_ice"
+			));
+			break;
+		case "ice6":
+			apply_buff('ice6',array(
+				"startmsg"=>"`i`1Hyou`vton `q-`v Kokuryuu Boufuusetsu!`i`n`1You `vcreate an icy black dragon with red eyes and shoot it towards {badguy}.",
+				"name"=>"`lKokuryuu Boufuusetsu",
+				"rounds"=>1,
+				"minbadguydamage"=>60+$session['user']['dragonkills'],
+				"maxbadguydamage"=>100+$session['user']['dragonkills'],
+				"minioncount"=>3,
+				"effectmsg"=>"{badguy} suffers {damage} damage as the dragon rips through the air!",
+				"effectnodmgmsg"=>"{badguy} manages to avoid being torn apart!",
+				"schema"=>"module-specialtysystem_ice"
+			));
+			break;
+		case "ice7":
+			apply_buff('ice7',array(
+				"startmsg"=>"`i`1Hyou`vton `q-`v Souryuu Boufuusetsu!`i`n`1You `vreleases two dragons of black snow that merge into a massive tornado at {badguy}.",
+				"name"=>"`lSouryuu Boufuusetsu",
+				"rounds"=>3,
+				"minbadguydamage"=>30+$session['user']['dragonkills'],
+				"maxbadguydamage"=>80+$session['user']['dragonkills'],
+				"minioncount"=>6,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the freezing tornado!",
+				"effectnodmgmsg"=>"{badguy} manages to avoid being froze and torn to bits!",
+				"schema"=>"module-specialtysystem_ice"
+			));
+			break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);
                 }

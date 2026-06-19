@@ -71,7 +71,14 @@ function specialtylightning_dohook($hookname, $args) {
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-
+        1 => ['name' => 'Raigeki no Yoroi', 'cost' => 1, 'code' => 'lightning1'],
+        2 => ['name' => 'Raikyuu', 'cost' => 3, 'code' => 'lightning2'],
+        3 => ['name' => 'Raiton: Hiraishin', 'cost' => 6, 'code' => 'lightning3'],
+        4 => ['name' => 'Ikazuchi no Kiba', 'cost' => 10, 'code' => 'lightning4'],
+        5 => ['name' => 'Raizou Ikazuchi wo Utte', 'cost' => 15, 'code' => 'lightning5'],
+        6 => ['name' => 'Raiton: Kaminari Shibari', 'cost' => 16, 'code' => 'lightning6'],
+        7 => ['name' => 'Rairyuu no Tatsumaki', 'cost' => 18, 'code' => 'lightning7'],
+        8 => ['name' => 'Ikazuchi Hakai', 'cost' => 23, 'code' => 'lightning8'],
     ];
     
     switch($hookname) {
@@ -134,7 +141,30 @@ function specialtylightning_dohook($hookname, $args) {
                     addnav(["$ccode $name (%s points)`0", $uses], "");
                 }
                 
-
+                if ($uses >= 1) {
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Raigeki no Yoroi')], $script."op=fight&skill=$spec&l=1", true);
+                }
+                if ($uses >= 3) {
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Raikyuu')], $script."op=fight&skill=$spec&l=2", true);
+                }
+                if ($uses >= 6) {
+                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Raiton: Hiraishin')], $script."op=fight&skill=$spec&l=3", true);
+                }
+                if ($uses >= 10) {
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Ikazuchi no Kiba')], $script."op=fight&skill=$spec&l=4", true);
+                }
+                if ($uses >= 15) {
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Raizou Ikazuchi wo Utte')], $script."op=fight&skill=$spec&l=5", true);
+                }
+                if ($uses >= 16) {
+                    addnav(["`@ &#149; %s`@ (16)`0", translate_inline('Raiton: Kaminari Shibari')], $script."op=fight&skill=$spec&l=6", true);
+                }
+                if ($uses >= 18) {
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Rairyuu no Tatsumaki')], $script."op=fight&skill=$spec&l=7", true);
+                }
+                if ($uses >= 23) {
+                    addnav(["`@ &#149; %s`@ (23)`0", translate_inline('Ikazuchi Hakai')], $script."op=fight&skill=$spec&l=8", true);
+                }
             }
             break;
 
@@ -145,6 +175,7 @@ function specialtylightning_dohook($hookname, $args) {
             if ($skill === $spec) {
                 $cost = $techniques[$l]['cost'] ?? 0;
                 if ((int)get_module_pref("uses") >= $cost) {
+                    $u = &$session['user']; // define $u for compatibility with raw buffs
                     $code = $techniques[$l]['code'] ?? '';
                     switch ($code) {
 case "lightning1":
@@ -154,7 +185,105 @@ case "lightning1":
 				"rounds"=>5,
 				"wearoff"=>"The electricity around you was neutralized.",
 				"damageshield"=>0.20,
-				"effectmsg"=>"{badgu
+				"effectmsg"=>"{badguy} suffers {damage} damage from the electric shock!",
+				"schema"=>"module-specialtysystem_lightning"
+			));
+			break;
+		case "lightning2":
+			apply_buff('lightning2',array(
+				"startmsg"=>"`i`tRaikyuu!`i`n`qYou `vcreate a ball of electrical energy and launch it at {badguy}.",
+				"name"=>"`tRaikyuu",
+				"rounds"=>10,
+				"wearoff"=>"The electricity in {badguy}'s body has neutralized.",
+				"minbadguydamage"=>5,
+				"maxbadguydamage"=>15,
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the electric shock!",
+				"schema"=>"module-specialtysystem_lightning"
+			));
+			break;
+		case "lightning3":
+			apply_buff('lightning3',array(
+				"startmsg"=>"`i`t`^Raiton: `yHiraishin!`i`n`qYou `vsummon lightning from the sky to your hand and then shoot it at your opponent.",
+				"name"=>"`^Raiton: `tHiraishin",
+				"rounds"=>1,
+				"minbadguydamage"=>60+$session['user']['dragonkills'],
+				"maxbadguydamage"=>80+$session['user']['dragonkills'],
+				"minioncount"=>1,
+				"effectmsg"=>"The lightning hits {badguy}, doing {damage} damage!",
+				"schema"=>"module-specialtysystem_lightning"
+			));
+			break;
+		case "lightning4":
+			apply_buff('lightning4',array(
+				"startmsg"=>"`i`tIkazuchi no Kiba!`i`n`qYou `vsend an electrical essence into the clouds, allowing you to create lightning strikes.",
+				"name"=>"`tIkazuchi no Kiba",
+				"rounds"=>5,
+				"areadamage"=>true,
+				"wearoff"=>"The electrical essence in the clouds has neutralized.",
+				"minbadguydamage"=>15+$session['user']['dragonkills'],
+				"maxbadguydamage"=>30+$session['user']['dragonkills'],
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the lightning strike!",
+				"schema"=>"module-specialtysystem_lightning"
+			));
+			break;
+		case "lightning5":
+			apply_buff('lightning5',array(
+				"startmsg"=>"`i`tRaizou Ikazuchi wo Utte!`i`n`qYou `vcreate several thunderbolts that cut through the ground and chase after {badguy}.",
+				"name"=>"`tRaizou Ikazuchi wo Utte",
+				"rounds"=>10,
+				"wearoff"=>"The thunderbolts were neutralized.",
+				"minbadguydamage"=>15+$session['user']['dragonkills'],
+				"maxbadguydamage"=>30+$session['user']['dragonkills'],
+				"minioncount"=>e_rand(1,4),
+				"effectmsg"=>"{badguy} suffers {damage} damage from the rushing current!",
+				"effectnodmgmsg"=>"{badguy} manages to dodge the thunderbolts!",
+				"schema"=>"module-specialtysystem_lightning"
+			));
+			break;
+		case "lightning6":
+			apply_buff('lightning6',array(
+				"startmsg"=>"`i`^Raiton`i: `^K`taminari `^S`thibari! `i`n`qYou `vcreate a three sided wall of electricity to bind {badguy}.",
+				"name"=>"`^Raiton: `^K`taminari `^S`thibari",
+				"rounds"=>3,
+				"wearoff"=>"The wall has been broken.",
+				"invulnerable"=>true,
+				"minbadguydamage"=>5,
+				"maxbadguydamage"=>15,
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} suffers {damage} damage from touching the wall!",
+				"schema"=>"module-specialtysystem_lightning"
+			));
+			break;
+		case "lightning7":
+			apply_buff('lightning7',array(
+				"startmsg"=>"`i`tRairyuu no Tatsumaki!`i`n`qYou `vspin around very quickly, forming the electricity around you into a likeness of a dragon's head.",
+				"name"=>"`tRairyuu no Tatsumaki",
+				"rounds"=>5,
+				"areadamage"=>true,
+				"wearoff"=>"The electrical vortex has neutralized.",
+				"minbadguydamage"=>30+$session['user']['dragonkills'],
+				"maxbadguydamage"=>60+$session['user']['dragonkills'],
+				"minioncount"=>e_rand(2,6),
+				"effectmsg"=>"{badguy} suffers {damage} damage from painful vortex of electricity!",
+				"effectnodmgmsg"=>"The electric current did not have any effect on {badguy}!",
+				"schema"=>"module-specialtysystem_lightning"
+			));
+			break;
+		case "lightning8":
+			apply_buff('lightning8',array(
+				"startmsg"=>"`^I`tkazuchi `^H`takai!`i`n`qYou `vplace your hands on the ground and send an enormous bolt of lightning that cuts through the ground towards {badguy}.`b",
+				"name"=>"`^I`tkazuchi `^H`takai",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"minbadguydamage"=>180+$session['user']['dragonkills'],
+				"maxbadguydamage"=>220+$session['user']['dragonkills'],
+				"minioncount"=>1,
+				"effectmsg"=>"The bolt of lightning causes devastating destruction on its path towards {badguy}, generated with heat and power that does {damage} damage!",
+				"schema"=>"module-specialtysystem_lightning"
+			));
+			break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);
                 }

@@ -14,7 +14,7 @@ function specialtyfire_getmoduleinfo() {
         "download" => "", 
         "settings" => [
             "Katon Ninjutsu - Settings,title",
-            "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|0",
+            "dklimit" => "Limit the Specialty to a certain amount of dragon kills?,int|6",
             "wepchange" => "Will weapons & armour change names?,bool|1", 
             "IE- an 'Adze' would become a 'Katon Ninjutsu Adze',note", 
         ],
@@ -71,7 +71,13 @@ function specialtyfire_dohook($hookname, $args) {
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-
+        1 => ['name' => 'Gōkakyū no Jutsu', 'cost' => 1, 'code' => 'fire1'],
+        2 => ['name' => 'Hōsenka no Jutsu', 'cost' => 3, 'code' => 'fire2'],
+        3 => ['name' => 'Ryūka no Jutsu', 'cost' => 6, 'code' => 'fire3'],
+        4 => ['name' => 'Haisekishō', 'cost' => 10, 'code' => 'fire4'],
+        5 => ['name' => '`\$Kar`qyū `\$En`qdan', 'cost' => 15, 'code' => 'fire5'],
+        6 => ['name' => '`\$Kar`qyū`Qdan', 'cost' => 18, 'code' => 'fire6'],
+        7 => ['name' => '`@Gamayo `\$Emu`qdan', 'cost' => 11, 'code' => 'gamaemudan'],
     ];
     
     switch($hookname) {
@@ -134,7 +140,27 @@ function specialtyfire_dohook($hookname, $args) {
                     addnav(["$ccode $name (%s points)`0", $uses], "");
                 }
                 
-
+                if ($uses >= 1) {
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Gōkakyū no Jutsu')], $script."op=fight&skill=$spec&l=1", true);
+                }
+                if ($uses >= 3) {
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Hōsenka no Jutsu')], $script."op=fight&skill=$spec&l=2", true);
+                }
+                if ($uses >= 6) {
+                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Ryūka no Jutsu')], $script."op=fight&skill=$spec&l=3", true);
+                }
+                if ($uses >= 10) {
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Haisekishō')], $script."op=fight&skill=$spec&l=4", true);
+                }
+                if ($uses >= 15) {
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('`\$Kar`qyū `\$En`qdan')], $script."op=fight&skill=$spec&l=5", true);
+                }
+                if ($uses >= 18) {
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('`\$Kar`qyū`Qdan')], $script."op=fight&skill=$spec&l=6", true);
+                }
+                if ($uses >= 11 && $session['user']['hashorse']==3) {
+                    addnav(["`@ &#149; %s`@ (11)`0", translate_inline('`@Gamayo `\$Emu`qdan')], $script."op=fight&skill=$spec&l=7", true);
+                }
             }
             break;
 
@@ -145,6 +171,7 @@ function specialtyfire_dohook($hookname, $args) {
             if ($skill === $spec) {
                 $cost = $techniques[$l]['cost'] ?? 0;
                 if ((int)get_module_pref("uses") >= $cost) {
+                    $u = &$session['user']; // define $u for compatibility with raw buffs
                     $code = $techniques[$l]['code'] ?? '';
                     switch ($code) {
 case "fire1":
@@ -156,7 +183,92 @@ case "fire1":
 				"minbadguydamage"=>15,
 				"maxbadguydamage"=>20,
 				"minioncount"=>1,
-				"effectmsg"=>"{badgu
+				"effectmsg"=>"{badguy} suffers {damage} damage from burns!",
+				"schema"=>"module-specialtysystem_fire"
+			));
+			break;
+		case "fire2":
+			apply_buff('fire2',array(
+				"startmsg"=>"`i`qKa`\$ton `q-`\$ Hōsenka!`i`n`qYou `\$ send multiple balls of `4fire `\$at {badguy}.",
+				"name"=>"`\$Katon `4- `\$Hōsenka `4no `\$Jutsu",
+				"rounds"=>5,
+				"minbadguydamage"=>$session['user']['level'],
+				"maxbadguydamage"=>$session['user']['level']+5,
+				"minioncount"=>floor($session['user']['level']/3+1),
+				"effectmsg"=>"{badguy} suffers {damage} damage from burns!",
+				"effectnodmgmsg"=>"The fire ball misses {badguy}.",
+				"schema"=>"module-specialtysystem_fire"
+			));
+			break;
+		case "fire3":
+			apply_buff('fire3',array(
+				"startmsg"=>"`i`qKa`\$ton `q-`\$ Ryūka no Jutsu!`i`n`qYou `\$breath out a burst of flame towards {badguy}.",
+				"name"=>"`\$Katon `4- `\$Ryūka `4no `\$Jutsu",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"minbadguydamage"=>15+$session['user']['dragonkills'],
+				"maxbadguydamage"=>40+$session['user']['dragonkills'],
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} suffers {damage} damage from burns!",
+				"schema"=>"module-specialtysystem_fire"
+			));
+			break;
+		case "fire4":
+			apply_buff('fire4',array(
+				"startmsg"=>"`i`qKa`\$ton `q-`\$ Hai`~seki`tshō!`i`n`qYou `\$breathe out a cloud of superheated ash.",
+				"name"=>"`\$Katon `4- `\$Ha`4i`~seki`tshō",
+				"rounds"=>5,
+				"areadamage"=>true,
+				"wearoff"=>"The ash was blown away by the wind.",
+				"minbadguydamage"=>10+$session['user']['dragonkills'],
+				"maxbadguydamage"=>20+$session['user']['dragonkills'],
+				"minioncount"=>5,
+				"effectmsg"=>"{badguy} suffers {damage} damage from burns!",
+				"effectnodmgmsg"=>"{badguy} manages to protect itself from the ash.",
+				"schema"=>"module-specialtysystem_fire"
+			));
+			break;
+		case "fire5":
+			apply_buff('fire6',array(
+				"startmsg"=>"`\$Katon - `4Ka`\$ryū `4En`\$dan! You shoot an enormous ball of flame in the shape of a dragon from your mouth at {badguy}.",
+				"name"=>"`\$Katon - `4Ka`\$ryū `4En`\$dan",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"minbadguydamage"=>90+$session['user']['dragonkills'],
+				"maxbadguydamage"=>150+$session['user']['dragonkills'],
+				"minioncount"=>1,
+				"effectmsg"=>"{badguy} suffers {damage} damage from burns!",
+				"schema"=>"module-specialtysystem_fire"
+			));
+			break;
+		case "fire6":
+			apply_buff('fire7',array(
+				"startmsg"=>"`\$Katon - `4Ka`\$ryū`4dan, You create a likeness of a dragon's head out of mud and ignite the mud balls that it launches from its mouth.",
+				"name"=>"`\$Katon - `4Ka`\$ryū `4En`\$dan",
+				"rounds"=>1,
+				"areadamage"=>true,
+				"minbadguydamage"=>90+$session['user']['dragonkills'],
+				"maxbadguydamage"=>120+$session['user']['dragonkills'],
+				"minioncount"=>3,
+				"effectmsg"=>"{badguy} suffers {damage} damage from the devastating attack!",
+				"effectnodmgmsg"=>"The flaming mud ball misses {badguy}.",
+				"schema"=>"module-specialtysystem_fire"
+			));
+			break;
+		case "gamaemudan":
+			apply_buff('gamayoemudan',array(
+				"startmsg"=>"`i`qKa`\$ton `q-`\$  `\$Gama`qyou `\$Emu`qdan!`i`n`qYou `\$sent a fire blast from your mouth to Gamabunta's oil-blast... and engulf {badguy} in flames!",
+				"name"=>"`\$Gama`qyou `\$Emu`qdan",
+				"rounds"=>10,
+				"wearoff"=>"The fire extinguishes and only the ash remains.",
+				"areadamage"=>true,
+				"minbadguydamage"=>7+$session['user']['dragonkills'],
+				"maxbadguydamage"=>5+$session['user']['level']*3+$session['user']['dragonkills'],
+				"minioncount"=>3,
+				"effectmsg"=>"`q{badguy}`q suffers {damage} damage!",
+				"effectnodmgmsg"=>"`qYou only produce hot air.",
+				"schema"=>"module-specialtysystem_fire"
+			));
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);
                 }

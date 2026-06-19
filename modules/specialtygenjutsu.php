@@ -71,7 +71,13 @@ function specialtygenjutsu_dohook($hookname, $args) {
     $userSpec = $session['user']['specialty'] ?? '';
     
     $techniques = [
-
+        1 => ['name' => 'Narakumi no Jutsu', 'cost' => 1, 'code' => 'genjutsu1'],
+        2 => ['name' => 'Kokoni Arazu no jutsu', 'cost' => 3, 'code' => 'genjutsu2'],
+        3 => ['name' => 'Nijuu Kokoni Arazu no Jutsu', 'cost' => 6, 'code' => 'genjutsu3'],
+        4 => ['name' => 'Jubaku Satsu', 'cost' => 10, 'code' => 'genjutsu4'],
+        5 => ['name' => 'Suzu - Kiri', 'cost' => 15, 'code' => 'genjutsu5'],
+        6 => ['name' => 'Jigoku Kouka no Jutsu', 'cost' => 18, 'code' => 'genjutsu6'],
+        7 => ['name' => 'Kokuangyou no Jutsu', 'cost' => 20, 'code' => 'genjutsu7'],
     ];
     
     switch($hookname) {
@@ -134,7 +140,27 @@ function specialtygenjutsu_dohook($hookname, $args) {
                     addnav(["$ccode $name (%s points)`0", $uses], "");
                 }
                 
-
+                if ($uses >= 1) {
+                    addnav(["`@ &#149; %s`@ (1)`0", translate_inline('Narakumi no Jutsu')], $script."op=fight&skill=$spec&l=1", true);
+                }
+                if ($uses >= 3) {
+                    addnav(["`@ &#149; %s`@ (3)`0", translate_inline('Kokoni Arazu no jutsu')], $script."op=fight&skill=$spec&l=2", true);
+                }
+                if ($uses >= 6) {
+                    addnav(["`@ &#149; %s`@ (6)`0", translate_inline('Nijuu Kokoni Arazu no Jutsu')], $script."op=fight&skill=$spec&l=3", true);
+                }
+                if ($uses >= 10) {
+                    addnav(["`@ &#149; %s`@ (10)`0", translate_inline('Jubaku Satsu')], $script."op=fight&skill=$spec&l=4", true);
+                }
+                if ($uses >= 15) {
+                    addnav(["`@ &#149; %s`@ (15)`0", translate_inline('Suzu - Kiri')], $script."op=fight&skill=$spec&l=5", true);
+                }
+                if ($uses >= 18) {
+                    addnav(["`@ &#149; %s`@ (18)`0", translate_inline('Jigoku Kouka no Jutsu')], $script."op=fight&skill=$spec&l=6", true);
+                }
+                if ($uses >= 20) {
+                    addnav(["`@ &#149; %s`@ (20)`0", translate_inline('Kokuangyou no Jutsu')], $script."op=fight&skill=$spec&l=7", true);
+                }
             }
             break;
 
@@ -145,6 +171,7 @@ function specialtygenjutsu_dohook($hookname, $args) {
             if ($skill === $spec) {
                 $cost = $techniques[$l]['cost'] ?? 0;
                 if ((int)get_module_pref("uses") >= $cost) {
+                    $u = &$session['user']; // define $u for compatibility with raw buffs
                     $code = $techniques[$l]['code'] ?? '';
                     switch ($code) {
 case "genjutsu1":
@@ -152,7 +179,82 @@ case "genjutsu1":
 				"startmsg"=>"`%`iNarakumi no Jutsu`i`n`vAn imaginary circle of leaves spin around and envelop the enemy, falling away shortly after.",
 				"name"=>"`%Narakumi no Jutsu",
 				"rounds"=>5,
-				"wearoff"=>"{badgu
+				"wearoff"=>"{badguy} snaps out of the illusion.",
+				"badguyatkmod"=>0.75,
+				"badguydefmod"=>0.75,
+				"roundmsg"=>"{badguy} sees a horrible vision and can not move well!",
+				"schema"=>"module-specialtysystem_genjutsu"
+			));
+			break;
+		case "genjutsu2":
+			apply_buff('genjutsu1',array(
+				"startmsg"=>"`%`iKokoni Arazu no Jutsu`i`n`vYou disappear into the surroundings by changing the appearance of the area.",
+				"name"=>"`%Kokoni Arazu no Jutsu",
+				"rounds"=>5,
+				"wearoff"=>"The illusion disappears.",
+				"badguydefmod"=>0.60,
+				"roundmsg"=>"You attacked while {badguy} was off-guard!",
+				"schema"=>"module-specialtysystem_genjutsu"
+			));
+			break;
+		case "genjutsu3":
+			apply_buff('genjutsu1',array(
+				"startmsg"=>"`%`iNi`5juu `%Ko`5ko`%ni `5A`%ra`5zu `%no Jutsu`i`n`vYou disappear into the surroundings and create an illusion around the area.",
+				"name"=>"`%Ni`5juu `%Ko`5ko`%ni `5A`%ra`5zu `%no Jutsu",
+				"rounds"=>5,
+				"wearoff"=>"The illusion disappears.",
+				"badguyatkmod"=>0.50,
+				"badguydefmod"=>0.50,
+				"roundmsg"=>"Your illusion conceals you from {badguy}!",
+				"schema"=>"module-specialtysystem_genjutsu"
+			));
+			break;
+		case "genjutsu4":
+			apply_buff('genjutsu1',array(
+				"startmsg"=>"`%`iJu`5ba`%ku `5Sa`%tsu`i`n`vA tree sprouts from underneath {badguy}.",
+				"name"=>"`%Ju`5ba`%ku `5Sa`%tsu",
+				"rounds"=>3,
+				"wearoff"=>"{badguy} snaps out of the illusion.",
+				"invulnerable"=>true,
+				"roundmsg"=>"{badguy} is bound by the tree and is unable to harm you!",
+				"schema"=>"module-specialtysystem_genjutsu"
+			));
+			break;
+		case "genjutsu5":
+			apply_buff('genjutsu1',array(
+				"startmsg"=>"`%`iSuzu `5- `%Kiri`i`n`vYou disappear into a cloud of `R`brose petals`b.",
+				"name"=>"`%Suzu `5- `%Kiri",
+				"rounds"=>10,
+				"wearoff"=>"The illusion disappears.",
+				"badguyatkmod"=>0.25,
+				"badguydefmod"=>0.25,
+				"roundmsg"=>"Your illusion conceals you from {badguy}!",
+				"schema"=>"module-specialtysystem_genjutsu"
+			));
+			break;
+		case "genjutsu6":
+			apply_buff('genjutsu1',array(
+				"startmsg"=>"`%`i`%Jigoku `5Kouka `%no `5Jutsu`i`n`v`\$A large fire ball descend from the heavens and turns the area into a `4fiery hell.",
+				"name"=>"`%Jigoku `5Kouka `%no `5Jutsu",
+				"rounds"=>3,
+				"wearoff"=>"The illusion disappears.",
+				"badguydefmod"=>0,
+				"roundmsg"=>"`%{badguy} ran right into your trap while trying to escape the raging flames!",
+				"schema"=>"module-specialtysystem_genjutsu"
+			));
+			break;
+		case "genjutsu7":
+			apply_buff('genjutsu1',array(
+				"startmsg"=>"`%`i`%Kokuangyou `5no `%Jutsu`i`n`vYou blind {badguy} with total `~`bdarkness`b.",
+				"name"=>"`%Kokuangyou `5no `%Jutsu",
+				"rounds"=>10,
+				"wearoff"=>"{badguy} snaps out of the illusion.",
+				"badguyatkmod"=>0.25,
+				"badguydefmod"=>0,
+				"roundmsg"=>"`%Your illusion conceals you from {badguy} totally!",
+				"schema"=>"module-specialtysystem_genjutsu"
+			));
+			break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);
                 }
