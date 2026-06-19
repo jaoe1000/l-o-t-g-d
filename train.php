@@ -16,19 +16,13 @@ require_once("lib/experience.php");
 $userRace = $session['user']['race'] ?? '';
 $userLocation = $session['user']['location'] ?? '';
 
-$allowedCity = '';
-if ($userRace === 'Human' && is_module_active('racehuman')) {
-    $allowedCity = get_module_setting('villagename', 'racehuman') ?: 'Oakhaven';
-} elseif ($userRace === 'Elf' && is_module_active('raceelf')) {
-    $allowedCity = get_module_setting('villagename', 'raceelf') ?: 'Gladehaven';
-} elseif ($userRace === 'Reptile' && is_module_active('racespecialtyreptile')) {
-    $allowedCity = get_module_setting('villagename', 'racespecialtyreptile') ?: 'Sslyther';
-}
-
-if ($allowedCity !== '' && $userLocation !== $allowedCity) {
+$allowedCities = [];
+$allowedCities = modulehook("training-allowed-cities", ["cities" => $allowedCities, "race" => $userRace])["cities"];
+if (!empty($allowedCities) && !in_array($userLocation, $allowedCities)) {
     tlschema("train");
     page_header("Warrior Training Restricted");
-    output("`^Your master does not reside in `&%s`^. You must travel to your race's home city of `&%s`^ to train and challenge your master.`0", $userLocation, $allowedCity);
+    $list = implode(" or ", $allowedCities);
+    output("`^Your master does not reside in `&%s`^. You must travel to `&%s`^ to train and challenge your master.`0", $userLocation, $list);
     addnav("Return to the Village", "village.php");
     page_footer();
     exit;

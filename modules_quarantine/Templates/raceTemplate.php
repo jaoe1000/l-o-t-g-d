@@ -17,10 +17,12 @@ function racetemplate_getmoduleinfo() {
         "download" => "", 
         "settings" => [
             "[PLACEHOLDER RACE NAME] - Race Settings,title", // ***CHANGE
+            "use_custom_village" => "Does this race have its own custom village?,bool|1", // ***CHANGE
             "villagename" => "Name for the [PLACEHOLDER RACE NAME] city,|[PLACEHOLDER CITY NAME]", // ***CHANGE
             "stableowner" => "Name of the city stable-owner,|[PLACEHOLDER STABLE OWNER]", // ***CHANGE
             "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|20", // ***CHANGE
             "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|3", 
+            "training_villages" => "Villages where players of this race can train (comma-separated; leave blank to automatically restrict to their custom village if enabled, or no restriction if not),string|", // ***CHANGE
         ],
         // UNCOMMENT THIS BLOCK TO ENFORCE MODULE DEPENDENCIES
         /*
@@ -54,6 +56,7 @@ function racetemplate_install() {
     module_addhook("armortext");
     module_addhook("trainingtitle");
     module_addhook("modify-master");
+    module_addhook("training-allowed-cities");
     debug("Installed '[PLACEHOLDER RACE NAME]' advanced race module."); // ***CHANGE
     return true;
 }
@@ -96,7 +99,7 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "changesetting":
-            if (($args['setting'] ?? '') === "villagename" && ($args['module'] ?? '') === "racetemplate") {
+            if (get_module_setting("use_custom_village") && ($args['setting'] ?? '') === "villagename" && ($args['module'] ?? '') === "racetemplate") {
                 if (($session['user']['location'] ?? '') === $args['old'])
                     $session['user']['location'] = $args['new'];
                 $sql = "UPDATE " . db_prefix("accounts") . " SET location='" . $args['new'] . "' WHERE location='" . $args['old'] . "'";
@@ -144,14 +147,16 @@ function racetemplate_dohook($hookname, $args) {
         case "setrace":
             if ($userRace === $race) {
                 output("`&[PLACEHOLDER RACE SELECTED FLAVOR TEXT AND BUFF EXPLANATION]`n"); // ***CHANGE
-                $travel_mod = racetemplate_get_travel_mod();
-                if ($travel_mod !== false) {
-                    if (($session['user']['dragonkills'] ?? 0) == 0 && ($session['user']['age'] ?? 0) == 0) {
-                        set_module_setting("newest-$city", $session['user']['acctid'], $travel_mod);
+                if (get_module_setting("use_custom_village")) {
+                    $travel_mod = racetemplate_get_travel_mod();
+                    if ($travel_mod !== false) {
+                        if (($session['user']['dragonkills'] ?? 0) == 0 && ($session['user']['age'] ?? 0) == 0) {
+                            set_module_setting("newest-$city", $session['user']['acctid'], $travel_mod);
+                        }
+                        set_module_pref("homecity", $city, $travel_mod);
+                        if (($session['user']['age'] ?? 0) == 0)
+                            $session['user']['location'] = $city;
                     }
-                    set_module_pref("homecity", $city, $travel_mod);
-                    if (($session['user']['age'] ?? 0) == 0)
-                        $session['user']['location'] = $city;
                 }
             }
             break;
@@ -172,44 +177,70 @@ function racetemplate_dohook($hookname, $args) {
             }
             break;
 
+        case "training-allowed-cities":
+            if ($userRace === $race) {
+                $cfg = trim(get_module_setting("training_villages"));
+                if ($cfg !== "") {
+                    $parts = explode(",", $cfg);
+                    foreach ($parts as $p) {
+                        $p = trim($p);
+                        if ($p !== "") {
+                            $args['cities'][] = $p;
+                        }
+                    }
+                } else {
+                    if (get_module_setting("use_custom_village")) {
+                        $args['cities'][] = $city;
+                    }
+                }
+            }
+            break;
+
         case "validlocation":
-            $travel_mod = racetemplate_get_travel_mod();
-            if ($travel_mod !== false)
-                $args[$city] = "village-$race";
+            if (get_module_setting("use_custom_village")) {
+                $travel_mod = racetemplate_get_travel_mod();
+                if ($travel_mod !== false)
+                    $args[$city] = "village-$race";
+            }
             break;
 
         case "moderate":
-            $travel_mod = racetemplate_get_travel_mod();
-            if ($travel_mod !== false) {
-                tlschema("commentary");
-                $args["village-$race"] = sprintf_translate("City of %s", $city); 
-                tlschema();
+            if (get_module_setting("use_custom_village")) {
+                $travel_mod = racetemplate_get_travel_mod();
+                if ($travel_mod !== false) {
+                    tlschema("commentary");
+                    $args["village-$race"] = sprintf_translate("City of %s", $city); 
+                    tlschema();
+                }
             }
             break;
 
         case "travel":
-            $travel_mod = racetemplate_get_travel_mod();
-            if ($travel_mod !== false) {
-                $capital = getsetting("villagename", LOCATION_FIELDS);
-                $hotkey = substr($city, 0, 1);
-                tlschema("module-" . $travel_mod);
-                $param = ($travel_mod === "villages") ? "village" : "city";
-                if (($session['user']['location'] ?? '') === $capital) {
-                    addnav("Safer Travel");
-                    addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=$travel_mod&op=travel&$param=$city");
-                } elseif (($session['user']['location'] ?? '') !== $city) {
-                    addnav("More Dangerous Travel");
-                    addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=$travel_mod&op=travel&$param=$city&d=1");
+            if (get_module_setting("use_custom_village")) {
+                $travel_mod = racetemplate_get_travel_mod();
+                if ($travel_mod !== false) {
+                    $capital = getsetting("villagename", LOCATION_FIELDS);
+                    $hotkey = substr($city, 0, 1);
+                    tlschema("module-" . $travel_mod);
+                    $param = ($travel_mod === "villages") ? "village" : "city";
+                    if (($session['user']['location'] ?? '') === $capital) {
+                        addnav("Safer Travel");
+                        addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=$travel_mod&op=travel&$param=$city");
+                    } elseif (($session['user']['location'] ?? '') !== $city) {
+                        addnav("More Dangerous Travel");
+                        addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=$travel_mod&op=travel&$param=$city&d=1");
+                    }
+                    if (($session['user']['superuser'] ?? 0) & SU_EDIT_USERS) {
+                        addnav("Superuser");
+                        addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=$travel_mod&op=travel&$param=$city&su=1");
+                    }
+                    tlschema();
                 }
-                if (($session['user']['superuser'] ?? 0) & SU_EDIT_USERS) {
-                    addnav("Superuser");
-                    addnav(["%s?Go to %s", $hotkey, $city], "runmodule.php?module=$travel_mod&op=travel&$param=$city&su=1");
-                }
-                tlschema();
             }
             break;  
 
         case "villagetext":
+            if (!get_module_setting("use_custom_village")) break;
             racetemplate_checkcity();
             if (($session['user']['location'] ?? '') === $city) {
                 $args['text'] = ["`\$`c`b%s`b`c`n`^[PLACEHOLDER VILLAGE MAIN DESCRIPTION TEXT]`n", $city];
@@ -281,6 +312,7 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "stabletext":
+            if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') !== $city) break;
             $args['title'] = "[PLACEHOLDER STABLE NAME]";
             $args['schemas']['title'] = "module-racetemplate";
@@ -324,6 +356,7 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "stablelocs":
+            if (!get_module_setting("use_custom_village")) break;
             $travel_mod = racetemplate_get_travel_mod();
             if ($travel_mod !== false) {
                 tlschema("mounts");
@@ -333,6 +366,7 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "villagenav":
+            if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
                 // Add custom links here for your race to sit at the top, e.g.:
                 // $args['special']['special1'] = "runmodule.php?module=racetemplate&op=special1";
@@ -340,6 +374,7 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "weaponstext":
+            if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
                 $tradeinvalue = round(($session['user']['weaponvalue'] * 0.75), 0);
                 $args['title'] = "[PLACEHOLDER WEAPON SHOP TITLE]";
@@ -358,6 +393,7 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "armortext":
+            if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
                 $tradeinvalue = round(($session['user']['armorvalue'] * 0.75), 0);
                 $args['title'] = "[PLACEHOLDER ARMOR SHOP TITLE]";
@@ -376,12 +412,14 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "trainingtitle":
+            if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
                 $args['title'] = "[PLACEHOLDER TRAINING CENTER TITLE]";
             }
             break;
 
         case "modify-master":
+            if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
                 $args['creaturename'] = "[PLACEHOLDER TRAINER NAME]";
                 $args['creatureweapon'] = "[PLACEHOLDER TRAINER WEAPON]";
@@ -395,6 +433,13 @@ function racetemplate_dohook($hookname, $args) {
 
 function racetemplate_run() {
     global $session;
+    if (!get_module_setting("use_custom_village")) {
+        page_header("Access Denied");
+        output("`\$Custom village features are disabled for this race.`n`n");
+        addnav("Return to the Village", "village.php");
+        page_footer();
+        return;
+    }
     $op = httpget('op');
     $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
     
@@ -414,6 +459,7 @@ function racetemplate_run() {
 
 function racetemplate_checkcity() {
     global $session;
+    if (!get_module_setting("use_custom_village")) return true;
     $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
     $city = get_module_setting("villagename");
     

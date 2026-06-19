@@ -28,6 +28,7 @@ function racespecialtypaladin_getmoduleinfo(){
 			"gain"=>"How much Alignment is gained when specialty is chosen,int|20",
 			"wepchange"=>"Will weapons & armour change names?,bool|1", 
 			"IE- an 'Adze' would become a 'Divine Adze',note", 
+			"training_villages" => "Villages where players of this race can train (comma-separated; leave blank to automatically restrict to their custom village if enabled, or no restriction if not),string|",
 		),
         // ENFORCED MODULE DEPENDENCIES
         "requires" => array(
@@ -42,6 +43,8 @@ function racespecialtypaladin_getmoduleinfo(){
 			"newdayset"=>"Newday intercept at footer...,hidden|0", 
 			"pagereturn"=>"Return to what page after forced specialty change?,hidden|",
 			"scoundrel"=>"How many times has this user attempted to have the specialty without the race?,viewonly|0", 
+			"altar_prayed"=>"Has the player prayed at the altar today?,bool|0",
+			"archives_studied"=>"Has the player studied in the archives today?,bool|0",
 		),
 	);
 	return $info;
@@ -73,6 +76,8 @@ function racespecialtypaladin_install(){
 	module_addhook("newday-intercept");
 	module_addhook("pointsdesc");
 	module_addhook("everyhit");
+	module_addhook("villagenav");
+	module_addhook("training-allowed-cities");
 	
 	// Unique Paladin Hooks
 	module_addhook("castlelib");
@@ -305,6 +310,24 @@ function racespecialtypaladin_dohook($hookname,$args){
 				}
 			}
 		break;
+		case "training-allowed-cities":
+			if ($session['user']['race'] == $race) {
+				$cfg = trim(get_module_setting("training_villages"));
+				if ($cfg !== "") {
+					$parts = explode(",", $cfg);
+					foreach ($parts as $p) {
+						$p = trim($p);
+						if ($p !== "") {
+							$args['cities'][] = $p;
+						}
+					}
+				} else {
+					if (get_module_setting("use_custom_village")) {
+						$args['cities'][] = $city;
+					}
+				}
+			}
+		break;
 		case "newday":
 			if ($session['user']['race']==$race){
 				racespecialtypaladin_checkcity();
@@ -377,6 +400,8 @@ function racespecialtypaladin_dohook($hookname,$args){
 					
 					set_module_pref("uses", $amt);
 				}
+				set_module_pref("altar_prayed", 0);
+				set_module_pref("archives_studied", 0);
 			}
 		break;
 		case "newday-intercept":
@@ -606,6 +631,13 @@ function racespecialtypaladin_dohook($hookname,$args){
 					$args['nav_headers']['gate'] = "The Heavenly Gates";
 					$args['nav_headers']['fight'] = "Hall of Heroes";
 					
+					$args['nav_headers']['special'] = "LightHaven Services";
+					$args['navs']['altar'] = "Divine Altar";
+					$args['navs']['archives'] = "Order's Archives";
+					$args['schemas']['nav_headers']['special'] = "module-racespecialtypaladin";
+					$args['schemas']['navs']['altar'] = "module-racespecialtypaladin";
+					$args['schemas']['navs']['archives'] = "module-racespecialtypaladin";
+					
 					// Change the specific link text for the stables and forest
 					$args['navs']['stables'] = "The Holy Hostler";
 					$args['navs']['forest'] = "Patrol the Holy Lands";
@@ -660,7 +692,15 @@ function racespecialtypaladin_dohook($hookname,$args){
 					}
 				}
 			}
-		break;
+		case "villagenav":
+			if (get_module_setting("use_custom_village")) {
+				racespecialtypaladin_checkcity();
+				if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
+					$args['special']['altar'] = "runmodule.php?module=racespecialtypaladin&op=altar";
+					$args['special']['archives'] = "runmodule.php?module=racespecialtypaladin&op=archives";
+				}
+			}
+			break;
 	}
 	return $args;
 }
@@ -719,6 +759,124 @@ function racespecialtypaladin_checkcity(){
 }
 
 function racespecialtypaladin_run(){
+	global $session;
+	$op = httpget('op');
+	$subop = httpget('subop');
+	$city = get_module_setting("villagename");
+	$race = "Paladin";
+	
+	if ($op == "altar") {
+		page_header("Divine Altar");
+		output("`c`b`!Cathedral Altar of Light`b`c`n`n");
+		
+		if ($subop == "") {
+			output("`2You stand before the grand Cathedral Altar. Divine light streams down from the high cathedral windows, casting a warm glow over the holy altar.`n`n");
+			output("`2Here, you may pray to show your faith, make a gold offering, or spend time helping the poor to do a good deed.`n`n");
+			
+			$prayed = get_module_pref("altar_prayed");
+			if ($prayed) {
+				output("`&You have already prayed today.`n`n");
+			} else {
+				addnav("Pray", "runmodule.php?module=racespecialtypaladin&op=altar&subop=pray");
+			}
+			
+			if ($session['user']['gold'] >= 500) {
+				addnav("Make Offering (500 gold)", "runmodule.php?module=racespecialtypaladin&op=altar&subop=offering");
+			}
+			
+			if ($session['user']['turns'] >= 1) {
+				addnav("Perform Good Deed (1 Turn)", "runmodule.php?module=racespecialtypaladin&op=altar&subop=deed");
+			}
+			
+		} elseif ($subop == "pray") {
+			set_module_pref("altar_prayed", 1);
+			$roll = e_rand(1, 3);
+			if ($roll == 1) {
+				output("`2You kneel and offer a deep, sincere prayer.`n`n`@Your soul is filled with divine energy! You receive `^2 `2extra forest fights for today!`n`n");
+				$session['user']['turns'] += 2;
+			} elseif ($roll == 2) {
+				output("`2You kneel and offer a deep, sincere prayer.`n`n`@A holy light descends upon you, completely healing all of your wounds!`n`n");
+				$session['user']['hitpoints'] = $session['user']['maxhitpoints'];
+			} else {
+				output("`2You kneel and offer a deep, sincere prayer.`n`n`@You feel a divine blessing bolster your strength! (+25%% Attack/Defense buff today)`n`n");
+				apply_buff("altarblessing", array(
+					"name"=>"`!Blessing of Light`0",
+					"atkmod"=>1.25,
+					"defmod"=>1.25,
+					"rounds"=>-1,
+					"schema"=>"module-racespecialtypaladin",
+				));
+			}
+			
+		} elseif ($subop == "offering") {
+			if ($session['user']['gold'] >= 500) {
+				$session['user']['gold'] -= 500;
+				output("`2You place 500 gold on the altar as a donation to the poor.`n`n`@Your selflessness pleases your deity! (Alignment increased)`n`n");
+				if (is_module_active('alignment')) {
+					$current_align = (int)get_module_pref('alignment', 'alignment');
+					$new_align = min(100, $current_align + 10);
+					set_module_pref('alignment', $new_align, 'alignment');
+				}
+			} else {
+				output("`2You do not have enough gold to make this offering.`n`n");
+			}
+			
+		} elseif ($subop == "deed") {
+			if ($session['user']['turns'] >= 1) {
+				$session['user']['turns']--;
+				output("`2You spend some time helping the local priests tend to the needy and clean the Cathedral.`n`n`@Your hard work and humility shine brightly! (Alignment increased)`n`n");
+				if (is_module_active('alignment')) {
+					$current_align = (int)get_module_pref('alignment', 'alignment');
+					$new_align = min(100, $current_align + 5);
+					set_module_pref('alignment', $new_align, 'alignment');
+				}
+			} else {
+				output("`2You do not have any turns left to perform a good deed.`n`n");
+			}
+		}
+		
+		addnav("Go Back", "village.php");
+		page_footer();
+	}
+	
+	if ($op == "archives") {
+		page_header("Order's Archives");
+		output("`c`b`!Order's Archives`b`c`n`n");
+		
+		if ($subop == "") {
+			output("`2You enter the ancient library of the Paladin Order. Shelves upon shelves of ancient scrolls, books of wisdom, and holy scriptures surround you.`n`n");
+			output("`2Here, you may spend some quality time studying the holy scriptures to grow your Paladin powers.`n`n");
+			
+			$studied = get_module_pref("archives_studied");
+			if ($studied) {
+				output("`&You have already studied the scriptures today.`n`n");
+			} else {
+				if ($session['user']['turns'] >= 3) {
+					addnav("Study Holy Texts (3 Turns)", "runmodule.php?module=racespecialtypaladin&op=archives&subop=study");
+				} else {
+					output("`7You need at least 3 turns to spend time studying the texts.`n`n");
+				}
+			}
+			
+		} elseif ($subop == "study") {
+			$studied = get_module_pref("archives_studied");
+			if (!$studied && $session['user']['turns'] >= 3) {
+				$session['user']['turns'] -= 3;
+				set_module_pref("archives_studied", 1);
+				
+				set_module_pref('skill', (get_module_pref('skill') + 1));
+				set_module_pref('uses', (get_module_pref('uses') + 1));
+				
+				output("`2You spend three turns carefully reading and reflecting on the holy teachings of your deity.`n`n");
+				output("`@You grow in wisdom and Paladin power! (+1 Paladin Skill Level and +1 Uses today)`n`n");
+			} else {
+				output("`2You cannot study at the archives at this time.`n`n");
+			}
+		}
+		
+		addnav("Go Back", "village.php");
+		page_footer();
+	}
 }
 
 function racespecialtypaladin_texts($class,$subclass) {
