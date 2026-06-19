@@ -692,6 +692,7 @@ function racespecialtypaladin_dohook($hookname,$args){
 					}
 				}
 			}
+			break;
 		case "villagenav":
 			if (get_module_setting("use_custom_village")) {
 				racespecialtypaladin_checkcity();
@@ -731,12 +732,17 @@ function racespecialtypaladin_checkcity(){
 	$spec="PL"; 
 	$city=get_module_setting("villagename");
 	
-	if (get_module_pref("subclass")!=0&&$session['user']['specialty']!=$spec) {
+	if (!isset($session['user'])) return true;
+	
+	$userSpec = $session['user']['specialty'] ?? '';
+	$userRace = $session['user']['race'] ?? '';
+	
+	if (get_module_pref("subclass")!=0&&$userSpec!=$spec) {
 		set_module_pref("subclass",0);
 	}
 	
 	if (get_module_setting("use_custom_village")) {
-		if ($session['user']['race']==$race) {
+		if ($userRace==$race) {
 			$travel_mod = racespecialtypaladin_get_travel_mod();
 			if ($travel_mod !== false) {
 				if (get_module_pref("homecity", $travel_mod) != $city) { 
@@ -746,7 +752,7 @@ function racespecialtypaladin_checkcity(){
 		}
 	}
 	
-	if ($session['user']['race']!=$race && $session['user']['specialty']==$spec) {
+	if ($userRace!=$race && $userSpec==$spec) {
 		$session['user']['specialty']="";
 		set_module_pref("newdayset",1);
 		set_module_pref("pagereturn",$SCRIPT_NAME);
