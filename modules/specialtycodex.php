@@ -13,7 +13,9 @@ function specialtycodex_getmoduleinfo() {
         "category" => "Specialties",
         "download" => "",
         "settings" => [],
-        "prefs" => []
+        "prefs" => [],
+        "allowanonymous" => true,
+        "override_forced_nav" => true
     ];
 }
 
