@@ -269,16 +269,7 @@ case "fire1":
 				"effectnodmgmsg"=>"`qYou only produce hot air.",
 				"schema"=>"module-specialtysystem_fire"
 			));
-				"rounds"=>10,
-				"wearoff"=>"The fire extinguishes and only the ash remains.",
-				"areadamage"=>true,
-				"minbadguydamage"=>7+$session['user']['dragonkills'],
-				"maxbadguydamage"=>5+$session['user']['level']*3+$session['user']['dragonkills'],
-				"minioncount"=>3,
-				"effectmsg"=>"`q{badguy}`q suffers {damage} damage!",
-				"effectnodmgmsg"=>"`qYou only produce hot air.",
-				"schema"=>"module-specialtysystem_fire"
-			));
+			break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);
                 }

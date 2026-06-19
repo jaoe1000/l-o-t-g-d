@@ -281,15 +281,6 @@ case "lightning1":
 				"maxbadguydamage"=>220+$session['user']['dragonkills'],
 				"minioncount"=>1,
 				"effectmsg"=>"The bolt of lightning causes devastating destruction on its path towards {badguy}, generated with heat and power that does {damage} damage!",
-				"schema"=>"module-specialtysystem_lightning"
-			));
-				"rounds"=>1,
-				"areadamage"=>true,
-				"minbadguydamage"=>180+$session['user']['dragonkills'],
-				"maxbadguydamage"=>220+$session['user']['dragonkills'],
-				"minioncount"=>1,
-				"effectmsg"=>"The bolt of lightning causes devastating destruction on its path towards {badguy}, generated with heat and power that does {damage} damage!",
-				"schema"=>"module-specialtysystem_lightning"
 			));
 			break;
                     }

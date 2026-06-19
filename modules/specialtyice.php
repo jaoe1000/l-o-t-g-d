@@ -266,14 +266,6 @@ case "ice1":
 				"effectnodmgmsg"=>"{badguy} manages to avoid being froze and torn to bits!",
 				"schema"=>"module-specialtysystem_ice"
 			));
-				"rounds"=>3,
-				"minbadguydamage"=>30+$session['user']['dragonkills'],
-				"maxbadguydamage"=>80+$session['user']['dragonkills'],
-				"minioncount"=>6,
-				"effectmsg"=>"{badguy} suffers {damage} damage from the freezing tornado!",
-				"effectnodmgmsg"=>"{badguy} manages to avoid being froze and torn to bits!",
-				"schema"=>"module-specialtysystem_ice"
-			));
 			break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);

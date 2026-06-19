@@ -254,13 +254,6 @@ case "genjutsu1":
 				"roundmsg"=>"`%Your illusion conceals you from {badguy} totally!",
 				"schema"=>"module-specialtysystem_genjutsu"
 			));
-				"rounds"=>10,
-				"wearoff"=>"{badguy} snaps out of the illusion.",
-				"badguyatkmod"=>0.25,
-				"badguydefmod"=>0,
-				"roundmsg"=>"`%Your illusion conceals you from {badguy} totally!",
-				"schema"=>"module-specialtysystem_genjutsu"
-			));
 			break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);

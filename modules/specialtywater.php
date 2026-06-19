@@ -285,16 +285,6 @@ case "water1":
 				"effectnodmgmsg"=>"{badguy} manages to stay afloat!",
 				"schema"=>"module-specialtysystem_water"
 			));
-				"rounds"=>5,
-				"areadamage"=>true,
-				"wearoff"=>"The maelstrom disappears.",
-				"minbadguydamage"=>25+$session['user']['level']+$session['user']['dragonkills'],
-				"maxbadguydamage"=>40+$session['user']['level']+$session['user']['dragonkills'],
-				"minioncount"=>6,
-				"effectmsg"=>"{badguy} suffers {damage} damage from drowning!",
-				"effectnodmgmsg"=>"{badguy} manages to stay afloat!",
-				"schema"=>"module-specialtysystem_water"
-			));
 			break;
                     }
                     set_module_pref("uses", (int)get_module_pref("uses") - $cost);
