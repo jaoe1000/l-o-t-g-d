@@ -372,7 +372,7 @@ function racespecialtypaladin_dohook($hookname,$args){
 				if ($al >= 50){
 					apply_buff("racialbenefit",array(
 						"name"=>"`!Vaporize`0",
-						"atkmod"=>"(<attack>?(5+((1+floor(<level>/5))/<attack>)):0)",
+						"atkmod"=>"(<attack>?(1.15+((1+floor(<level>/5))/<attack>)):0)",
 						"allowinpvp"=>1,
 						"allowintrain"=>1,
 						"rounds"=>-1,
@@ -920,8 +920,8 @@ function racespecialtypaladin_texts($class,$subclass) {
 		"name"=>"`#Paladin Mount",
 		"minioncount"=>1,
 		"damageshield"=>0.5,
-		"maxbadguydamage"=>round($session['user']['attack']*2.5,0),
-		"minbadguydamage"=>round($session['user']['attack']*1.5,0),
+		"maxbadguydamage"=>round($session['user']['attack']*1.0,0),
+		"minbadguydamage"=>round($session['user']['attack']*0.5,0),
 		"effectmsg"=>"`#{badguy}`! strikes at you, but your mount soaks part of the blow and also deals out `#{damage}`! damage back.",
 	);
 	
