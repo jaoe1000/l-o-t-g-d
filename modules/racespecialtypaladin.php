@@ -152,14 +152,16 @@ function racespecialtypaladin_dohook($hookname,$args){
 			if ($session['user']['specialty'] == $spec) {
 				// Centralized Alignment Math
 				$al = 0;
+				$has_alignment = false;
 				if (is_module_active('alignment')) {
 					@require_once('modules/alignment.php'); 
 					$al = function_exists('get_align') ? get_align() : 0; 
+					$has_alignment = true;
 				}
 				
 				// --- THE FALL FROM GRACE ---
 				$strip_align = (int)get_module_setting("strip_align");
-				if ($al < $strip_align){
+				if ($has_alignment && $al < $strip_align){
 					// Strip Specialty instantly
 					$session['user']['specialty'] = "";
 					set_module_pref("uses", 0);
@@ -176,7 +178,7 @@ function racespecialtypaladin_dohook($hookname,$args){
 					$amt = $bonus + (int)(get_module_pref("skill") / 3);
 					
 					// Alignment Modifiers
-					if ($al >= 50) {
+					if ($has_alignment && $al >= 50) {
 						// Reward High Alignment (Scale reasonably)
 						$paladinbonus = (int)($al / 20); 
 						$amt += $paladinbonus;

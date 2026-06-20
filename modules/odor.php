@@ -94,7 +94,7 @@ function odor_dohook($hookname,$args){
 		case "newday":
 			if (get_module_pref('odor') > 2) $session['user']['charm']-=(get_module_pref('odor')-2);
 			set_module_pref('odor', get_module_pref('odor') + get_module_setting('newday'));
-			if (get_module_pref('odor')>9 and $session['user']['clean']<15) addnews("%s`2 is pretty stinky!",$session['user']['name']);
+			if (get_module_pref('odor')>9 and ($session['user']['clean'] ?? 0)<15) addnews("%s`2 is pretty stinky!",$session['user']['name']);
 			if (get_module_pref('odor')>14 and get_module_pref('odor')<20){
 				output("You can hardly stand the smell of yourself!");
 				addnews("%s`2 smells really bad!",$session['user']['name']);
