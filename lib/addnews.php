@@ -8,10 +8,21 @@ declare(strict_types=1);
  * @param array $options List of options, including replacements, to modify the acctid, date, or hide from biographies.
  * @todo Change the date format from Y-m-d to Y-m-d H:i:s.
  */
-function addnews(string $text = '', array $options = [])
+function addnews(string $text = '', ...$args)
 {
     global $i18nNamespace, $session;
+    
+    if (count($args) === 1 && is_array($args[0])) {
+        $options = $args[0];
+    } else {
+        $options = $args;
+    }
+
     $options = modulehook('addnews', $options);
+    if (!is_array($options)) {
+        $options = [];
+    }
+
     $news = db_prefix('news');
     $date = $options['date'] ?? date('Y-m-d');
     $acctid = isset($options['hide']) ?
