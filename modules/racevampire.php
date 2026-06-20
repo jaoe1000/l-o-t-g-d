@@ -1,49 +1,49 @@
 <?php
 /**
- * Advanced Race Blueprint (With Legacy, Stagnation, and Unlock Mechanics)
+ * Advanced Race Module - Vampire
+ * Built from the Advanced Race Blueprint
  * Designed for PHP 8.4 Strict Compliance
- * * Easy way to customize:
- * - Replace 'racetemplate' with module name (e.g., 'racedwarf')
- * - Search for '[PLACEHOLDER]' to find all text that needs customization.
- * - Search for '***CHANGE' to see structural variables that must be defined.
  */
 
-function racetemplate_getmoduleinfo() {
+function racevampire_getmoduleinfo() {
     return [
-        "name" => "Race - [PLACEHOLDER RACE NAME]", // ***CHANGE
+        "name" => "Race - Vampire",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Race",
         "download" => "", 
         "settings" => [
-            "[PLACEHOLDER RACE NAME] - Race Settings,title", // ***CHANGE
-            "use_custom_village" => "Does this race have its own custom village?,bool|1", // ***CHANGE
-            "villagename" => "Name for the [PLACEHOLDER RACE NAME] city,|[PLACEHOLDER CITY NAME]", // ***CHANGE
-            "stableowner" => "Name of the city stable-owner,|[PLACEHOLDER STABLE OWNER]", // ***CHANGE
-            "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|20", // ***CHANGE
+            "Vampire - Race Settings,title",
+            "use_custom_village" => "Does this race have its own custom village?,bool|1",
+            "villagename" => "Name for the Vampire city,|Shadowspire", 
+            "stableowner" => "Name of the city stable-owner,|Vlad", 
+            "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|10", 
             "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|0", 
-            "training_villages" => "Villages where players of this race can train (comma-separated; leave blank to restrict to their custom village if enabled),string|", // ***CHANGE
+            "training_villages" => "Villages where players of this race can train (comma-separated; leave blank to restrict to their custom village if enabled),string|",
             
             "Race Progression Settings,title",
             "levels" => "Max Race Level,int|5",
             "cre_req" => "Battle victories required to level up,int|150",
-            "legacy_stat" => "Legacy Buff Stat (attack/defense/hp/gold/none),string|none", // ***CHANGE (e.g. 'attack')
-            "legacy_value" => "Legacy Buff Value (e.g. 1.01 for +1% attack/defense, or 2 for +2 HP),float|0.0", // ***CHANGE
-            "unlock_req" => "Unlock Requirements (comma-separated, e.g. racehuman:5),string|", // ***CHANGE (e.g. 'racehuman:5')
+            "legacy_stat" => "Legacy Buff Stat (attack/defense/hp/gold/none),string|hp",
+            "legacy_value" => "Legacy Buff Value,float|3.0",
+            "unlock_req" => "Unlock Requirements (comma-separated, e.g. racehuman:5),string|raceorc:3,racetroll:3",
             "stagnation_decay" => "Stagnation victory point multiplier (0.0 to 1.0),float|0.5",
         ],
         "prefs" => [
-            "[PLACEHOLDER RACE NAME] - User Prefs,title", // ***CHANGE
+            "Vampire - User Prefs,title",
             "level" => "Current Race Level,int|0",
             "cre" => "Current Victory Points towards next level,float|0.0",
             "stagnation" => "Consecutive Dragon Kills as this race,int|0",
             "last_played_dk" => "Was this race played last DK?,bool|0",
             "fresh_soul" => "Does player have fresh soul bonus?,bool|0",
+            
+            "altar_sacrificed" => "Has player sacrificed at the altar today?,bool|0",
+            "coffin_slept" => "Has player slept in the coffin today?,bool|0",
         ]
     ];
 }
 
-function racetemplate_install() {
+function racevampire_install() {
     module_addhook("chooserace");
     module_addhook("setrace");
     module_addhook("villagetext");
@@ -66,11 +66,11 @@ function racetemplate_install() {
     module_addhook("battle-victory");
     module_addhook("pvpwin");
     module_addhook("creatureencounter");
-    debug("Installed '[PLACEHOLDER RACE NAME]' advanced race module."); // ***CHANGE
+    debug("Installed 'Vampire' advanced race module.");
     return true;
 }
 
-function racetemplate_uninstall() {
+function racevampire_uninstall() {
     global $session;
     $vname = getsetting("villagename", LOCATION_FIELDS);
     $gname = get_module_setting("villagename");
@@ -83,20 +83,20 @@ function racetemplate_uninstall() {
     }
     
     // Force anyone who was this race to rechoose race
-    $sql = "UPDATE " . db_prefix("accounts") . " SET race='" . RACE_UNKNOWN . "' WHERE race='[PLACEHOLDER RACE NAME]'"; // ***CHANGE
+    $sql = "UPDATE " . db_prefix("accounts") . " SET race='" . RACE_UNKNOWN . "' WHERE race='Vampire'";
     db_query($sql);
-    if (($session['user']['race'] ?? '') === '[PLACEHOLDER RACE NAME]') { // ***CHANGE
+    if (($session['user']['race'] ?? '') === 'Vampire') {
         $session['user']['race'] = RACE_UNKNOWN;
     }
     
-    debug("Uninstalled '[PLACEHOLDER RACE NAME]' race module."); // ***CHANGE
+    debug("Uninstalled 'Vampire' race module.");
     return true;
 }
 
-function racetemplate_dohook($hookname, $args) {
+function racevampire_dohook($hookname, $args) {
     global $session, $resline;
     $city = get_module_setting("villagename");
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
+    $race = "Vampire"; 
     
     $userRace = $session['user']['race'] ?? '';
     
@@ -108,12 +108,12 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "changesetting":
-            if (get_module_setting("use_custom_village") && ($args['setting'] ?? '') === "villagename" && ($args['module'] ?? '') === "racetemplate") {
+            if (get_module_setting("use_custom_village") && ($args['setting'] ?? '') === "villagename" && ($args['module'] ?? '') === "racevampire") {
                 if (($session['user']['location'] ?? '') === $args['old'])
                     $session['user']['location'] = $args['new'];
                 $sql = "UPDATE " . db_prefix("accounts") . " SET location='" . $args['new'] . "' WHERE location='" . $args['old'] . "'";
                 db_query($sql);
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racevampire_get_travel_mod();
                 if ($travel_mod !== false) {
                     $sql = "UPDATE " . db_prefix("module_userprefs") . " SET value='" . $args['new'] . "' WHERE modulename='$travel_mod' AND setting='homecity' AND value='" . $args['old'] . "'";
                     db_query($sql);
@@ -148,16 +148,15 @@ function racetemplate_dohook($hookname, $args) {
         case "chooserace":
             $dk_limit = (int)get_module_setting("dklimit");
             if ($dk_limit === 0 || ($session['user']['dragonkills'] ?? 0) >= $dk_limit) {
-                $unlocked = racetemplate_check_unlock();
+                $unlocked = racevampire_check_unlock();
                 if ($unlocked) {
-                    $atrans = translate_inline("In the town of %s"); // ***CHANGE
-                    $rtrans = translate_inline(", a place of peace and trade.`n`n"); // ***CHANGE
+                    $atrans = translate_inline("Within the dark spires of %s");
+                    $rtrans = translate_inline(", home to the immortal Vampires.`n`n");
                     addnav(["%s (%s)", $city, $race], "newday.php?setrace=$race$resline");
                     output_notl("`0<a href='newday.php?setrace=$race$resline'>$atrans</a>$rtrans", $city, true);
                     addnav("", "newday.php?setrace=$race$resline");
                 } else {
-                    // Show locked race with info
-                    $req_text = racetemplate_get_unlock_text();
+                    $req_text = racevampire_get_unlock_text();
                     output("`7Locked Race: `&%s`7 (Requires: `5%s`7)`n`n", $race, $req_text);
                 }
             }
@@ -165,7 +164,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "setrace":
             if ($userRace === $race) {
-                output("`&[PLACEHOLDER RACE SELECTED FLAVOR TEXT AND BUFF EXPLANATION]`n"); // ***CHANGE
+                output("`9You embrace your vampiric blood! You possess inhuman strength and nocturnal grace (+15%% Attack, +5%% Defense, +1 extra turn, and +5 Life Tap)!`n");
                 
                 // Determine Stagnation vs Fresh Soul
                 $last_played = (bool)get_module_pref("last_played_dk");
@@ -182,7 +181,7 @@ function racetemplate_dohook($hookname, $args) {
                 set_module_pref("last_played_dk", 0);
 
                 if (get_module_setting("use_custom_village")) {
-                    $travel_mod = racetemplate_get_travel_mod();
+                    $travel_mod = racevampire_get_travel_mod();
                     if ($travel_mod !== false) {
                         if (($session['user']['dragonkills'] ?? 0) == 0 && ($session['user']['age'] ?? 0) == 0) {
                             set_module_setting("newest-$city", $session['user']['acctid'], $travel_mod);
@@ -212,14 +211,12 @@ function racetemplate_dohook($hookname, $args) {
                 if ($lvl < $max) {
                     $gain = 1.0;
                     
-                    // Stagnation penalty
                     $stg = (int)get_module_pref("stagnation");
                     if ($stg > 0) {
                         $decay = (float)get_module_setting("stagnation_decay");
                         $gain *= $decay;
                     }
                     
-                    // Fresh Soul bonus
                     $fresh = (int)get_module_pref("fresh_soul");
                     if ($fresh > 0) {
                         $gain *= 2.0;
@@ -258,27 +255,31 @@ function racetemplate_dohook($hookname, $args) {
         case "newday":
             // Apply standard race buffs
             if ($userRace === $race) {
-                racetemplate_checkcity();
+                racevampire_checkcity();
                 
-                // Example passive buffs to apply
-                $args['turnstoday'] = ($args['turnstoday'] ?? '') . ", Race ($race): 1"; // ***CHANGE
+                // Vampires get +1 extra turn and a solid combat buff with lifetap
+                $args['turnstoday'] = ($args['turnstoday'] ?? '') . ", Race ($race): 1";
                 $session['user']['turns']++;
-
-                // Example combat buff
+                
                 apply_buff("racialbenefit", [
-                    "name" => sprintf_translate("%s Might", translate_inline($race)),
-                    "atkmod" => 1.05,
+                    "name" => sprintf_translate("Vampiric Hunger"),
+                    "atkmod" => 1.15,
                     "defmod" => 1.05,
+                    "lifetap" => 5,
                     "allowinpvp" => 1,
                     "allowintrain" => 1,
                     "rounds" => -1,
-                    "schema" => "module-racetemplate",
+                    "schema" => "module-racevampire",
                 ]);
+                
+                // Reset daily services
+                set_module_pref("altar_sacrificed", 0);
+                set_module_pref("coffin_slept", 0);
 
-                output("`n`&[PLACEHOLDER NEWDAY RACE BUFF TEXT]`n`0"); // ***CHANGE
+                output("`n`9You rise from your dark rest in Shadowspire. Your fangs throb with hunger (+15%% Attack, +5%% Defense, +1 extra turn, +5 Life Tap).`n`0");
             }
             
-            // Apply Legacy Buffs (runs for all active modules if player has maxed it)
+            // Apply Legacy Buffs
             $lvl = (int)get_module_pref("level");
             $max = (int)get_module_setting("levels");
             if ($lvl >= $max) {
@@ -291,7 +292,7 @@ function racetemplate_dohook($hookname, $args) {
                         "allowinpvp" => 1,
                         "allowintrain" => 1,
                         "rounds" => -1,
-                        "schema" => "module-racetemplate",
+                        "schema" => "module-racevampire",
                     ]);
                 } elseif ($stat === "defense" && $val > 0.0) {
                     apply_buff("legacy_" . strtolower($race) . "_def", [
@@ -300,7 +301,7 @@ function racetemplate_dohook($hookname, $args) {
                         "allowinpvp" => 1,
                         "allowintrain" => 1,
                         "rounds" => -1,
-                        "schema" => "module-racetemplate",
+                        "schema" => "module-racevampire",
                     ]);
                 } elseif ($stat === "hp" && $val > 0.0) {
                     $session['user']['maxhitpoints'] += (int)$val;
@@ -333,7 +334,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "validlocation":
             if (get_module_setting("use_custom_village")) {
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racevampire_get_travel_mod();
                 if ($travel_mod !== false)
                     $args[$city] = "village-$race";
             }
@@ -341,7 +342,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "moderate":
             if (get_module_setting("use_custom_village")) {
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racevampire_get_travel_mod();
                 if ($travel_mod !== false) {
                     tlschema("commentary");
                     $args["village-$race"] = sprintf_translate("City of %s", $city); 
@@ -352,7 +353,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "travel":
             if (get_module_setting("use_custom_village")) {
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racevampire_get_travel_mod();
                 if ($travel_mod !== false) {
                     $capital = getsetting("villagename", LOCATION_FIELDS);
                     $hotkey = substr($city, 0, 1);
@@ -376,26 +377,26 @@ function racetemplate_dohook($hookname, $args) {
 
         case "villagetext":
             if (!get_module_setting("use_custom_village")) break;
-            racetemplate_checkcity();
+            racevampire_checkcity();
             if (($session['user']['location'] ?? '') === $city) {
-                $args['text'] = ["`\$`c`b%s`b`c`n`^[PLACEHOLDER VILLAGE MAIN DESCRIPTION TEXT]`n", $city];
-                $args['schemas']['text'] = "module-racetemplate";
-                $args['description'] = ["`\$`c`b%s`b`c`n`^[PLACEHOLDER VILLAGE MAIN DESCRIPTION TEXT]`n", $city];
-                $args['schemas']['description'] = "module-racetemplate";
-                $args['clock'] = "`n`7A clock reads `@%s`7.`n";
-                $args['schemas']['clock'] = "module-racetemplate";
+                $args['text'] = ["`\$`c`b%s`b`c`n`^Spired towers climb into the dark night sky of %s. The streets are cobbled and silent, lit by pale purple gaslamps. Fog hangs thick on the ground.`n", $city, $city];
+                $args['schemas']['text'] = "module-racevampire";
+                $args['description'] = ["`\$`c`b%s`b`c`n`^Spired towers climb into the dark night sky of %s. The streets are cobbled and silent, lit by pale purple gaslamps. Fog hangs thick on the ground.`n", $city, $city];
+                $args['schemas']['description'] = "module-racevampire";
+                $args['clock'] = "`n`7A gothic iron clocktower tolls, reading `@%s`7.`n";
+                $args['schemas']['clock'] = "module-racevampire";
                 if (is_module_active("calendar")) {
-                    $args['calendar'] = "`n`\$A calendar reads `&%s`\$, `&%s %s %s`\$.`n";
-                    $args['schemas']['calendar'] = "module-racetemplate";
+                    $args['calendar'] = "`n`\$A calendar carved on a dark marble monument reads `&%s`\$, `&%s %s %s`\$.`n";
+                    $args['schemas']['calendar'] = "module-racevampire";
                 }
                 $args['title'] = ["%s", $city];
-                $args['schemas']['title'] = "module-racetemplate";
-                $args['sayline'] = "says";
-                $args['schemas']['sayline'] = "module-racetemplate";
-                $args['talk'] = "`n`&Nearby some residents stand talking:`n";
-                $args['schemas']['talk'] = "module-racetemplate";
+                $args['schemas']['title'] = "module-racevampire";
+                $args['sayline'] = "whispers";
+                $args['schemas']['sayline'] = "module-racevampire";
+                $args['talk'] = "`n`&Nearby some elegant residents stand whispering:`n";
+                $args['schemas']['talk'] = "module-racevampire";
                 
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racevampire_get_travel_mod();
                 $new = $travel_mod !== false ? get_module_setting("newest-$city", $travel_mod) : 0;
                 if ($new != 0) {
                     $sql =  "SELECT name FROM " . db_prefix("accounts") . " WHERE acctid='$new'";
@@ -409,38 +410,38 @@ function racetemplate_dohook($hookname, $args) {
                 }
                 
                 if ($new == ($session['user']['acctid'] ?? 0)) {
-                    $args['newest'] = "`n`7[PLACEHOLDER NEWEST PLAYER TEXT (SELF)].";
+                    $args['newest'] = "`n`7You are the newest resident of this dark sanctuary.";
                 } else {
-                    $args['newest'] = "`n`7[PLACEHOLDER NEWEST PLAYER TEXT (OTHER)] `&%s`7.";
+                    $args['newest'] = "`n`7The newest resident of this dark sanctuary is `&%s`7.";
                 }
-                $args['schemas']['newest'] = "module-racetemplate";
+                $args['schemas']['newest'] = "module-racevampire";
                 $args['section'] = "village-$race";
-                $args['stablename'] = "[PLACEHOLDER STABLE NAME]";
-                $args['schemas']['stablename'] = "module-racetemplate";
-                $args['gatenav'] = "[PLACEHOLDER GATE NAV TEXT]";
-                $args['schemas']['gatenav'] = "module-racetemplate";
-                $args['fightnav'] = "[PLACEHOLDER FIGHT NAV TEXT]";
-                $args['schemas']['fightnav'] = "module-racetemplate";
-                $args['marketnav'] = "[PLACEHOLDER MARKET NAV TEXT]";
-                $args['schemas']['marketnav'] = "module-racetemplate";
-                $args['tavernnav'] = "[PLACEHOLDER TAVERN NAV TEXT]";
-                $args['schemas']['tavernnav'] = "module-racetemplate";
+                $args['stablename'] = "Shadowspire Stables";
+                $args['schemas']['stablename'] = "module-racevampire";
+                $args['gatenav'] = "Dark Spires Paths";
+                $args['schemas']['gatenav'] = "module-racevampire";
+                $args['fightnav'] = "Training Crypt";
+                $args['schemas']['fightnav'] = "module-racevampire";
+                $args['marketnav'] = "Spire Plaza";
+                $args['schemas']['marketnav'] = "module-racevampire";
+                $args['tavernnav'] = "The Bloodlust Lounge";
+                $args['schemas']['tavernnav'] = "module-racevampire";
 
                 // Override standard location nav labels
-                $args['navs']['weapons'] = "[PLACEHOLDER WEAPONRY NAME]";
-                $args['navs']['armor'] = "[PLACEHOLDER ARMOURY NAME]";
-                $args['navs']['train'] = "u?[PLACEHOLDER TRAINING NAME]";
-                $args['schemas']['navs']['weapons'] = "module-racetemplate";
-                $args['schemas']['navs']['armor'] = "module-racetemplate";
-                $args['schemas']['navs']['train'] = "module-racetemplate";
+                $args['navs']['weapons'] = "Shadowspire Crucible";
+                $args['navs']['armor'] = "Shadowspire Tailoring";
+                $args['navs']['train'] = "u?Shadowspire Training Crypt";
+                $args['schemas']['navs']['weapons'] = "module-racevampire";
+                $args['schemas']['navs']['armor'] = "module-racevampire";
+                $args['schemas']['navs']['train'] = "module-racevampire";
 
                 // Special section nav header and labels
-                $args['nav_headers']['special'] = "[PLACEHOLDER SPECIAL HEADER]";
-                $args['navs']['special1'] = "[PLACEHOLDER SPECIAL LINK 1]";
-                $args['navs']['special2'] = "[PLACEHOLDER SPECIAL LINK 2]";
-                $args['schemas']['nav_headers']['special'] = "module-racetemplate";
-                $args['schemas']['navs']['special1'] = "module-racetemplate";
-                $args['schemas']['navs']['special2'] = "module-racetemplate";
+                $args['nav_headers']['special'] = "Shadowspire Services";
+                $args['navs']['altar'] = "Blood Altar";
+                $args['navs']['coffin'] = "Crypt Coffin";
+                $args['schemas']['nav_headers']['special'] = "module-racevampire";
+                $args['schemas']['navs']['altar'] = "module-racevampire";
+                $args['schemas']['navs']['coffin'] = "module-racevampire";
 
                 unblocknav("stables.php");
             }
@@ -449,50 +450,51 @@ function racetemplate_dohook($hookname, $args) {
         case "stabletext":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') !== $city) break;
-            $args['title'] = "[PLACEHOLDER STABLE NAME]";
-            $args['schemas']['title'] = "module-racetemplate";
-            $args['desc'] = "`\$[PLACEHOLDER STABLE DESCRIPTION FEATURING OWNER: ".get_module_setting("stableowner")."]";
-            $args['schemas']['desc'] = "module-racetemplate";
-            $args['lad'] = "Sir";
-            $args['schemas']['lad'] = "module-racetemplate";
-            $args['lass'] = "Miss";
-            $args['schemas']['lass'] = "module-racetemplate";
-            $args['nosuchbeast'] = "`3\"`7I don't stock that creature.`3\", says ".get_module_setting("stableowner")."`3.";
-            $args['schemas']['nosuchbeast'] = "module-racetemplate";
+            $owner = get_module_setting("stableowner");
+            $args['title'] = "Shadowspire Stables";
+            $args['schemas']['title'] = "module-racevampire";
+            $args['desc'] = "`\$You enter a cold, dimly lit stable draped in cobwebs. $owner is grooming a dark, bat-winged stallion. He greets you silently.";
+            $args['schemas']['desc'] = "module-racevampire";
+            $args['lad'] = "Lord";
+            $args['schemas']['lad'] = "module-racevampire";
+            $args['lass'] = "Lady";
+            $args['schemas']['lass'] = "module-racevampire";
+            $args['nosuchbeast'] = "`3\"`7I do not stock that beast,`3\" says $owner.`3.";
+            $args['schemas']['nosuchbeast'] = "module-racevampire";
             $args['finebeast'] = [
-                "`3\"`7[PLACEHOLDER MOUNT PURCHASE QUOTE 1]`3\"`n`n",
-                "`3\"`7[PLACEHOLDER MOUNT PURCHASE QUOTE 2]`3\"`n`n",
+                "`3\"`7May this creature fly you safely through the night.`3\"`n`n",
+                "`3\"`7A majestic companion of the dark.`3\"`n`n",
             ];
-            $args['schemas']['finebeast'] = "module-racetemplate";
-            $args['toolittle'] = "`%[PLACEHOLDER NOT ENOUGH GOLD QUOTE]";
-            $args['schemas']['toolittle'] = "module-racetemplate";
-            $args['replacemount'] = "`%[PLACEHOLDER REPLACE MOUNT TEXT: YOU TRADE YOUR `^%s FOR A `&%s`%]";
-            $args['schemas']['replacemount'] = "module-racetemplate";
-            $args['newmount'] = "`@[PLACEHOLDER NEW MOUNT TEXT: YOU RECEIVE A `&%s`@]";
-            $args['schemas']['newmount'] = "module-racetemplate";
-            $args['nofeed'] = "`3\"`7I don't stock feed here.`3\"";
-            $args['schemas']['nofeed'] = "module-racetemplate";
-            $args['nothungry'] = "`&%s`6 [PLACEHOLDER MOUNT NOT HUNGRY TEXT]";
-            $args['schemas']['nothungry'] = "module-racetemplate";
-            $args['halfhungry'] = "`&%s`6 [PLACEHOLDER MOUNT HALF HUNGRY TEXT]";
-            $args['schemas']['halfhungry'] = "module-racetemplate";
-            $args['hungry'] = "`6%s`6 [PLACEHOLDER MOUNT FULLY HUNGRY TEXT]";
-            $args['schemas']['hungry'] = "module-racetemplate";
-            $args['mountfull'] = "`n`6\"`^Your %s`^ is full now.`6\"";
-            $args['schemas']['mountfull'] = "module-racetemplate";
-            $args['nofeedgold'] = "`6\"`^Not enough money for food.`6\"";
-            $args['schemas']['nofeedgold'] = "module-racetemplate";
-            $args['confirmsale'] = "`n`n`6[PLACEHOLDER CONFIRM MOUNT SALE TEXT]";
-            $args['schemas']['confirmsale'] = "module-racetemplate";
-            $args['mountsold'] = "`6[PLACEHOLDER MOUNT SOLD TEXT]";
-            $args['schemas']['mountsold'] = "module-racetemplate";
-            $args['offer'] = "`n`n`6[PLACEHOLDER MOUNT SALE OFFER TEXT]";
-            $args['schemas']['offer'] = "module-racetemplate";
+            $args['schemas']['finebeast'] = "module-racevampire";
+            $args['toolittle'] = "`%\"`7Your coin is lacking, my Lord,`%\" $owner whispers.";
+            $args['schemas']['toolittle'] = "module-racevampire";
+            $args['replacemount'] = "`%You release your `^%s into the fog, taking the reins of a dark `&%s`%.";
+            $args['schemas']['replacemount'] = "module-racevampire";
+            $args['newmount'] = "`@You receive a dark, bat-winged `&%s`@.";
+            $args['schemas']['newmount'] = "module-racevampire";
+            $args['nofeed'] = "`3\"`7Nature feeds them. We sell no feed here.`3\"";
+            $args['schemas']['nofeed'] = "module-racevampire";
+            $args['nothungry'] = "`&%s`6 looks satisfied.";
+            $args['schemas']['nothungry'] = "module-racevampire";
+            $args['halfhungry'] = "`&%s`6 licks some fresh blood drops.";
+            $args['schemas']['halfhungry'] = "module-racevampire";
+            $args['hungry'] = "`6%s`6 drinks the fresh blood hungrily!";
+            $args['schemas']['hungry'] = "module-racevampire";
+            $args['mountfull'] = "`n`6\"`^Your %s`^ is completely satisfied.`6\"";
+            $args['schemas']['mountfull'] = "module-racevampire";
+            $args['nofeedgold'] = "`6\"`^You have no gold for blood feed.`6\"";
+            $args['schemas']['nofeedgold'] = "module-racevampire";
+            $args['confirmsale'] = "`n`n`6Are you sure you wish to release your mount into the night?";
+            $args['schemas']['confirmsale'] = "module-racevampire";
+            $args['mountsold'] = "`6You hand over the reins, releasing the beast.";
+            $args['schemas']['mountsold'] = "module-racevampire";
+            $args['offer'] = "`n`n`6\"`^I can offer `&%s`6 gold and `%%s`6 gems for that steed,`6\" $owner offers.";
+            $args['schemas']['offer'] = "module-racevampire";
             break;
 
         case "stablelocs":
             if (!get_module_setting("use_custom_village")) break;
-            $travel_mod = racetemplate_get_travel_mod();
+            $travel_mod = racevampire_get_travel_mod();
             if ($travel_mod !== false) {
                 tlschema("mounts");
                 $args[$city] = sprintf_translate("City of %s", $city); 
@@ -503,8 +505,8 @@ function racetemplate_dohook($hookname, $args) {
         case "villagenav":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
-                // Add custom links here for your race to sit at the top, e.g.:
-                // $args['special']['special1'] = "runmodule.php?module=racetemplate&op=special1";
+                $args['special']['altar'] = "runmodule.php?module=racevampire&op=altar";
+                $args['special']['coffin'] = "runmodule.php?module=racevampire&op=coffin";
             }
             break;
 
@@ -512,14 +514,14 @@ function racetemplate_dohook($hookname, $args) {
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
                 $tradeinvalue = round(($session['user']['weaponvalue'] * 0.75), 0);
-                $args['title'] = "[PLACEHOLDER WEAPON SHOP TITLE]";
+                $args['title'] = "Shadowspire Crucible";
                 $args['desc'] = [
-                    "`&[PLACEHOLDER WEAPON SHOP DESCRIPTION]`n`n"
+                    "`&Intricately carved dark steel blades and obsidian-hilted rapiers stand in quiet displays. A cold violet fire burns in the forge.`n`n"
                 ];
                 $args['tradein'] = [
-                    "`7[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER]`n`n",
+                    "`7You place your weapon on the marble display.`n`n",
                     [
-                        "`&[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER DETAIL WITH %s FOR VALUE AND %s FOR WEAPON NAME]`n`n",
+                        "`&The weaponmaster bows. \"`#I will value this piece at `^%s`# gold in trade.`\"`n`n",
                         $tradeinvalue,
                         $session['user']['weapon']
                     ]
@@ -531,14 +533,14 @@ function racetemplate_dohook($hookname, $args) {
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
                 $tradeinvalue = round(($session['user']['armorvalue'] * 0.75), 0);
-                $args['title'] = "[PLACEHOLDER ARMOR SHOP TITLE]";
+                $args['title'] = "Shadowspire Tailoring";
                 $args['desc'] = [
-                    "`&[PLACEHOLDER ARMOR SHOP DESCRIPTION]`n`n"
+                    "`&Velvet capes, dark leather coats reinforced with iron ribs, and gargoyle-adorned shields stand in rows.`n`n"
                 ];
                 $args['tradein'] = [
-                    "`7[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER]`n`n",
+                    "`7You show your current protection to the tailor.`n`n",
                     [
-                        "`&[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER DETAIL WITH %s FOR VALUE AND %s FOR ARMOR NAME]`n`n",
+                        "`&She feels it with long fingers. \"`#I can offer `^%s`# gold in trade for our dark silk protective wear.`\"`n`n",
                         $tradeinvalue,
                         $session['user']['armor']
                     ]
@@ -549,24 +551,24 @@ function racetemplate_dohook($hookname, $args) {
         case "trainingtitle":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
-                $args['title'] = "[PLACEHOLDER TRAINING CENTER TITLE]";
+                $args['title'] = "Shadowspire Training Crypt";
             }
             break;
 
         case "modify-master":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
-                $args['creaturename'] = "[PLACEHOLDER TRAINER NAME]";
-                $args['creatureweapon'] = "[PLACEHOLDER TRAINER WEAPON]";
-                $args['creaturewin'] = "[PLACEHOLDER TRAINER WIN MESSAGE]";
-                $args['creaturelose'] = "[PLACEHOLDER TRAINER LOSE MESSAGE]";
+                $args['creaturename'] = "Lady Carmilla";
+                $args['creatureweapon'] = "Obsidian Rapier";
+                $args['creaturewin'] = "You are too slow, fledgling. Feast on my lessons!";
+                $args['creaturelose'] = "A formidable predator of the night. Go, rule the darkness.";
             }
             break;
     }
     return $args;
 }
 
-function racetemplate_run() {
+function racevampire_run() {
     global $session;
     if (!get_module_setting("use_custom_village")) {
         page_header("Access Denied");
@@ -576,27 +578,99 @@ function racetemplate_run() {
         return;
     }
     $op = httpget('op');
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
+    $race = "Vampire";
     
-    // Check if the user is of this race to prevent other races accessing custom features
+    // Check if the user is a Vampire
     if (($session['user']['race'] ?? '') !== $race) {
         page_header("Access Denied");
-        output("`\$Only %ss may access these features.`n`n", $race);
+        output("`\$Only Vampires may access these features.`n`n");
         addnav("Return to the Village", "village.php");
         page_footer();
         return;
     }
     
-    // If you want a custom shrine or training building in your race's city, build it here!
+    if ($op === "altar") {
+        page_header("Shadowspire Blood Altar");
+        output("`c`b`9Shadowspire Blood Altar`b`c`n`n");
+        output("`7A stone basin filled with dark red fluid, surrounded by black candles. \"`#Offer a gem to the ancient spirits, and they shall grant you extra turns!`\"`n`n");
+        
+        $sacrificed = get_module_pref("altar_sacrificed");
+        $subop = httpget('subop');
+        
+        if ($subop === "sacrifice") {
+            if ($sacrificed) {
+                output("`\$You have already sacrificed today. The spirits are satisfied.`n`n");
+            } elseif ($session['user']['gems'] < 1) {
+                output("`\$You do not have any gems to offer the spirits.`n`n");
+            } else {
+                $session['user']['gems'] -= 1;
+                $session['user']['turns'] += 1;
+                set_module_pref("altar_sacrificed", 1);
+                $sacrificed = true;
+                
+                output("`@You drop a gem into the dark blood altar. The candles flare violet, and your body surges with immortal vigor! You gain `^+1 extra turn`@ today!`n`n");
+            }
+        }
+        
+        if (!$sacrificed) {
+            output("`7You have `@%s gem(s)`7 to offer.`n`n", $session['user']['gems']);
+            if ($session['user']['gems'] >= 1) {
+                addnav("Blood Altar");
+                addnav("Sacrifice Gem (+1 Turn)", "runmodule.php?module=racevampire&op=altar&subop=sacrifice");
+            }
+        } else {
+            output("`&You have already sacrificed at the altar today.`n`n");
+        }
+        addnav("Return to Shadowspire", "village.php");
+        page_footer();
+    }
+    
+    if ($op === "coffin") {
+        page_header("Shadowspire Crypt Coffin");
+        output("`c`b`9Shadowspire Crypt Coffin`b`c`n`n");
+        output("`7A lined obsidian coffin lies open in a quiet, dark alcove. Sleeping here will regenerate your undead flesh.`n`n");
+        
+        $slept = get_module_pref("coffin_slept");
+        $subop = httpget('subop');
+        
+        if ($subop === "sleep") {
+            if ($slept) {
+                output("`\$You have already rested in the coffin today.`n`n");
+            } else {
+                set_module_pref("coffin_slept", 1);
+                $slept = true;
+                
+                $session['user']['hitpoints'] = $session['user']['maxhitpoints'];
+                apply_buff("coffin_vision", [
+                    "name" => "`9Nocturnal Reflexes`0",
+                    "defmod" => 1.10,
+                    "rounds" => 15,
+                    "allowinpvp" => 1,
+                    "allowintrain" => 1,
+                    "schema" => "module-racevampire",
+                ]);
+                output("`@You climb into the coffin, closing the heavy lid. You rest in absolute darkness. When you emerge, your wounds are completely healed and your nocturnal senses are sharp (+10%% Defense) for your next 15 rounds of combat!`n`n");
+            }
+        }
+        
+        if (!$slept) {
+            addnav("Crypt Coffin");
+            addnav("Sleep in Coffin", "runmodule.php?module=racevampire&op=coffin&subop=sleep");
+        } else {
+            output("`&You have already rested in the coffin today.`n`n");
+        }
+        addnav("Return to Shadowspire", "village.php");
+        page_footer();
+    }
 }
 
-function racetemplate_checkcity() {
+function racevampire_checkcity() {
     global $session;
     if (!get_module_setting("use_custom_village")) return true;
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
+    $race = "Vampire";
     $city = get_module_setting("villagename");
     
-    $travel_mod = racetemplate_get_travel_mod();
+    $travel_mod = racevampire_get_travel_mod();
     if ($travel_mod !== false) {
         if (($session['user']['race'] ?? '') === $race) {
             if (get_module_pref("homecity", $travel_mod) !== $city) {
@@ -607,7 +681,7 @@ function racetemplate_checkcity() {
     return true;
 }
 
-function racetemplate_get_travel_mod() {
+function racevampire_get_travel_mod() {
     if (is_module_active("villages")) {
         return "villages";
     } elseif (is_module_active("cities")) {
@@ -618,7 +692,7 @@ function racetemplate_get_travel_mod() {
     return false;
 }
 
-function racetemplate_check_unlock() {
+function racevampire_check_unlock() {
     $req = get_module_setting("unlock_req");
     if (trim($req) === "") return true;
     
@@ -638,7 +712,7 @@ function racetemplate_check_unlock() {
     return true;
 }
 
-function racetemplate_get_unlock_text() {
+function racevampire_get_unlock_text() {
     $req = get_module_setting("unlock_req");
     if (trim($req) === "") return "";
     

@@ -1,49 +1,49 @@
 <?php
 /**
- * Advanced Race Blueprint (With Legacy, Stagnation, and Unlock Mechanics)
+ * Advanced Race Module - Dwarf
+ * Built from the Advanced Race Blueprint
  * Designed for PHP 8.4 Strict Compliance
- * * Easy way to customize:
- * - Replace 'racetemplate' with module name (e.g., 'racedwarf')
- * - Search for '[PLACEHOLDER]' to find all text that needs customization.
- * - Search for '***CHANGE' to see structural variables that must be defined.
  */
 
-function racetemplate_getmoduleinfo() {
+function racedwarf_getmoduleinfo() {
     return [
-        "name" => "Race - [PLACEHOLDER RACE NAME]", // ***CHANGE
+        "name" => "Race - Dwarf",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Race",
         "download" => "", 
         "settings" => [
-            "[PLACEHOLDER RACE NAME] - Race Settings,title", // ***CHANGE
-            "use_custom_village" => "Does this race have its own custom village?,bool|1", // ***CHANGE
-            "villagename" => "Name for the [PLACEHOLDER RACE NAME] city,|[PLACEHOLDER CITY NAME]", // ***CHANGE
-            "stableowner" => "Name of the city stable-owner,|[PLACEHOLDER STABLE OWNER]", // ***CHANGE
-            "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|20", // ***CHANGE
+            "Dwarf - Race Settings,title",
+            "use_custom_village" => "Does this race have its own custom village?,bool|1",
+            "villagename" => "Name for the Dwarf city,|Kharad-Dur", 
+            "stableowner" => "Name of the city stable-owner,|Gimli", 
+            "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|5", 
             "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|0", 
-            "training_villages" => "Villages where players of this race can train (comma-separated; leave blank to restrict to their custom village if enabled),string|", // ***CHANGE
+            "training_villages" => "Villages where players of this race can train (comma-separated; leave blank to restrict to their custom village if enabled),string|",
             
             "Race Progression Settings,title",
             "levels" => "Max Race Level,int|5",
             "cre_req" => "Battle victories required to level up,int|150",
-            "legacy_stat" => "Legacy Buff Stat (attack/defense/hp/gold/none),string|none", // ***CHANGE (e.g. 'attack')
-            "legacy_value" => "Legacy Buff Value (e.g. 1.01 for +1% attack/defense, or 2 for +2 HP),float|0.0", // ***CHANGE
-            "unlock_req" => "Unlock Requirements (comma-separated, e.g. racehuman:5),string|", // ***CHANGE (e.g. 'racehuman:5')
+            "legacy_stat" => "Legacy Buff Stat (attack/defense/hp/gold/none),string|gold",
+            "legacy_value" => "Legacy Buff Value,float|1.02",
+            "unlock_req" => "Unlock Requirements (comma-separated, e.g. racehuman:5),string|",
             "stagnation_decay" => "Stagnation victory point multiplier (0.0 to 1.0),float|0.5",
         ],
         "prefs" => [
-            "[PLACEHOLDER RACE NAME] - User Prefs,title", // ***CHANGE
+            "Dwarf - User Prefs,title",
             "level" => "Current Race Level,int|0",
             "cre" => "Current Victory Points towards next level,float|0.0",
             "stagnation" => "Consecutive Dragon Kills as this race,int|0",
             "last_played_dk" => "Was this race played last DK?,bool|0",
             "fresh_soul" => "Does player have fresh soul bonus?,bool|0",
+            
+            "tempered_today" => "Has player tempered equipment today?,bool|0",
+            "polished_today" => "Has player polished a gem today?,bool|0",
         ]
     ];
 }
 
-function racetemplate_install() {
+function racedwarf_install() {
     module_addhook("chooserace");
     module_addhook("setrace");
     module_addhook("villagetext");
@@ -66,11 +66,11 @@ function racetemplate_install() {
     module_addhook("battle-victory");
     module_addhook("pvpwin");
     module_addhook("creatureencounter");
-    debug("Installed '[PLACEHOLDER RACE NAME]' advanced race module."); // ***CHANGE
+    debug("Installed 'Dwarf' advanced race module.");
     return true;
 }
 
-function racetemplate_uninstall() {
+function racedwarf_uninstall() {
     global $session;
     $vname = getsetting("villagename", LOCATION_FIELDS);
     $gname = get_module_setting("villagename");
@@ -83,20 +83,20 @@ function racetemplate_uninstall() {
     }
     
     // Force anyone who was this race to rechoose race
-    $sql = "UPDATE " . db_prefix("accounts") . " SET race='" . RACE_UNKNOWN . "' WHERE race='[PLACEHOLDER RACE NAME]'"; // ***CHANGE
+    $sql = "UPDATE " . db_prefix("accounts") . " SET race='" . RACE_UNKNOWN . "' WHERE race='Dwarf'";
     db_query($sql);
-    if (($session['user']['race'] ?? '') === '[PLACEHOLDER RACE NAME]') { // ***CHANGE
+    if (($session['user']['race'] ?? '') === 'Dwarf') {
         $session['user']['race'] = RACE_UNKNOWN;
     }
     
-    debug("Uninstalled '[PLACEHOLDER RACE NAME]' race module."); // ***CHANGE
+    debug("Uninstalled 'Dwarf' race module.");
     return true;
 }
 
-function racetemplate_dohook($hookname, $args) {
+function racedwarf_dohook($hookname, $args) {
     global $session, $resline;
     $city = get_module_setting("villagename");
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
+    $race = "Dwarf"; 
     
     $userRace = $session['user']['race'] ?? '';
     
@@ -108,12 +108,12 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "changesetting":
-            if (get_module_setting("use_custom_village") && ($args['setting'] ?? '') === "villagename" && ($args['module'] ?? '') === "racetemplate") {
+            if (get_module_setting("use_custom_village") && ($args['setting'] ?? '') === "villagename" && ($args['module'] ?? '') === "racedwarf") {
                 if (($session['user']['location'] ?? '') === $args['old'])
                     $session['user']['location'] = $args['new'];
                 $sql = "UPDATE " . db_prefix("accounts") . " SET location='" . $args['new'] . "' WHERE location='" . $args['old'] . "'";
                 db_query($sql);
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racedwarf_get_travel_mod();
                 if ($travel_mod !== false) {
                     $sql = "UPDATE " . db_prefix("module_userprefs") . " SET value='" . $args['new'] . "' WHERE modulename='$travel_mod' AND setting='homecity' AND value='" . $args['old'] . "'";
                     db_query($sql);
@@ -148,16 +148,15 @@ function racetemplate_dohook($hookname, $args) {
         case "chooserace":
             $dk_limit = (int)get_module_setting("dklimit");
             if ($dk_limit === 0 || ($session['user']['dragonkills'] ?? 0) >= $dk_limit) {
-                $unlocked = racetemplate_check_unlock();
+                $unlocked = racedwarf_check_unlock();
                 if ($unlocked) {
-                    $atrans = translate_inline("In the town of %s"); // ***CHANGE
-                    $rtrans = translate_inline(", a place of peace and trade.`n`n"); // ***CHANGE
+                    $atrans = translate_inline("Deep in the subterranean strongholds of %s");
+                    $rtrans = translate_inline(", home to the noble and fierce Dwarves.`n`n");
                     addnav(["%s (%s)", $city, $race], "newday.php?setrace=$race$resline");
                     output_notl("`0<a href='newday.php?setrace=$race$resline'>$atrans</a>$rtrans", $city, true);
                     addnav("", "newday.php?setrace=$race$resline");
                 } else {
-                    // Show locked race with info
-                    $req_text = racetemplate_get_unlock_text();
+                    $req_text = racedwarf_get_unlock_text();
                     output("`7Locked Race: `&%s`7 (Requires: `5%s`7)`n`n", $race, $req_text);
                 }
             }
@@ -165,7 +164,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "setrace":
             if ($userRace === $race) {
-                output("`&[PLACEHOLDER RACE SELECTED FLAVOR TEXT AND BUFF EXPLANATION]`n"); // ***CHANGE
+                output("`#You embrace your dwarven heritage! Your skin hardens (+10%% Defense) and you gain a keen eye for mining treasure.`n");
                 
                 // Determine Stagnation vs Fresh Soul
                 $last_played = (bool)get_module_pref("last_played_dk");
@@ -182,7 +181,7 @@ function racetemplate_dohook($hookname, $args) {
                 set_module_pref("last_played_dk", 0);
 
                 if (get_module_setting("use_custom_village")) {
-                    $travel_mod = racetemplate_get_travel_mod();
+                    $travel_mod = racedwarf_get_travel_mod();
                     if ($travel_mod !== false) {
                         if (($session['user']['dragonkills'] ?? 0) == 0 && ($session['user']['age'] ?? 0) == 0) {
                             set_module_setting("newest-$city", $session['user']['acctid'], $travel_mod);
@@ -212,14 +211,12 @@ function racetemplate_dohook($hookname, $args) {
                 if ($lvl < $max) {
                     $gain = 1.0;
                     
-                    // Stagnation penalty
                     $stg = (int)get_module_pref("stagnation");
                     if ($stg > 0) {
                         $decay = (float)get_module_setting("stagnation_decay");
                         $gain *= $decay;
                     }
                     
-                    // Fresh Soul bonus
                     $fresh = (int)get_module_pref("fresh_soul");
                     if ($fresh > 0) {
                         $gain *= 2.0;
@@ -258,27 +255,26 @@ function racetemplate_dohook($hookname, $args) {
         case "newday":
             // Apply standard race buffs
             if ($userRace === $race) {
-                racetemplate_checkcity();
+                racedwarf_checkcity();
                 
-                // Example passive buffs to apply
-                $args['turnstoday'] = ($args['turnstoday'] ?? '') . ", Race ($race): 1"; // ***CHANGE
-                $session['user']['turns']++;
-
-                // Example combat buff
+                // Dwarves get +10% gold from fights today
                 apply_buff("racialbenefit", [
-                    "name" => sprintf_translate("%s Might", translate_inline($race)),
-                    "atkmod" => 1.05,
-                    "defmod" => 1.05,
+                    "name" => sprintf_translate("Dwarfen Might"),
+                    "defmod" => 1.10,
                     "allowinpvp" => 1,
                     "allowintrain" => 1,
                     "rounds" => -1,
-                    "schema" => "module-racetemplate",
+                    "schema" => "module-racedwarf",
                 ]);
+                
+                // Reset daily services
+                set_module_pref("tempered_today", 0);
+                set_module_pref("polished_today", 0);
 
-                output("`n`&[PLACEHOLDER NEWDAY RACE BUFF TEXT]`n`0"); // ***CHANGE
+                output("`n`#You awaken in the mountain hold of Kharad-Dur. Your resolve is solid as granite (+10%% Defense).`n`0");
             }
             
-            // Apply Legacy Buffs (runs for all active modules if player has maxed it)
+            // Apply Legacy Buffs
             $lvl = (int)get_module_pref("level");
             $max = (int)get_module_setting("levels");
             if ($lvl >= $max) {
@@ -291,7 +287,7 @@ function racetemplate_dohook($hookname, $args) {
                         "allowinpvp" => 1,
                         "allowintrain" => 1,
                         "rounds" => -1,
-                        "schema" => "module-racetemplate",
+                        "schema" => "module-racedwarf",
                     ]);
                 } elseif ($stat === "defense" && $val > 0.0) {
                     apply_buff("legacy_" . strtolower($race) . "_def", [
@@ -300,7 +296,7 @@ function racetemplate_dohook($hookname, $args) {
                         "allowinpvp" => 1,
                         "allowintrain" => 1,
                         "rounds" => -1,
-                        "schema" => "module-racetemplate",
+                        "schema" => "module-racedwarf",
                     ]);
                 } elseif ($stat === "hp" && $val > 0.0) {
                     $session['user']['maxhitpoints'] += (int)$val;
@@ -333,7 +329,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "validlocation":
             if (get_module_setting("use_custom_village")) {
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racedwarf_get_travel_mod();
                 if ($travel_mod !== false)
                     $args[$city] = "village-$race";
             }
@@ -341,7 +337,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "moderate":
             if (get_module_setting("use_custom_village")) {
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racedwarf_get_travel_mod();
                 if ($travel_mod !== false) {
                     tlschema("commentary");
                     $args["village-$race"] = sprintf_translate("City of %s", $city); 
@@ -352,7 +348,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "travel":
             if (get_module_setting("use_custom_village")) {
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racedwarf_get_travel_mod();
                 if ($travel_mod !== false) {
                     $capital = getsetting("villagename", LOCATION_FIELDS);
                     $hotkey = substr($city, 0, 1);
@@ -376,26 +372,26 @@ function racetemplate_dohook($hookname, $args) {
 
         case "villagetext":
             if (!get_module_setting("use_custom_village")) break;
-            racetemplate_checkcity();
+            racedwarf_checkcity();
             if (($session['user']['location'] ?? '') === $city) {
-                $args['text'] = ["`\$`c`b%s`b`c`n`^[PLACEHOLDER VILLAGE MAIN DESCRIPTION TEXT]`n", $city];
-                $args['schemas']['text'] = "module-racetemplate";
-                $args['description'] = ["`\$`c`b%s`b`c`n`^[PLACEHOLDER VILLAGE MAIN DESCRIPTION TEXT]`n", $city];
-                $args['schemas']['description'] = "module-racetemplate";
-                $args['clock'] = "`n`7A clock reads `@%s`7.`n";
-                $args['schemas']['clock'] = "module-racetemplate";
+                $args['text'] = ["`\$`c`b%s`b`c`n`^Granite walls rise high above the deep cavern floor of %s. Heavy iron structures, roaring forge chimneys, and solid stone halls surround the marketplace.`n", $city, $city];
+                $args['schemas']['text'] = "module-racedwarf";
+                $args['description'] = ["`\$`c`b%s`b`c`n`^Granite walls rise high above the deep cavern floor of %s. Heavy iron structures, roaring forge chimneys, and solid stone halls surround the marketplace.`n", $city, $city];
+                $args['schemas']['description'] = "module-racedwarf";
+                $args['clock'] = "`n`7A massive iron water-clock reads `@%s`7.`n";
+                $args['schemas']['clock'] = "module-racedwarf";
                 if (is_module_active("calendar")) {
-                    $args['calendar'] = "`n`\$A calendar reads `&%s`\$, `&%s %s %s`\$.`n";
-                    $args['schemas']['calendar'] = "module-racetemplate";
+                    $args['calendar'] = "`n`\$An engraved stone tablet calendar reads `&%s`\$, `&%s %s %s`\$.`n";
+                    $args['schemas']['calendar'] = "module-racedwarf";
                 }
                 $args['title'] = ["%s", $city];
-                $args['schemas']['title'] = "module-racetemplate";
-                $args['sayline'] = "says";
-                $args['schemas']['sayline'] = "module-racetemplate";
-                $args['talk'] = "`n`&Nearby some residents stand talking:`n";
-                $args['schemas']['talk'] = "module-racetemplate";
+                $args['schemas']['title'] = "module-racedwarf";
+                $args['sayline'] = "grunts";
+                $args['schemas']['sayline'] = "module-racedwarf";
+                $args['talk'] = "`n`&Nearby some dwarven miners stand talking:`n";
+                $args['schemas']['talk'] = "module-racedwarf";
                 
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racedwarf_get_travel_mod();
                 $new = $travel_mod !== false ? get_module_setting("newest-$city", $travel_mod) : 0;
                 if ($new != 0) {
                     $sql =  "SELECT name FROM " . db_prefix("accounts") . " WHERE acctid='$new'";
@@ -409,38 +405,38 @@ function racetemplate_dohook($hookname, $args) {
                 }
                 
                 if ($new == ($session['user']['acctid'] ?? 0)) {
-                    $args['newest'] = "`n`7[PLACEHOLDER NEWEST PLAYER TEXT (SELF)].";
+                    $args['newest'] = "`n`7You are the newest resident of this mountain hold.";
                 } else {
-                    $args['newest'] = "`n`7[PLACEHOLDER NEWEST PLAYER TEXT (OTHER)] `&%s`7.";
+                    $args['newest'] = "`n`7The newest resident of this mountain hold is `&%s`7.";
                 }
-                $args['schemas']['newest'] = "module-racetemplate";
+                $args['schemas']['newest'] = "module-racedwarf";
                 $args['section'] = "village-$race";
-                $args['stablename'] = "[PLACEHOLDER STABLE NAME]";
-                $args['schemas']['stablename'] = "module-racetemplate";
-                $args['gatenav'] = "[PLACEHOLDER GATE NAV TEXT]";
-                $args['schemas']['gatenav'] = "module-racetemplate";
-                $args['fightnav'] = "[PLACEHOLDER FIGHT NAV TEXT]";
-                $args['schemas']['fightnav'] = "module-racetemplate";
-                $args['marketnav'] = "[PLACEHOLDER MARKET NAV TEXT]";
-                $args['schemas']['marketnav'] = "module-racetemplate";
-                $args['tavernnav'] = "[PLACEHOLDER TAVERN NAV TEXT]";
-                $args['schemas']['tavernnav'] = "module-racetemplate";
+                $args['stablename'] = "Mountain Stables";
+                $args['schemas']['stablename'] = "module-racedwarf";
+                $args['gatenav'] = "Subterranean Shafts";
+                $args['schemas']['gatenav'] = "module-racedwarf";
+                $args['fightnav'] = "Underground Arena";
+                $args['schemas']['fightnav'] = "module-racedwarf";
+                $args['marketnav'] = "Cavern Bazaar";
+                $args['schemas']['marketnav'] = "module-racedwarf";
+                $args['tavernnav'] = "The Stone Hearth Inn";
+                $args['schemas']['tavernnav'] = "module-racedwarf";
 
                 // Override standard location nav labels
-                $args['navs']['weapons'] = "[PLACEHOLDER WEAPONRY NAME]";
-                $args['navs']['armor'] = "[PLACEHOLDER ARMOURY NAME]";
-                $args['navs']['train'] = "u?[PLACEHOLDER TRAINING NAME]";
-                $args['schemas']['navs']['weapons'] = "module-racetemplate";
-                $args['schemas']['navs']['armor'] = "module-racetemplate";
-                $args['schemas']['navs']['train'] = "module-racetemplate";
+                $args['navs']['weapons'] = "Kharad-Dur Forge & Steel";
+                $args['navs']['armor'] = "Kharad-Dur Bulwark & Plate";
+                $args['navs']['train'] = "u?Kharad-Dur Training Arena";
+                $args['schemas']['navs']['weapons'] = "module-racedwarf";
+                $args['schemas']['navs']['armor'] = "module-racedwarf";
+                $args['schemas']['navs']['train'] = "module-racedwarf";
 
                 // Special section nav header and labels
-                $args['nav_headers']['special'] = "[PLACEHOLDER SPECIAL HEADER]";
-                $args['navs']['special1'] = "[PLACEHOLDER SPECIAL LINK 1]";
-                $args['navs']['special2'] = "[PLACEHOLDER SPECIAL LINK 2]";
-                $args['schemas']['nav_headers']['special'] = "module-racetemplate";
-                $args['schemas']['navs']['special1'] = "module-racetemplate";
-                $args['schemas']['navs']['special2'] = "module-racetemplate";
+                $args['nav_headers']['special'] = "Kharad-Dur Services";
+                $args['navs']['forge'] = "Deep Forge";
+                $args['navs']['gemcutter'] = "Gemcutter's Shop";
+                $args['schemas']['nav_headers']['special'] = "module-racedwarf";
+                $args['schemas']['navs']['forge'] = "module-racedwarf";
+                $args['schemas']['navs']['gemcutter'] = "module-racedwarf";
 
                 unblocknav("stables.php");
             }
@@ -449,50 +445,51 @@ function racetemplate_dohook($hookname, $args) {
         case "stabletext":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') !== $city) break;
-            $args['title'] = "[PLACEHOLDER STABLE NAME]";
-            $args['schemas']['title'] = "module-racetemplate";
-            $args['desc'] = "`\$[PLACEHOLDER STABLE DESCRIPTION FEATURING OWNER: ".get_module_setting("stableowner")."]";
-            $args['schemas']['desc'] = "module-racetemplate";
-            $args['lad'] = "Sir";
-            $args['schemas']['lad'] = "module-racetemplate";
-            $args['lass'] = "Miss";
-            $args['schemas']['lass'] = "module-racetemplate";
-            $args['nosuchbeast'] = "`3\"`7I don't stock that creature.`3\", says ".get_module_setting("stableowner")."`3.";
-            $args['schemas']['nosuchbeast'] = "module-racetemplate";
+            $owner = get_module_setting("stableowner");
+            $args['title'] = "Mountain Stables";
+            $args['schemas']['title'] = "module-racedwarf";
+            $args['desc'] = "`\$You stand in a stable carved from deep stone, with heavy iron lanterns lighting the pens. $owner greets you with a stout nod.";
+            $args['schemas']['desc'] = "module-racedwarf";
+            $args['lad'] = "Lad";
+            $args['schemas']['lad'] = "module-racedwarf";
+            $args['lass'] = "Lass";
+            $args['schemas']['lass'] = "module-racedwarf";
+            $args['nosuchbeast'] = "`3\"`7We don't stock that kind of critter in these tunnels.`3\", says $owner.`3.";
+            $args['schemas']['nosuchbeast'] = "module-racedwarf";
             $args['finebeast'] = [
-                "`3\"`7[PLACEHOLDER MOUNT PURCHASE QUOTE 1]`3\"`n`n",
-                "`3\"`7[PLACEHOLDER MOUNT PURCHASE QUOTE 2]`3\"`n`n",
+                "`3\"`7This beast has sturdy legs, perfect for cavern treks.`3\"`n`n",
+                "`3\"`7Treat it well and it'll carry you through the worst depths.`3\"`n`n",
             ];
-            $args['schemas']['finebeast'] = "module-racetemplate";
-            $args['toolittle'] = "`%[PLACEHOLDER NOT ENOUGH GOLD QUOTE]";
-            $args['schemas']['toolittle'] = "module-racetemplate";
-            $args['replacemount'] = "`%[PLACEHOLDER REPLACE MOUNT TEXT: YOU TRADE YOUR `^%s FOR A `&%s`%]";
-            $args['schemas']['replacemount'] = "module-racetemplate";
-            $args['newmount'] = "`@[PLACEHOLDER NEW MOUNT TEXT: YOU RECEIVE A `&%s`@]";
-            $args['schemas']['newmount'] = "module-racetemplate";
-            $args['nofeed'] = "`3\"`7I don't stock feed here.`3\"";
-            $args['schemas']['nofeed'] = "module-racetemplate";
-            $args['nothungry'] = "`&%s`6 [PLACEHOLDER MOUNT NOT HUNGRY TEXT]";
-            $args['schemas']['nothungry'] = "module-racetemplate";
-            $args['halfhungry'] = "`&%s`6 [PLACEHOLDER MOUNT HALF HUNGRY TEXT]";
-            $args['schemas']['halfhungry'] = "module-racetemplate";
-            $args['hungry'] = "`6%s`6 [PLACEHOLDER MOUNT FULLY HUNGRY TEXT]";
-            $args['schemas']['hungry'] = "module-racetemplate";
-            $args['mountfull'] = "`n`6\"`^Your %s`^ is full now.`6\"";
-            $args['schemas']['mountfull'] = "module-racetemplate";
-            $args['nofeedgold'] = "`6\"`^Not enough money for food.`6\"";
-            $args['schemas']['nofeedgold'] = "module-racetemplate";
-            $args['confirmsale'] = "`n`n`6[PLACEHOLDER CONFIRM MOUNT SALE TEXT]";
-            $args['schemas']['confirmsale'] = "module-racetemplate";
-            $args['mountsold'] = "`6[PLACEHOLDER MOUNT SOLD TEXT]";
-            $args['schemas']['mountsold'] = "module-racetemplate";
-            $args['offer'] = "`n`n`6[PLACEHOLDER MOUNT SALE OFFER TEXT]";
-            $args['schemas']['offer'] = "module-racetemplate";
+            $args['schemas']['finebeast'] = "module-racedwarf";
+            $args['toolittle'] = "`%\"`7You don't have enough coin for that mount,`%\" $owner grunts.";
+            $args['schemas']['toolittle'] = "module-racedwarf";
+            $args['replacemount'] = "`%You trade in your `^%s for a sturdy `&%s`%.";
+            $args['schemas']['replacemount'] = "module-racedwarf";
+            $args['newmount'] = "`@You receive a strong, sure-footed `&%s`@.";
+            $args['schemas']['newmount'] = "module-racedwarf";
+            $args['nofeed'] = "`3\"`7We're out of feed. Mine your own lichen.`3\"";
+            $args['schemas']['nofeed'] = "module-racedwarf";
+            $args['nothungry'] = "`&%s`6 refuses the feed, looking satisfied.";
+            $args['schemas']['nothungry'] = "module-racedwarf";
+            $args['halfhungry'] = "`&%s`6 chews on the cave mushrooms contentedly.";
+            $args['schemas']['halfhungry'] = "module-racedwarf";
+            $args['hungry'] = "`6%s`6 eats the mushrooms greedily!";
+            $args['schemas']['hungry'] = "module-racedwarf";
+            $args['mountfull'] = "`n`6\"`^Your %s`^ is stuffed.`6\"";
+            $args['schemas']['mountfull'] = "module-racedwarf";
+            $args['nofeedgold'] = "`6\"`^Not enough gold for mushroom feed.`6\"";
+            $args['schemas']['nofeedgold'] = "module-racedwarf";
+            $args['confirmsale'] = "`n`n`6Are you sure you want to sell your mount back to the stables?";
+            $args['schemas']['confirmsale'] = "module-racedwarf";
+            $args['mountsold'] = "`6You hand over the reins and receive your gold.";
+            $args['schemas']['mountsold'] = "module-racedwarf";
+            $args['offer'] = "`n`n`6\"`^I can offer you `&%s`6 gold and `%%s`6 gems for that mount,`6\" $owner grunts.";
+            $args['schemas']['offer'] = "module-racedwarf";
             break;
 
         case "stablelocs":
             if (!get_module_setting("use_custom_village")) break;
-            $travel_mod = racetemplate_get_travel_mod();
+            $travel_mod = racedwarf_get_travel_mod();
             if ($travel_mod !== false) {
                 tlschema("mounts");
                 $args[$city] = sprintf_translate("City of %s", $city); 
@@ -503,8 +500,8 @@ function racetemplate_dohook($hookname, $args) {
         case "villagenav":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
-                // Add custom links here for your race to sit at the top, e.g.:
-                // $args['special']['special1'] = "runmodule.php?module=racetemplate&op=special1";
+                $args['special']['forge'] = "runmodule.php?module=racedwarf&op=forge";
+                $args['special']['gemcutter'] = "runmodule.php?module=racedwarf&op=gemcutter";
             }
             break;
 
@@ -512,14 +509,14 @@ function racetemplate_dohook($hookname, $args) {
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
                 $tradeinvalue = round(($session['user']['weaponvalue'] * 0.75), 0);
-                $args['title'] = "[PLACEHOLDER WEAPON SHOP TITLE]";
+                $args['title'] = "Kharad-Dur Forge & Steel";
                 $args['desc'] = [
-                    "`&[PLACEHOLDER WEAPON SHOP DESCRIPTION]`n`n"
+                    "`&Heavy bellows roar and iron anvils ring as dwarven armorers hammer out thick axes and warhammers.`n`n"
                 ];
                 $args['tradein'] = [
-                    "`7[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER]`n`n",
+                    "`7You place your weapon on the stone slab counter.`n`n",
                     [
-                        "`&[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER DETAIL WITH %s FOR VALUE AND %s FOR WEAPON NAME]`n`n",
+                        "`&The smith grunts, inspecting the balance. \"`#I'll give you `^%s`# gold in trade toward some proper dwarven steel.`\"`n`n",
                         $tradeinvalue,
                         $session['user']['weapon']
                     ]
@@ -531,14 +528,14 @@ function racetemplate_dohook($hookname, $args) {
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
                 $tradeinvalue = round(($session['user']['armorvalue'] * 0.75), 0);
-                $args['title'] = "[PLACEHOLDER ARMOR SHOP TITLE]";
+                $args['title'] = "Kharad-Dur Bulwark & Plate";
                 $args['desc'] = [
-                    "`&[PLACEHOLDER ARMOR SHOP DESCRIPTION]`n`n"
+                    "`&Mounds of thick iron plates, heavy chainmail, and stone-reinforced shields line the dark cavern walls.`n`n"
                 ];
                 $args['tradein'] = [
-                    "`7[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER]`n`n",
+                    "`7You show your current protection to the master tanner.`n`n",
                     [
-                        "`&[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER DETAIL WITH %s FOR VALUE AND %s FOR ARMOR NAME]`n`n",
+                        "`&He bangs a hammer against your armor and nods. \"`#Not bad. Worth `^%s`# in trade-in for real dwarven bulwarks.`\"`n`n",
                         $tradeinvalue,
                         $session['user']['armor']
                     ]
@@ -549,24 +546,24 @@ function racetemplate_dohook($hookname, $args) {
         case "trainingtitle":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
-                $args['title'] = "[PLACEHOLDER TRAINING CENTER TITLE]";
+                $args['title'] = "Kharad-Dur Training Arena";
             }
             break;
 
         case "modify-master":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
-                $args['creaturename'] = "[PLACEHOLDER TRAINER NAME]";
-                $args['creatureweapon'] = "[PLACEHOLDER TRAINER WEAPON]";
-                $args['creaturewin'] = "[PLACEHOLDER TRAINER WIN MESSAGE]";
-                $args['creaturelose'] = "[PLACEHOLDER TRAINER LOSE MESSAGE]";
+                $args['creaturename'] = "Korgan the Ironclad";
+                $args['creatureweapon'] = "Double-Headed Greataxe";
+                $args['creaturewin'] = "You swing your axe like a human child! Put some back into it!";
+                $args['creaturelose'] = "By the ancestors... you fight with the strength of the mountain. Go, protect the deeps.";
             }
             break;
     }
     return $args;
 }
 
-function racetemplate_run() {
+function racedwarf_run() {
     global $session;
     if (!get_module_setting("use_custom_village")) {
         page_header("Access Denied");
@@ -576,27 +573,117 @@ function racetemplate_run() {
         return;
     }
     $op = httpget('op');
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
+    $race = "Dwarf";
     
-    // Check if the user is of this race to prevent other races accessing custom features
+    // Check if the user is a Dwarf
     if (($session['user']['race'] ?? '') !== $race) {
         page_header("Access Denied");
-        output("`\$Only %ss may access these features.`n`n", $race);
+        output("`\$Only Dwarves may access these features.`n`n");
         addnav("Return to the Village", "village.php");
         page_footer();
         return;
     }
     
-    // If you want a custom shrine or training building in your race's city, build it here!
+    if ($op === "forge") {
+        page_header("Kharad-Dur Deep Forge");
+        output("`c`b`#Kharad-Dur Deep Forge`b`c`n`n");
+        output("`7Ancient heat rises from the volcanic cracks in the floor. Dwarven blacksmiths are tempering weaponry and shields to perfection.`n`n");
+        
+        $tempered = get_module_pref("tempered_today");
+        $subop = httpget('subop');
+        
+        if ($subop === "temper") {
+            if ($tempered) {
+                output("`\$You have already tempered your equipment today. Blacksmiths need to tend to the volcanic bellows.`n`n");
+            } elseif ($session['user']['gold'] < 50) {
+                output("`\$You don't have enough gold on hand (50 gold required) to pay the smiths.`n`n");
+            } else {
+                $session['user']['gold'] -= 50;
+                set_module_pref("tempered_today", 1);
+                $tempered = true;
+                
+                $roll = e_rand(1, 2);
+                if ($roll == 1) {
+                    apply_buff("tempered_axe", [
+                        "name" => "`#Volcanic Weapon Tempering`0",
+                        "atkmod" => 1.10,
+                        "rounds" => 15,
+                        "allowinpvp" => 1,
+                        "allowintrain" => 1,
+                        "schema" => "module-racedwarf",
+                    ]);
+                    output("`@You pay 50 gold. The blacksmith heats your weapon in volcanic magma, adding a sharp, red-glowing edge (+10%% Attack) for your next 15 rounds of combat!`n`n");
+                } else {
+                    apply_buff("tempered_shield", [
+                        "name" => "`#Iron Shield Tempering`0",
+                        "defmod" => 1.10,
+                        "rounds" => 15,
+                        "allowinpvp" => 1,
+                        "allowintrain" => 1,
+                        "schema" => "module-racedwarf",
+                    ]);
+                    output("`@You pay 50 gold. The blacksmith reinforces your armor with iron studs, hardening it (+10%% Defense) for your next 15 rounds of combat!`n`n");
+                }
+            }
+        }
+        
+        if (!$tempered) {
+            addnav("Deep Forge");
+            addnav("Temper Equipment (50 gold)", "runmodule.php?module=racedwarf&op=forge&subop=temper");
+        } else {
+            output("`&You have already tempered your gear today.`n`n");
+        }
+        addnav("Return to Kharad-Dur", "village.php");
+        page_footer();
+    }
+    
+    if ($op === "gemcutter") {
+        page_header("Kharad-Dur Gemcutter's Shop");
+        output("`c`b`#Kharad-Dur Gemcutter's Shop`b`c`n`n");
+        output("`7A skilled gemcutter stands at a workbench covered in magnifying lenses and diamond-tipped chisels. \"`#Bring me your gold and I'll polish some raw mountain stones for you.`\"`n`n");
+        
+        $polished = get_module_pref("polished_today");
+        $subop = httpget('subop');
+        
+        if ($subop === "polish") {
+            if ($polished) {
+                output("`\$You have already polished a stone today. Let the gemcutter rest his eyes.`n`n");
+            } elseif ($session['user']['gold'] < 200) {
+                output("`\$You do not have the 200 gold required to purchase a raw stone.`n`n");
+            } else {
+                $session['user']['gold'] -= 200;
+                set_module_pref("polished_today", 1);
+                $polished = true;
+                
+                $roll = e_rand(1, 100);
+                if ($roll <= 30) {
+                    $session['user']['gems'] += 1;
+                    output("`@You pay 200 gold. The gemcutter carefully chips away the rough crust... `^Success! `7You receive a beautifully polished `&gem`7!`n`n");
+                } else {
+                    $session['user']['gold'] += 50;
+                    output("`7You pay 200 gold. The gemcutter chips away the stone... but it fractures! The pieces are worthless except as decorative gravel. He refunds you `^50 gold`7 for the scrap.`n`n");
+                }
+            }
+        }
+        
+        if (!$polished) {
+            addnav("Gemcutter");
+            addnav("Polish Mountain Stone (200 gold)", "runmodule.php?module=racedwarf&op=gemcutter&subop=polish");
+        } else {
+            output("`&You have already had a stone polished today.`n`n");
+        }
+        addnav("Return to Kharad-Dur", "village.php");
+        page_footer();
+    }
 }
 
-function racetemplate_checkcity() {
+function racedwarf_checkcity() {
     global $session;
     if (!get_module_setting("use_custom_village")) return true;
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
+    $race = "Dwarf";
     $city = get_module_setting("villagename");
     
-    $travel_mod = racetemplate_get_travel_mod();
+    $travel_mod = racedwarf_get_travel_mod();
     if ($travel_mod !== false) {
         if (($session['user']['race'] ?? '') === $race) {
             if (get_module_pref("homecity", $travel_mod) !== $city) {
@@ -607,7 +694,7 @@ function racetemplate_checkcity() {
     return true;
 }
 
-function racetemplate_get_travel_mod() {
+function racedwarf_get_travel_mod() {
     if (is_module_active("villages")) {
         return "villages";
     } elseif (is_module_active("cities")) {
@@ -618,7 +705,7 @@ function racetemplate_get_travel_mod() {
     return false;
 }
 
-function racetemplate_check_unlock() {
+function racedwarf_check_unlock() {
     $req = get_module_setting("unlock_req");
     if (trim($req) === "") return true;
     
@@ -638,7 +725,7 @@ function racetemplate_check_unlock() {
     return true;
 }
 
-function racetemplate_get_unlock_text() {
+function racedwarf_get_unlock_text() {
     $req = get_module_setting("unlock_req");
     if (trim($req) === "") return "";
     

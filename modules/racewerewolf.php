@@ -1,49 +1,49 @@
 <?php
 /**
- * Advanced Race Blueprint (With Legacy, Stagnation, and Unlock Mechanics)
+ * Advanced Race Module - Werewolf
+ * Built from the Advanced Race Blueprint
  * Designed for PHP 8.4 Strict Compliance
- * * Easy way to customize:
- * - Replace 'racetemplate' with module name (e.g., 'racedwarf')
- * - Search for '[PLACEHOLDER]' to find all text that needs customization.
- * - Search for '***CHANGE' to see structural variables that must be defined.
  */
 
-function racetemplate_getmoduleinfo() {
+function racewerewolf_getmoduleinfo() {
     return [
-        "name" => "Race - [PLACEHOLDER RACE NAME]", // ***CHANGE
+        "name" => "Race - Werewolf",
         "version" => "1.0",
         "author" => "Dragon.NDGaming", 
         "category" => "Race",
         "download" => "", 
         "settings" => [
-            "[PLACEHOLDER RACE NAME] - Race Settings,title", // ***CHANGE
-            "use_custom_village" => "Does this race have its own custom village?,bool|1", // ***CHANGE
-            "villagename" => "Name for the [PLACEHOLDER RACE NAME] city,|[PLACEHOLDER CITY NAME]", // ***CHANGE
-            "stableowner" => "Name of the city stable-owner,|[PLACEHOLDER STABLE OWNER]", // ***CHANGE
-            "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|20", // ***CHANGE
+            "Werewolf - Race Settings,title",
+            "use_custom_village" => "Does this race have its own custom village?,bool|1",
+            "villagename" => "Name for the Werewolf city,|Lupine Vale", 
+            "stableowner" => "Name of the city stable-owner,|Fang", 
+            "minedeathchance" => "Chance for this race to die in the mine,range,0,100,1|15", 
             "dklimit" => "Limit the Race to a certain amount of dragon kills?,int|0", 
-            "training_villages" => "Villages where players of this race can train (comma-separated; leave blank to restrict to their custom village if enabled),string|", // ***CHANGE
+            "training_villages" => "Villages where players of this race can train (comma-separated; leave blank to restrict to their custom village if enabled),string|",
             
             "Race Progression Settings,title",
             "levels" => "Max Race Level,int|5",
             "cre_req" => "Battle victories required to level up,int|150",
-            "legacy_stat" => "Legacy Buff Stat (attack/defense/hp/gold/none),string|none", // ***CHANGE (e.g. 'attack')
-            "legacy_value" => "Legacy Buff Value (e.g. 1.01 for +1% attack/defense, or 2 for +2 HP),float|0.0", // ***CHANGE
-            "unlock_req" => "Unlock Requirements (comma-separated, e.g. racehuman:5),string|", // ***CHANGE (e.g. 'racehuman:5')
+            "legacy_stat" => "Legacy Buff Stat (attack/defense/hp/gold/none),string|defense",
+            "legacy_value" => "Legacy Buff Value,float|1.01",
+            "unlock_req" => "Unlock Requirements (comma-separated, e.g. racehuman:5),string|raceorc:3,racetroll:3",
             "stagnation_decay" => "Stagnation victory point multiplier (0.0 to 1.0),float|0.5",
         ],
         "prefs" => [
-            "[PLACEHOLDER RACE NAME] - User Prefs,title", // ***CHANGE
+            "Werewolf - User Prefs,title",
             "level" => "Current Race Level,int|0",
             "cre" => "Current Victory Points towards next level,float|0.0",
             "stagnation" => "Consecutive Dragon Kills as this race,int|0",
             "last_played_dk" => "Was this race played last DK?,bool|0",
             "fresh_soul" => "Does player have fresh soul bonus?,bool|0",
+            
+            "moon_prayed" => "Has player prayed at the moon pool today?,bool|0",
+            "shrine_visited" => "Has player visited the feral shrine today?,bool|0",
         ]
     ];
 }
 
-function racetemplate_install() {
+function racewerewolf_install() {
     module_addhook("chooserace");
     module_addhook("setrace");
     module_addhook("villagetext");
@@ -66,11 +66,11 @@ function racetemplate_install() {
     module_addhook("battle-victory");
     module_addhook("pvpwin");
     module_addhook("creatureencounter");
-    debug("Installed '[PLACEHOLDER RACE NAME]' advanced race module."); // ***CHANGE
+    debug("Installed 'Werewolf' advanced race module.");
     return true;
 }
 
-function racetemplate_uninstall() {
+function racewerewolf_uninstall() {
     global $session;
     $vname = getsetting("villagename", LOCATION_FIELDS);
     $gname = get_module_setting("villagename");
@@ -83,20 +83,20 @@ function racetemplate_uninstall() {
     }
     
     // Force anyone who was this race to rechoose race
-    $sql = "UPDATE " . db_prefix("accounts") . " SET race='" . RACE_UNKNOWN . "' WHERE race='[PLACEHOLDER RACE NAME]'"; // ***CHANGE
+    $sql = "UPDATE " . db_prefix("accounts") . " SET race='" . RACE_UNKNOWN . "' WHERE race='Werewolf'";
     db_query($sql);
-    if (($session['user']['race'] ?? '') === '[PLACEHOLDER RACE NAME]') { // ***CHANGE
+    if (($session['user']['race'] ?? '') === 'Werewolf') {
         $session['user']['race'] = RACE_UNKNOWN;
     }
     
-    debug("Uninstalled '[PLACEHOLDER RACE NAME]' race module."); // ***CHANGE
+    debug("Uninstalled 'Werewolf' race module.");
     return true;
 }
 
-function racetemplate_dohook($hookname, $args) {
+function racewerewolf_dohook($hookname, $args) {
     global $session, $resline;
     $city = get_module_setting("villagename");
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
+    $race = "Werewolf"; 
     
     $userRace = $session['user']['race'] ?? '';
     
@@ -108,12 +108,12 @@ function racetemplate_dohook($hookname, $args) {
             break;
 
         case "changesetting":
-            if (get_module_setting("use_custom_village") && ($args['setting'] ?? '') === "villagename" && ($args['module'] ?? '') === "racetemplate") {
+            if (get_module_setting("use_custom_village") && ($args['setting'] ?? '') === "villagename" && ($args['module'] ?? '') === "racewerewolf") {
                 if (($session['user']['location'] ?? '') === $args['old'])
                     $session['user']['location'] = $args['new'];
                 $sql = "UPDATE " . db_prefix("accounts") . " SET location='" . $args['new'] . "' WHERE location='" . $args['old'] . "'";
                 db_query($sql);
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racewerewolf_get_travel_mod();
                 if ($travel_mod !== false) {
                     $sql = "UPDATE " . db_prefix("module_userprefs") . " SET value='" . $args['new'] . "' WHERE modulename='$travel_mod' AND setting='homecity' AND value='" . $args['old'] . "'";
                     db_query($sql);
@@ -148,16 +148,15 @@ function racetemplate_dohook($hookname, $args) {
         case "chooserace":
             $dk_limit = (int)get_module_setting("dklimit");
             if ($dk_limit === 0 || ($session['user']['dragonkills'] ?? 0) >= $dk_limit) {
-                $unlocked = racetemplate_check_unlock();
+                $unlocked = racewerewolf_check_unlock();
                 if ($unlocked) {
-                    $atrans = translate_inline("In the town of %s"); // ***CHANGE
-                    $rtrans = translate_inline(", a place of peace and trade.`n`n"); // ***CHANGE
+                    $atrans = translate_inline("Under the thick canopies of %s");
+                    $rtrans = translate_inline(", home to the beastly Werewolves.`n`n");
                     addnav(["%s (%s)", $city, $race], "newday.php?setrace=$race$resline");
                     output_notl("`0<a href='newday.php?setrace=$race$resline'>$atrans</a>$rtrans", $city, true);
                     addnav("", "newday.php?setrace=$race$resline");
                 } else {
-                    // Show locked race with info
-                    $req_text = racetemplate_get_unlock_text();
+                    $req_text = racewerewolf_get_unlock_text();
                     output("`7Locked Race: `&%s`7 (Requires: `5%s`7)`n`n", $race, $req_text);
                 }
             }
@@ -165,7 +164,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "setrace":
             if ($userRace === $race) {
-                output("`&[PLACEHOLDER RACE SELECTED FLAVOR TEXT AND BUFF EXPLANATION]`n"); // ***CHANGE
+                output("`2You embrace your lycanthrope blood! Your animal instincts sharpen (+15%% Attack, +10%% Defense, and +2 forest fights per day)!`n");
                 
                 // Determine Stagnation vs Fresh Soul
                 $last_played = (bool)get_module_pref("last_played_dk");
@@ -182,7 +181,7 @@ function racetemplate_dohook($hookname, $args) {
                 set_module_pref("last_played_dk", 0);
 
                 if (get_module_setting("use_custom_village")) {
-                    $travel_mod = racetemplate_get_travel_mod();
+                    $travel_mod = racewerewolf_get_travel_mod();
                     if ($travel_mod !== false) {
                         if (($session['user']['dragonkills'] ?? 0) == 0 && ($session['user']['age'] ?? 0) == 0) {
                             set_module_setting("newest-$city", $session['user']['acctid'], $travel_mod);
@@ -212,14 +211,12 @@ function racetemplate_dohook($hookname, $args) {
                 if ($lvl < $max) {
                     $gain = 1.0;
                     
-                    // Stagnation penalty
                     $stg = (int)get_module_pref("stagnation");
                     if ($stg > 0) {
                         $decay = (float)get_module_setting("stagnation_decay");
                         $gain *= $decay;
                     }
                     
-                    // Fresh Soul bonus
                     $fresh = (int)get_module_pref("fresh_soul");
                     if ($fresh > 0) {
                         $gain *= 2.0;
@@ -258,27 +255,30 @@ function racetemplate_dohook($hookname, $args) {
         case "newday":
             // Apply standard race buffs
             if ($userRace === $race) {
-                racetemplate_checkcity();
+                racewerewolf_checkcity();
                 
-                // Example passive buffs to apply
-                $args['turnstoday'] = ($args['turnstoday'] ?? '') . ", Race ($race): 1"; // ***CHANGE
-                $session['user']['turns']++;
-
-                // Example combat buff
+                // Werewolves get +2 forest fights and +15% attack, +10% defense
+                $args['turnstoday'] = ($args['turnstoday'] ?? '') . ", Race ($race): 2";
+                $session['user']['turns'] += 2;
+                
                 apply_buff("racialbenefit", [
-                    "name" => sprintf_translate("%s Might", translate_inline($race)),
-                    "atkmod" => 1.05,
-                    "defmod" => 1.05,
+                    "name" => sprintf_translate("Lycanthrope Fury"),
+                    "atkmod" => 1.15,
+                    "defmod" => 1.10,
                     "allowinpvp" => 1,
                     "allowintrain" => 1,
                     "rounds" => -1,
-                    "schema" => "module-racetemplate",
+                    "schema" => "module-racewerewolf",
                 ]);
+                
+                // Reset daily services
+                set_module_pref("moon_prayed", 0);
+                set_module_pref("shrine_visited", 0);
 
-                output("`n`&[PLACEHOLDER NEWDAY RACE BUFF TEXT]`n`0"); // ***CHANGE
+                output("`n`2You awaken under the full moon in Lupine Vale. The wolf within howls (+15%% Attack, +10%% Defense, +2 forest fights).`n`0");
             }
             
-            // Apply Legacy Buffs (runs for all active modules if player has maxed it)
+            // Apply Legacy Buffs
             $lvl = (int)get_module_pref("level");
             $max = (int)get_module_setting("levels");
             if ($lvl >= $max) {
@@ -291,7 +291,7 @@ function racetemplate_dohook($hookname, $args) {
                         "allowinpvp" => 1,
                         "allowintrain" => 1,
                         "rounds" => -1,
-                        "schema" => "module-racetemplate",
+                        "schema" => "module-racewerewolf",
                     ]);
                 } elseif ($stat === "defense" && $val > 0.0) {
                     apply_buff("legacy_" . strtolower($race) . "_def", [
@@ -300,7 +300,7 @@ function racetemplate_dohook($hookname, $args) {
                         "allowinpvp" => 1,
                         "allowintrain" => 1,
                         "rounds" => -1,
-                        "schema" => "module-racetemplate",
+                        "schema" => "module-racewerewolf",
                     ]);
                 } elseif ($stat === "hp" && $val > 0.0) {
                     $session['user']['maxhitpoints'] += (int)$val;
@@ -333,7 +333,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "validlocation":
             if (get_module_setting("use_custom_village")) {
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racewerewolf_get_travel_mod();
                 if ($travel_mod !== false)
                     $args[$city] = "village-$race";
             }
@@ -341,7 +341,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "moderate":
             if (get_module_setting("use_custom_village")) {
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racewerewolf_get_travel_mod();
                 if ($travel_mod !== false) {
                     tlschema("commentary");
                     $args["village-$race"] = sprintf_translate("City of %s", $city); 
@@ -352,7 +352,7 @@ function racetemplate_dohook($hookname, $args) {
 
         case "travel":
             if (get_module_setting("use_custom_village")) {
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racewerewolf_get_travel_mod();
                 if ($travel_mod !== false) {
                     $capital = getsetting("villagename", LOCATION_FIELDS);
                     $hotkey = substr($city, 0, 1);
@@ -376,26 +376,26 @@ function racetemplate_dohook($hookname, $args) {
 
         case "villagetext":
             if (!get_module_setting("use_custom_village")) break;
-            racetemplate_checkcity();
+            racewerewolf_checkcity();
             if (($session['user']['location'] ?? '') === $city) {
-                $args['text'] = ["`\$`c`b%s`b`c`n`^[PLACEHOLDER VILLAGE MAIN DESCRIPTION TEXT]`n", $city];
-                $args['schemas']['text'] = "module-racetemplate";
-                $args['description'] = ["`\$`c`b%s`b`c`n`^[PLACEHOLDER VILLAGE MAIN DESCRIPTION TEXT]`n", $city];
-                $args['schemas']['description'] = "module-racetemplate";
-                $args['clock'] = "`n`7A clock reads `@%s`7.`n";
-                $args['schemas']['clock'] = "module-racetemplate";
+                $args['text'] = ["`\$`c`b%s`b`c`n`^Wooden log structures sit nested inside the dark, moonlit pine trees of %s. Banners of claw marks hang over the pathways, and wolf howls echo in the distance.`n", $city, $city];
+                $args['schemas']['text'] = "module-racewerewolf";
+                $args['description'] = ["`\$`c`b%s`b`c`n`^Wooden log structures sit nested inside the dark, moonlit pine trees of %s. Banners of claw marks hang over the pathways, and wolf howls echo in the distance.`n", $city, $city];
+                $args['schemas']['description'] = "module-racewerewolf";
+                $args['clock'] = "`n`7A shadow cast by the bright moon reads `@%s`7.`n";
+                $args['schemas']['clock'] = "module-racewerewolf";
                 if (is_module_active("calendar")) {
-                    $args['calendar'] = "`n`\$A calendar reads `&%s`\$, `&%s %s %s`\$.`n";
-                    $args['schemas']['calendar'] = "module-racetemplate";
+                    $args['calendar'] = "`n`\$A posted pine calendar reads `&%s`\$, `&%s %s %s`\$.`n";
+                    $args['schemas']['calendar'] = "module-racewerewolf";
                 }
                 $args['title'] = ["%s", $city];
-                $args['schemas']['title'] = "module-racetemplate";
-                $args['sayline'] = "says";
-                $args['schemas']['sayline'] = "module-racetemplate";
-                $args['talk'] = "`n`&Nearby some residents stand talking:`n";
-                $args['schemas']['talk'] = "module-racetemplate";
+                $args['schemas']['title'] = "module-racewerewolf";
+                $args['sayline'] = "snarls";
+                $args['schemas']['sayline'] = "module-racewerewolf";
+                $args['talk'] = "`n`&Nearby some wolf defenders stand talking:`n";
+                $args['schemas']['talk'] = "module-racewerewolf";
                 
-                $travel_mod = racetemplate_get_travel_mod();
+                $travel_mod = racewerewolf_get_travel_mod();
                 $new = $travel_mod !== false ? get_module_setting("newest-$city", $travel_mod) : 0;
                 if ($new != 0) {
                     $sql =  "SELECT name FROM " . db_prefix("accounts") . " WHERE acctid='$new'";
@@ -409,38 +409,38 @@ function racetemplate_dohook($hookname, $args) {
                 }
                 
                 if ($new == ($session['user']['acctid'] ?? 0)) {
-                    $args['newest'] = "`n`7[PLACEHOLDER NEWEST PLAYER TEXT (SELF)].";
+                    $args['newest'] = "`n`7You are the newest cub of Lupine Vale.";
                 } else {
-                    $args['newest'] = "`n`7[PLACEHOLDER NEWEST PLAYER TEXT (OTHER)] `&%s`7.";
+                    $args['newest'] = "`n`7The newest cub of Lupine Vale is `&%s`7.";
                 }
-                $args['schemas']['newest'] = "module-racetemplate";
+                $args['schemas']['newest'] = "module-racewerewolf";
                 $args['section'] = "village-$race";
-                $args['stablename'] = "[PLACEHOLDER STABLE NAME]";
-                $args['schemas']['stablename'] = "module-racetemplate";
-                $args['gatenav'] = "[PLACEHOLDER GATE NAV TEXT]";
-                $args['schemas']['gatenav'] = "module-racetemplate";
-                $args['fightnav'] = "[PLACEHOLDER FIGHT NAV TEXT]";
-                $args['schemas']['fightnav'] = "module-racetemplate";
-                $args['marketnav'] = "[PLACEHOLDER MARKET NAV TEXT]";
-                $args['schemas']['marketnav'] = "module-racetemplate";
-                $args['tavernnav'] = "[PLACEHOLDER TAVERN NAV TEXT]";
-                $args['schemas']['tavernnav'] = "module-racetemplate";
+                $args['stablename'] = "Lupine Stables";
+                $args['schemas']['stablename'] = "module-racewerewolf";
+                $args['gatenav'] = "Vale Paths";
+                $args['schemas']['gatenav'] = "module-racewerewolf";
+                $args['fightnav'] = "Training Paddock";
+                $args['schemas']['fightnav'] = "module-racewerewolf";
+                $args['marketnav'] = "Vale Clearing";
+                $args['schemas']['marketnav'] = "module-racewerewolf";
+                $args['tavernnav'] = "The Howling Cave";
+                $args['schemas']['tavernnav'] = "module-racewerewolf";
 
                 // Override standard location nav labels
-                $args['navs']['weapons'] = "[PLACEHOLDER WEAPONRY NAME]";
-                $args['navs']['armor'] = "[PLACEHOLDER ARMOURY NAME]";
-                $args['navs']['train'] = "u?[PLACEHOLDER TRAINING NAME]";
-                $args['schemas']['navs']['weapons'] = "module-racetemplate";
-                $args['schemas']['navs']['armor'] = "module-racetemplate";
-                $args['schemas']['navs']['train'] = "module-racetemplate";
+                $args['navs']['weapons'] = "Lupine Forge & Fangs";
+                $args['navs']['armor'] = "Lupine Pelt & Hide";
+                $args['navs']['train'] = "u?Lupine Training Paddock";
+                $args['schemas']['navs']['weapons'] = "module-racewerewolf";
+                $args['schemas']['navs']['armor'] = "module-racewerewolf";
+                $args['schemas']['navs']['train'] = "module-racewerewolf";
 
                 // Special section nav header and labels
-                $args['nav_headers']['special'] = "[PLACEHOLDER SPECIAL HEADER]";
-                $args['navs']['special1'] = "[PLACEHOLDER SPECIAL LINK 1]";
-                $args['navs']['special2'] = "[PLACEHOLDER SPECIAL LINK 2]";
-                $args['schemas']['nav_headers']['special'] = "module-racetemplate";
-                $args['schemas']['navs']['special1'] = "module-racetemplate";
-                $args['schemas']['navs']['special2'] = "module-racetemplate";
+                $args['nav_headers']['special'] = "Lupine Services";
+                $args['navs']['pool'] = "Moon Pool";
+                $args['navs']['shrine'] = "Feral Shrine";
+                $args['schemas']['nav_headers']['special'] = "module-racewerewolf";
+                $args['schemas']['navs']['pool'] = "module-racewerewolf";
+                $args['schemas']['navs']['shrine'] = "module-racewerewolf";
 
                 unblocknav("stables.php");
             }
@@ -449,50 +449,51 @@ function racetemplate_dohook($hookname, $args) {
         case "stabletext":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') !== $city) break;
-            $args['title'] = "[PLACEHOLDER STABLE NAME]";
-            $args['schemas']['title'] = "module-racetemplate";
-            $args['desc'] = "`\$[PLACEHOLDER STABLE DESCRIPTION FEATURING OWNER: ".get_module_setting("stableowner")."]";
-            $args['schemas']['desc'] = "module-racetemplate";
-            $args['lad'] = "Sir";
-            $args['schemas']['lad'] = "module-racetemplate";
-            $args['lass'] = "Miss";
-            $args['schemas']['lass'] = "module-racetemplate";
-            $args['nosuchbeast'] = "`3\"`7I don't stock that creature.`3\", says ".get_module_setting("stableowner")."`3.";
-            $args['schemas']['nosuchbeast'] = "module-racetemplate";
+            $owner = get_module_setting("stableowner");
+            $args['title'] = "Lupine Stables";
+            $args['schemas']['title'] = "module-racewerewolf";
+            $args['desc'] = "`\$You enter a paddock under the forest canopy. $owner is feeding raw meat to a massive, snarling dire wolf. He nods to you.";
+            $args['schemas']['desc'] = "module-racewerewolf";
+            $args['lad'] = "Brother";
+            $args['schemas']['lad'] = "module-racewerewolf";
+            $args['lass'] = "Sister";
+            $args['schemas']['lass'] = "module-racewerewolf";
+            $args['nosuchbeast'] = "`3\"`7We don't stock that beast in our pack,`3\" says $owner.`3.";
+            $args['schemas']['nosuchbeast'] = "module-racewerewolf";
             $args['finebeast'] = [
-                "`3\"`7[PLACEHOLDER MOUNT PURCHASE QUOTE 1]`3\"`n`n",
-                "`3\"`7[PLACEHOLDER MOUNT PURCHASE QUOTE 2]`3\"`n`n",
+                "`3\"`7Let this creature carry you swiftly through the trees.`3\"`n`n",
+                "`3\"`7A strong steed of the pack.`3\"`n`n",
             ];
-            $args['schemas']['finebeast'] = "module-racetemplate";
-            $args['toolittle'] = "`%[PLACEHOLDER NOT ENOUGH GOLD QUOTE]";
-            $args['schemas']['toolittle'] = "module-racetemplate";
-            $args['replacemount'] = "`%[PLACEHOLDER REPLACE MOUNT TEXT: YOU TRADE YOUR `^%s FOR A `&%s`%]";
-            $args['schemas']['replacemount'] = "module-racetemplate";
-            $args['newmount'] = "`@[PLACEHOLDER NEW MOUNT TEXT: YOU RECEIVE A `&%s`@]";
-            $args['schemas']['newmount'] = "module-racetemplate";
-            $args['nofeed'] = "`3\"`7I don't stock feed here.`3\"";
-            $args['schemas']['nofeed'] = "module-racetemplate";
-            $args['nothungry'] = "`&%s`6 [PLACEHOLDER MOUNT NOT HUNGRY TEXT]";
-            $args['schemas']['nothungry'] = "module-racetemplate";
-            $args['halfhungry'] = "`&%s`6 [PLACEHOLDER MOUNT HALF HUNGRY TEXT]";
-            $args['schemas']['halfhungry'] = "module-racetemplate";
-            $args['hungry'] = "`6%s`6 [PLACEHOLDER MOUNT FULLY HUNGRY TEXT]";
-            $args['schemas']['hungry'] = "module-racetemplate";
+            $args['schemas']['finebeast'] = "module-racewerewolf";
+            $args['toolittle'] = "`%\"`7You don't have enough gold for this steed,`%\" $owner growls.";
+            $args['schemas']['toolittle'] = "module-racewerewolf";
+            $args['replacemount'] = "`%You release your `^%s back to the wild, taking the reins of a strong `&%s`%.";
+            $args['schemas']['replacemount'] = "module-racewerewolf";
+            $args['newmount'] = "`@You receive a strong, fleet-footed `&%s`@.";
+            $args['schemas']['newmount'] = "module-racewerewolf";
+            $args['nofeed'] = "`3\"`7We do not sell feed here. Let it hunt.`3\"";
+            $args['schemas']['nofeed'] = "module-racewerewolf";
+            $args['nothungry'] = "`&%s`6 shakes its head.";
+            $args['schemas']['nothungry'] = "module-racewerewolf";
+            $args['halfhungry'] = "`&%s`6 eats the fresh meat pieces.";
+            $args['schemas']['halfhungry'] = "module-racewerewolf";
+            $args['hungry'] = "`6%s`6 devours the fresh meat eagerly!";
+            $args['schemas']['hungry'] = "module-racewerewolf";
             $args['mountfull'] = "`n`6\"`^Your %s`^ is full now.`6\"";
-            $args['schemas']['mountfull'] = "module-racetemplate";
-            $args['nofeedgold'] = "`6\"`^Not enough money for food.`6\"";
-            $args['schemas']['nofeedgold'] = "module-racetemplate";
-            $args['confirmsale'] = "`n`n`6[PLACEHOLDER CONFIRM MOUNT SALE TEXT]";
-            $args['schemas']['confirmsale'] = "module-racetemplate";
-            $args['mountsold'] = "`6[PLACEHOLDER MOUNT SOLD TEXT]";
-            $args['schemas']['mountsold'] = "module-racetemplate";
-            $args['offer'] = "`n`n`6[PLACEHOLDER MOUNT SALE OFFER TEXT]";
-            $args['schemas']['offer'] = "module-racetemplate";
+            $args['schemas']['mountfull'] = "module-racewerewolf";
+            $args['nofeedgold'] = "`6\"`^Not enough gold for meat feed.`6\"";
+            $args['schemas']['nofeedgold'] = "module-racewerewolf";
+            $args['confirmsale'] = "`n`n`6Are you sure you wish to return your steed to the wild?";
+            $args['schemas']['confirmsale'] = "module-racewerewolf";
+            $args['mountsold'] = "`6You release the beast back to the pack.";
+            $args['schemas']['mountsold'] = "module-racewerewolf";
+            $args['offer'] = "`n`n`6\"`^I can offer you `&%s`6 gold and `%%s`6 gems to return your mount to our stables,`6\" $owner offers.";
+            $args['schemas']['offer'] = "module-racewerewolf";
             break;
 
         case "stablelocs":
             if (!get_module_setting("use_custom_village")) break;
-            $travel_mod = racetemplate_get_travel_mod();
+            $travel_mod = racewerewolf_get_travel_mod();
             if ($travel_mod !== false) {
                 tlschema("mounts");
                 $args[$city] = sprintf_translate("City of %s", $city); 
@@ -503,8 +504,8 @@ function racetemplate_dohook($hookname, $args) {
         case "villagenav":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city && ($session['user']['race'] ?? '') === $race) {
-                // Add custom links here for your race to sit at the top, e.g.:
-                // $args['special']['special1'] = "runmodule.php?module=racetemplate&op=special1";
+                $args['special']['pool'] = "runmodule.php?module=racewerewolf&op=pool";
+                $args['special']['shrine'] = "runmodule.php?module=racewerewolf&op=shrine";
             }
             break;
 
@@ -512,14 +513,14 @@ function racetemplate_dohook($hookname, $args) {
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
                 $tradeinvalue = round(($session['user']['weaponvalue'] * 0.75), 0);
-                $args['title'] = "[PLACEHOLDER WEAPON SHOP TITLE]";
+                $args['title'] = "Lupine Forge & Fangs";
                 $args['desc'] = [
-                    "`&[PLACEHOLDER WEAPON SHOP DESCRIPTION]`n`n"
+                    "`&Crude claws, obsidian-tipped daggers, and heavy spiked maces line the logs. The shop is filled with wild lupine markings.`n`n"
                 ];
                 $args['tradein'] = [
-                    "`7[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER]`n`n",
+                    "`7You throw your weapon on the counter.`n`n",
                     [
-                        "`&[PLACEHOLDER WEAPON SHOP TRADE-IN OFFER DETAIL WITH %s FOR VALUE AND %s FOR WEAPON NAME]`n`n",
+                        "`&A weaponsmith sniffs it. \"`#I can credit you `^%s`# gold for this scrap.`\"`n`n",
                         $tradeinvalue,
                         $session['user']['weapon']
                     ]
@@ -531,14 +532,14 @@ function racetemplate_dohook($hookname, $args) {
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
                 $tradeinvalue = round(($session['user']['armorvalue'] * 0.75), 0);
-                $args['title'] = "[PLACEHOLDER ARMOR SHOP TITLE]";
+                $args['title'] = "Lupine Pelt & Hide";
                 $args['desc'] = [
-                    "`&[PLACEHOLDER ARMOR SHOP DESCRIPTION]`n`n"
+                    "`&Sturdy wolf skins, moon-blessed leather vests, and heavy shields carved from ironwood trees stand in piles.`n`n"
                 ];
                 $args['tradein'] = [
-                    "`7[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER]`n`n",
+                    "`7You show your protection to the stitcher.`n`n",
                     [
-                        "`&[PLACEHOLDER ARMOR SHOP TRADE-IN OFFER DETAIL WITH %s FOR VALUE AND %s FOR ARMOR NAME]`n`n",
+                        "`&He feels it and nods. \"`#I can offer `^%s`# trade-in value toward our wolf pelts.`\"`n`n",
                         $tradeinvalue,
                         $session['user']['armor']
                     ]
@@ -549,24 +550,24 @@ function racetemplate_dohook($hookname, $args) {
         case "trainingtitle":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
-                $args['title'] = "[PLACEHOLDER TRAINING CENTER TITLE]";
+                $args['title'] = "Lupine Training Paddock";
             }
             break;
 
         case "modify-master":
             if (!get_module_setting("use_custom_village")) break;
             if (($session['user']['location'] ?? '') === $city) {
-                $args['creaturename'] = "[PLACEHOLDER TRAINER NAME]";
-                $args['creatureweapon'] = "[PLACEHOLDER TRAINER WEAPON]";
-                $args['creaturewin'] = "[PLACEHOLDER TRAINER WIN MESSAGE]";
-                $args['creaturelose'] = "[PLACEHOLDER TRAINER LOSE MESSAGE]";
+                $args['creaturename'] = "Ulfgar the Packleader";
+                $args['creatureweapon'] = "Obsidian Battleaxe";
+                $args['creaturewin'] = "You fight with no animal instincts! Unleash the wolf within!";
+                $args['creaturelose'] = "You are a true alpha of the pack. Go, protect the vale.";
             }
             break;
     }
     return $args;
 }
 
-function racetemplate_run() {
+function racewerewolf_run() {
     global $session;
     if (!get_module_setting("use_custom_village")) {
         page_header("Access Denied");
@@ -576,27 +577,98 @@ function racetemplate_run() {
         return;
     }
     $op = httpget('op');
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
+    $race = "Werewolf";
     
-    // Check if the user is of this race to prevent other races accessing custom features
+    // Check if the user is a Werewolf
     if (($session['user']['race'] ?? '') !== $race) {
         page_header("Access Denied");
-        output("`\$Only %ss may access these features.`n`n", $race);
+        output("`\$Only Werewolves may access these features.`n`n");
         addnav("Return to the Village", "village.php");
         page_footer();
         return;
     }
     
-    // If you want a custom shrine or training building in your race's city, build it here!
+    if ($op === "pool") {
+        page_header("Lupine Moon Pool");
+        output("`c`b`2Lupine Moon Pool`b`c`n`n");
+        output("`7A clear, glowing pond reflecting the full moon's light. \"`#Kneel and pray to the moon, brother, and feel the hunt call you!`\"`n`n");
+        
+        $prayed = get_module_pref("moon_prayed");
+        $subop = httpget('subop');
+        
+        if ($subop === "pray") {
+            if ($prayed) {
+                output("`\$You have already prayed to the moon today.`n`n");
+            } else {
+                $session['user']['turns'] += 2;
+                set_module_pref("moon_prayed", 1);
+                $prayed = true;
+                
+                output("`@You kneel and pray to the reflecting moon pool. A silver mist surrounds you, sending feral energy through your muscles! You gain `^+2 extra forest fights`@ today!`n`n");
+            }
+        }
+        
+        if (!$prayed) {
+            addnav("Moon Pool");
+            addnav("Pray to the Moon Pool", "runmodule.php?module=racewerewolf&op=pool&subop=pray");
+        } else {
+            output("`&You have already prayed to the moon pool today.`n`n");
+        }
+        addnav("Return to Lupine Vale", "village.php");
+        page_footer();
+    }
+    
+    if ($op === "shrine") {
+        page_header("Lupine Feral Shrine");
+        output("`c`b`2Lupine Feral Shrine`b`c`n`n");
+        output("`7A crude shrine made of massive wolf skulls and ironwood roots. Offering a gem here summons a spectral dire wolf to fight by your side.`n`n");
+        
+        $visited = get_module_pref("shrine_visited");
+        $subop = httpget('subop');
+        
+        if ($subop === "summon") {
+            if ($visited) {
+                output("`\$You have already visited the feral shrine today.`n`n");
+            } elseif ($session['user']['gems'] < 1) {
+                output("`\$You do not have any gems to offer the spirits.`n`n");
+            } else {
+                $session['user']['gems'] -= 1;
+                set_module_pref("shrine_visited", 1);
+                $visited = true;
+                
+                apply_buff("feral_companion", [
+                    "name" => "`2Feral Companion`0",
+                    "dmgshield" => 3.0,
+                    "rounds" => 15,
+                    "allowinpvp" => 1,
+                    "allowintrain" => 1,
+                    "schema" => "module-racewerewolf",
+                ]);
+                output("`@You offer a gem to the feral shrine. A spectral wolf emerges from the mist, snarling, and bounds by your side, granting you a Damage Shield (+3 damage reflected) for your next 15 rounds of combat!`n`n");
+            }
+        }
+        
+        if (!$visited) {
+            output("`7You have `@%s gem(s)`7 to offer.`n`n", $session['user']['gems']);
+            if ($session['user']['gems'] >= 1) {
+                addnav("Feral Shrine");
+                addnav("Offer Gem for Companion", "runmodule.php?module=racewerewolf&op=shrine&subop=summon");
+            }
+        } else {
+            output("`&You have already visited the feral shrine today.`n`n");
+        }
+        addnav("Return to Lupine Vale", "village.php");
+        page_footer();
+    }
 }
 
-function racetemplate_checkcity() {
+function racewerewolf_checkcity() {
     global $session;
     if (!get_module_setting("use_custom_village")) return true;
-    $race = "[PLACEHOLDER RACE NAME]"; // ***CHANGE
+    $race = "Werewolf";
     $city = get_module_setting("villagename");
     
-    $travel_mod = racetemplate_get_travel_mod();
+    $travel_mod = racewerewolf_get_travel_mod();
     if ($travel_mod !== false) {
         if (($session['user']['race'] ?? '') === $race) {
             if (get_module_pref("homecity", $travel_mod) !== $city) {
@@ -607,7 +679,7 @@ function racetemplate_checkcity() {
     return true;
 }
 
-function racetemplate_get_travel_mod() {
+function racewerewolf_get_travel_mod() {
     if (is_module_active("villages")) {
         return "villages";
     } elseif (is_module_active("cities")) {
@@ -618,7 +690,7 @@ function racetemplate_get_travel_mod() {
     return false;
 }
 
-function racetemplate_check_unlock() {
+function racewerewolf_check_unlock() {
     $req = get_module_setting("unlock_req");
     if (trim($req) === "") return true;
     
@@ -638,7 +710,7 @@ function racetemplate_check_unlock() {
     return true;
 }
 
-function racetemplate_get_unlock_text() {
+function racewerewolf_get_unlock_text() {
     $req = get_module_setting("unlock_req");
     if (trim($req) === "") return "";
     
