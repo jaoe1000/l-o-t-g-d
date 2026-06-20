@@ -9,7 +9,7 @@ function racedwarf_getmoduleinfo() {
     return [
         "name" => "Race - Dwarf",
         "version" => "1.0",
-        "author" => "Dragon.NDGaming", 
+        "author" => "`4Thanatos,`2Based on Eric Stevens's racedwarf (Modernized by Dragon.NDGaming)", 
         "category" => "Race",
         "download" => "", 
         "settings" => [

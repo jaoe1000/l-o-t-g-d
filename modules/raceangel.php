@@ -9,7 +9,7 @@ function raceangel_getmoduleinfo() {
     return [
         "name" => "Race - Angel",
         "version" => "1.0",
-        "author" => "Dragon.NDGaming", 
+        "author" => "RPGSL (Modernized by Dragon.NDGaming)", 
         "category" => "Race",
         "download" => "", 
         "settings" => [

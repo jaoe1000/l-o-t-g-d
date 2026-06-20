@@ -9,7 +9,7 @@ function raceorc_getmoduleinfo() {
     return [
         "name" => "Race - Orc",
         "version" => "1.0",
-        "author" => "Dragon.NDGaming", 
+        "author" => "`4Thanatos,`2Based on Chris Vorndran's raceorc (Modernized by Dragon.NDGaming)", 
         "category" => "Race",
         "download" => "", 
         "settings" => [

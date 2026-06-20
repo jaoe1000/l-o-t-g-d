@@ -9,7 +9,7 @@ function racewerewolf_getmoduleinfo() {
     return [
         "name" => "Race - Werewolf",
         "version" => "1.0",
-        "author" => "Dragon.NDGaming", 
+        "author" => "Enhas, based on caravan and dwarvenfight by Shannon Brown and Chris Vorndran (Modernized by Dragon.NDGaming)", 
         "category" => "Race",
         "download" => "", 
         "settings" => [
