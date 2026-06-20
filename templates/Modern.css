@@ -874,48 +874,36 @@ th, td {
     grid-template-areas:
       "header"
       "main"
+      "sidebar"
       "footer";
     grid-template-columns: 1fr;
+    grid-template-rows: var(--header-height) auto auto auto;
   }
   
   .menu-toggle-btn {
-    display: block;
-  }
-  
-  .app-sidebar {
-    position: fixed;
-    top: var(--header-height);
-    left: calc(-1 * var(--sidebar-width));
-    width: var(--sidebar-width);
-    height: calc(100vh - var(--header-height));
-    z-index: 90;
-    transition: var(--transition-smooth);
-    box-shadow: none;
-  }
-  
-  .sidebar-active .app-sidebar {
-    left: 0;
-    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+    display: none !important; /* Hide hamburger menu since nav is now inline */
   }
   
   .sidebar-mobile-backdrop {
-    display: none;
-    position: fixed;
-    top: var(--header-height);
-    left: 0;
-    width: 100vw;
-    height: calc(100vh - var(--header-height));
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 80;
+    display: none !important;
   }
   
-  .sidebar-active .sidebar-mobile-backdrop {
-    display: block;
+  .app-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    background-color: var(--bg-secondary);
+    border-right: none;
+    border-top: 1px solid var(--border-color);
+    padding: 20px 15px;
+    box-shadow: none;
   }
   
   .app-main-panel {
     padding: 15px;
+    max-height: none; /* Let the page scroll naturally */
+    overflow-y: visible;
   }
   
   .main-card-body {
@@ -926,14 +914,14 @@ th, td {
     display: none; /* Hide top links on mobile */
   }
   
-  /* Show mobile quick links inside the sidebar drawer */
+  /* Show mobile quick links inline at the top of the sidebar */
   .sidebar-mobile-quick-links {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 15px;
+    padding: 12px;
     margin-bottom: 15px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.01);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
   }
@@ -944,7 +932,7 @@ th, td {
   
   .sidebar-quick-link-item a {
     color: var(--text-muted);
-    padding: 4px 8px;
+    padding: 6px 12px;
     background: rgba(255, 255, 255, 0.02);
     border-radius: var(--radius-sm);
     display: inline-block;
@@ -952,6 +940,60 @@ th, td {
   
   .sidebar-quick-link-item a:hover {
     color: var(--accent-color);
+  }
+
+  /* Render the navigation links as a modern grid of buttons on mobile */
+  .app-navigation-menu ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+  }
+
+  .nav-menu-item {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px; /* Touch-friendly size */
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-md) !important;
+    margin-left: 0 !important;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-muted) !important;
+    transition: var(--transition-smooth);
+  }
+
+  .nav-menu-item::before {
+    display: none !important; /* Hide chevron on mobile grid buttons */
+  }
+
+  .nav-menu-item:hover {
+    color: var(--text-primary) !important;
+    background: rgba(16, 185, 129, 0.1) !important;
+    border-color: var(--accent-color) !important;
+    padding-left: 12px !important; /* Keep original padding */
+  }
+
+  .nav-menu-header {
+    grid-column: 1 / -1;
+    margin-top: 18px;
+    margin-bottom: 4px;
+    padding: 4px 8px;
+  }
+
+  .nav-menu-help {
+    grid-column: 1 / -1;
+    margin-left: 0;
+    padding: 0 8px;
+  }
+
+  .theme-switcher-wrapper {
+    margin-top: 25px;
+    background: rgba(255, 255, 255, 0.01);
   }
 }
 
