@@ -83,13 +83,19 @@ function injectmodule($modulename,$force=false){
 						//we need it now.
 						$fname = $modulename."_getmoduleinfo";
 						$info = $fname();
-						if (!isset($info['download']))
-							$info['download']="";
-						if (!isset($info['version']))
-							$info['version']="0.0";
-						if (!isset($info['description']))
-							$info['description'] = '';
 					}
+					if (!isset($info['author']))
+						$info['author']="";
+					if (!isset($info['category']))
+						$info['category']="";
+					if (!isset($info['name']))
+						$info['name']=$modulename;
+					if (!isset($info['download']))
+						$info['download']="";
+					if (!isset($info['version']))
+						$info['version']="0.0";
+					if (!isset($info['description']))
+						$info['description'] = '';
 					//Everyone else will block at the initial lock tables,
 					//we'll update, and on their second check, they'll fail.
 					//Only we will update the table.
