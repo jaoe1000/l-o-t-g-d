@@ -9,12 +9,12 @@ History Log:
    o Master Template Merged Build: Paladin
 */
 
-function racespecialtypaladin_getmoduleinfo(){
+function specialtypaladin_getmoduleinfo(){
 	$info = array(
 		"name"=>"Specialty - Paladin",
 		"version"=>"1.0",
 		"vertxtloc"=>"",
-		"author"=>"Eternal & Enderandrew (Merged by Joge)", 
+		"author"=>"Eternal & Enderandrew", 
 		"category"=>"Specialties",
 		"download"=>"", 
 		"settings"=>array(
@@ -43,7 +43,7 @@ function racespecialtypaladin_getmoduleinfo(){
 	return $info;
 }
 
-function racespecialtypaladin_install(){
+function specialtypaladin_install(){
 	module_addhook("fightnav-specialties");
 	module_addhook("apply-specialties");
 	module_addhook("newday");
@@ -57,13 +57,13 @@ function racespecialtypaladin_install(){
 	module_addhook("villagenav");
 	module_addhook("villagetext");
 	
-	module_addeventhook("forest", "require_once(\"modules/racespecialtypaladin.php\"); return racespecialtypaladin_test_event();");
+	module_addeventhook("forest", "require_once(\"modules/specialtypaladin.php\"); return racespecialtypaladin_test_event();");
 	
 	debug("Installed 'Paladin' specialty module."); 
 	return true;
 }
 
-function racespecialtypaladin_uninstall(){
+function specialtypaladin_uninstall(){
 	$spec = "PL"; 
 	global $session;
 	$sql = "UPDATE " . db_prefix("accounts") . " SET specialty='' WHERE specialty='".$spec."'";
@@ -75,7 +75,7 @@ function racespecialtypaladin_uninstall(){
 	return true;
 }
 
-function racespecialtypaladin_dohook($hookname,$args){
+function specialtypaladin_dohook($hookname,$args){
 	global $session,$resline,$badguy;
 	$spec = "PL"; 
 	$name = "Paladin Gifts"; 
@@ -255,7 +255,7 @@ function racespecialtypaladin_dohook($hookname,$args){
 	return $args;
 }
 
-function racespecialtypaladin_change() {
+function specialtypaladin_change() {
     global $session;
     $spec="PL"; 
     if (get_module_setting("wepchange")==1 && ($session['user']['specialty'] ?? '') == $spec) {
@@ -273,7 +273,7 @@ function racespecialtypaladin_change() {
     }
 }
 
-function racespecialtypaladin_run(){
+function specialtypaladin_run(){
 	global $session;
 	$op = httpget('op');
 	$subop = httpget('subop');
@@ -432,7 +432,7 @@ function racespecialtypaladin_run(){
 	}
 }
 
-function racespecialtypaladin_texts($class,$subclass) {
+function specialtypaladin_texts($class,$subclass) {
 	global $session;
 	$array = array();
 	
@@ -486,7 +486,7 @@ function racespecialtypaladin_texts($class,$subclass) {
 	}
 }
 
-function racespecialtypaladin_namer($type='X') {
+function specialtypaladin_namer($type='X') {
 	$class = array();
 	$class['magic']['1']="Paladin Gifts";
 	$class['1'] = "Divine"; 
@@ -499,7 +499,7 @@ function racespecialtypaladin_namer($type='X') {
 	}
 }
 
-function racespecialtypaladin_test_event() {
+function specialtypaladin_test_event() {
 	global $session;
 	if (($session['user']['specialty'] ?? '') === "PL") {
 		return 0;
@@ -521,7 +521,7 @@ function racespecialtypaladin_test_event() {
 	return (int)get_module_setting("forestchance");
 }
 
-function racespecialtypaladin_runevent($type) {
+function specialtypaladin_runevent($type) {
 	global $session;
 	$session['user']['specialinc'] = "module:racespecialtypaladin";
 	$op = httpget('op');
