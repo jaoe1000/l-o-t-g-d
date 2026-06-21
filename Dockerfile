@@ -20,20 +20,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set the active directory inside the container
 WORKDIR /var/www/html
 
-# Clone the official upstream modules repository and inject them FIRST
-# Delete the toxic folder, and "flatten" the rest
-# Copy the script first
-COPY fix_modules.sh /tmp/fix_modules.sh
-
-# Clone, run the fix script, and move in one layer to keep the build stable
-RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
-    && rm -rf /tmp/modules/_old_dragonprime_snapshot \
-    && mkdir -p /var/www/html/modules \
-    && chmod +x /tmp/fix_modules.sh \
-    && /tmp/fix_modules.sh \
-    && rm -rf /tmp/modules /tmp/fix_modules.sh
-
-# Copy your local repository files OVER the modules (Last one wins)
+# Copy your local repository files
 COPY . /var/www/html
 
 # 3. Search and destroy any hardcoded 64MB memory limits hidden in the legacy game code

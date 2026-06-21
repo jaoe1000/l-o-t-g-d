@@ -19,6 +19,18 @@ introduction: |
   Users of the source are bound to the terms therein.`n
   The DragonPrime Development Team took over responsibility for code development on January 1<sup>st</sup>, 2006 and continues to maintain and add to features of the core code.`@"`n`n
   `@"`2Users of the source are free to view and modify the source, but original copyright information, and original text from the about page must be preserved, though they may be added to.`@"`n`n
+  `n`n`c`^The Modern Revival & The Journey Ahead`0`c`n`n
+  `@"`2While preserving the classic soul of Legend of the Green Dragon, this server has embarked on an ambitious journey to modernize the experience for a new era.`@"`n`n
+  `@"`2Here is where we have taken the game so far:`@"`n
+  `@• `^Responsive Mobile Interface:`2 The entire layout has been rebuilt to look and play beautifully on all modern smartphones, tablets, and desktop devices, bringing LOTGD out of the desktop BBS era and into your pocket.`@"`n
+  `@• `^Standardized Module & Race Templates:`2 We have refactored and standardized the underlying race and specialty code, paving the way for easier custom content creation and smoother integration of new abilities and events.`@"`n
+  `@• `^Rich Game Graphics:`2 We have laid the groundwork to incorporate rich, thematic illustrations and images throughout the game—for creatures, items, locations, and UI elements—to enrich the text-based storytelling.`@"`n
+  `@• `^Modernized Systems & Performance:`2 Numerous bug fixes, PHP warning patches, and security updates keep the engine running smoothly on modern web servers.`@"`n`n
+  `@"`2Where we plan on going next:`@"`n
+  `@• `2Expanding the mythical lore and custom quests, with unique alignment-based paths like the newly reimagined Paladin quest.`@"`n
+  `@• `2Introducing deeper graphics integration, bringing key bosses, locations, and unique items to life visually.`@"`n
+  `@• `2Developing more interactive community tools, and maintaining peak compatibility with modern PHP standards.`@"`n`n
+  `@"`2This is our tribute to the classic BBS legacy—kept alive, updated, and ready for the future.`@"`n`n
   `@"`2We hope you enjoy the game!`@"`n`n<hr>`n
 license: |
   `@MightyE tells you, "`2We're going to take a few moments to try and explain this new license and the reasons behind it in plain English.
