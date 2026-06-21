@@ -3,7 +3,7 @@
 	$op = httpget('op');
 	page_header("The Head");
 	if ($op == "tinkle"){
-		set_module_pref("usedouthouse",1);
+		set_module_pref("emptied",true);
 		output("You use the fine facilities here.`n");
 		if (get_module_pref('drunkeness','drinks')>0){
 					$drunktmp=get_module_pref('drunkeness','drinks');
@@ -20,7 +20,7 @@
 					}
 				}
 	}else{
-		 if (get_module_pref("usedouthouse")==0){
+		 if (!get_module_pref("emptied")){
           output("`2You step into the Head.  The odor in here just about knocks you over. ");
           output("Best to get your business done and get back to more enjoyable activities. `n");
           addnav("Tinkle","runmodule.php?module=bladder&op=tinkle");
