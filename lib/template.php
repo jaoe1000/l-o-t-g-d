@@ -5,19 +5,20 @@
 
 function templatereplace($itemname,$vals=false){
 	global $template;
-	if (!isset($template[$itemname]))
-		output("`bWarning:`b The `i%s`i template part was not found!`n", $itemname);
+	if (!isset($template[$itemname])) {
+		$out = "";
+		if (is_array($vals)) {
+			foreach ($vals as $key => $val) {
+				$out .= $val;
+			}
+		}
+		return $out;
+	}
 	$out = $template[$itemname];
 	if (!is_array($vals)) return $out;
 	@reset($vals);
 	foreach ($vals as $key => $val) {
 			if (strpos($out, "{{$key}}") === false) {
-				output(
-					"`bWarning: %s not found in the %s template part! (%s)`b`n",
-					$key,
-					$itemname,
-					$out
-				);
 				$out .= $val;
 			}
 			else {
@@ -60,8 +61,8 @@ function prepare_template($force=false){
 			'version', 'copyright'
 		];
 		foreach ($requiredTags as $tagName) {
-			if (strpos($template['header'], '{' . $tagName . '}') === false &&
-					strpos($template['footer'], '{' . $tagName . '}') === false)
+			if (strpos($template['header'] ?? '', '{' . $tagName . '}') === false &&
+					strpos($template['footer'] ?? '', '{' . $tagName . '}') === false)
 				$templatemessage .=
 					"{{$tagName}} is not defined in your template\n";
 		}
