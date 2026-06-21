@@ -78,6 +78,10 @@ function db_query($sql, $params = [], $die = true) {
 
     try {
         $stmt = $pdo_connection->prepare($sql);
+        if ($stmt === false) {
+            $err = $pdo_connection->errorInfo();
+            throw new PDOException(implode(" - ", $err));
+        }
         $pdo_last_statement = $stmt;
         
         $success = $stmt->execute($params);
