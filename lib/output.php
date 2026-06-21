@@ -673,26 +673,43 @@ function buildnavs(){
 	reset($navbysection);
 	$builtnavs="";
 	foreach ($navbysection as $key => $val) {
-		$tkey = $key;
 		$navbanner="";
 		if (count_viable_navs($key) > 0) {
+			$dispkey = $key;
 			if ($key > '') {
-				if ($session['loggedin']) tlschema($navschema[$key]);
-				if (substr($key, 0, 7) == "!array!") {
-					$key = unserialize(substr($key, 7));
+				if ($session['loggedin'] && isset($navschema[$key])) tlschema($navschema[$key]);
+				$navkey = $key;
+				if (substr($navkey, 0, 7) == "!array!") {
+					$navkey = unserialize(substr($navkey, 7));
 				}
-				$navbanner = private_addnav($key, '');
+				$navbanner = private_addnav($navkey, '');
 				if ($session['loggedin']) tlschema();
+
+				if (is_array($navkey)) {
+					$dispkey = $navkey;
+					if (isset($dispkey[0]) && $dispkey[0]) {
+						$schema = "!array!" . serialize($dispkey);
+						if ($session['loggedin'] && isset($navschema[$schema])) {
+							tlschema($navschema[$schema]);
+							$dispkey[0] = translate($dispkey[0]);
+							tlschema();
+						}
+					}
+					$dispkey = call_user_func_array("sprintf", $dispkey);
+				} else {
+					$dispkey = $navkey;
+				}
 			}
 
 			$style = "default";
 			$collapseheader = "";
 			$collapsefooter = "";
 
-			if ($tkey > '' && (!array_key_exists($tkey, $navnocollapse) || !$navnocollapse[$tkey])) {
+			if ($key > '' && (!array_key_exists($key, $navnocollapse) || !$navnocollapse[$key])) {
 				// Generate the collapsable section header
-				$args = array("name"=>"nh-{$key}",
-						"title"=>($key ? $key : "Unnamed Navs"));
+				$safe_name = "nh-" . preg_replace("/[^a-zA-Z0-9_-]/", "", $key);
+				$args = array("name"=>$safe_name,
+						"title"=>($dispkey ? $dispkey : "Unnamed Navs"));
 				if (!IS_INSTALLER) {
 					$args = modulehook("collapse-nav{", $args);
 				}
@@ -700,7 +717,7 @@ function buildnavs(){
 					$collapseheader = $args['content'];
 				if (isset($args['style']))
 					$style = $args['style'];
-				if (!($key > "") && $style == "classic") {
+				if (!($dispkey > "") && $style == "classic") {
 					$navbanner = "<TR><TD>";
 				}
 			}
@@ -715,7 +732,7 @@ function buildnavs(){
 			}//end while
 
 			// Generate the enclosing collapsable section footer
-			if ($tkey > "" && (!array_key_exists($tkey,$navnocollapse) || !$navnocollapse[$tkey])) {
+			if ($key > "" && (!array_key_exists($key,$navnocollapse) || !$navnocollapse[$key])) {
 				if (!IS_INSTALLER) {
 					$args = modulehook("}collapse-nav");
 				}
@@ -770,9 +787,17 @@ function private_addnav($text,$link=false,$priv=false,$pop=false,$popsize="500x3
 
 	if (is_array($text)){
 		if ($text[0] && $session['loggedin']) {
-			if ($link === false) $schema = "!array!" . serialize($text);
-			else $schema = $text[0];
-			if ($translate) {
+			if ($link === false) {
+				$schema = "!array!" . serialize($text);
+			} else {
+				$serialized = "!array!" . serialize($text);
+				if (isset($navschema[$serialized])) {
+					$schema = $serialized;
+				} else {
+					$schema = $text[0];
+				}
+			}
+			if ($translate && isset($navschema[$schema])) {
 				tlschema($navschema[$schema]);
 				$unschema = 1;
 			}
@@ -784,7 +809,7 @@ function private_addnav($text,$link=false,$priv=false,$pop=false,$popsize="500x3
 			$text = call_user_func_array("sprintf",$text);
 		}
 	}else{
-		if ($text && getSession('loggedin') && $translate) {
+		if ($text && getSession('loggedin') && $translate && isset($navschema[$text])) {
 			tlschema($navschema[$text]);
 			$unschema = 1;
 		}
