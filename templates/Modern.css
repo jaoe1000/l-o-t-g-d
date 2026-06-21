@@ -781,6 +781,16 @@ th, td {
   letter-spacing: 0.5px;
 }
 
+.trhead a {
+  color: inherit !important;
+  text-decoration: underline;
+}
+
+.trhead a:hover {
+  color: var(--accent-gold) !important;
+  text-shadow: 0 0 6px var(--accent-gold-glow);
+}
+
 .trlight {
   background-color: rgba(255, 255, 255, 0.01) !important;
 }
@@ -790,6 +800,42 @@ th, td {
 }
 
 .trhilight {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+}
+
+/* Style override for legacy tables with inline bgcolor (like module manager, settings panels) */
+table[bgcolor] {
+  background-color: var(--border-color) !important; /* Set grid border line color */
+  border-collapse: separate !important;
+  border-spacing: 1px !important; /* 1px grid layout */
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin: 15px 0;
+}
+
+table[bgcolor] tr,
+table[bgcolor] td {
+  border: none !important; /* Rely on grid background spacing instead of heavy borders */
+}
+
+table[bgcolor] tr.trhead,
+table[bgcolor] td.trhead {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--accent-gold) !important;
+}
+
+table[bgcolor] tr.trlight,
+table[bgcolor] td.trlight {
+  background-color: var(--bg-primary) !important;
+}
+
+table[bgcolor] tr.trdark,
+table[bgcolor] td.trdark {
+  background-color: var(--bg-secondary) !important;
+}
+
+table[bgcolor] tr.trhilight,
+table[bgcolor] td.trhilight {
   background-color: rgba(16, 185, 129, 0.08) !important;
 }
 

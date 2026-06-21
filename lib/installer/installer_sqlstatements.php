@@ -874,4 +874,6 @@ $sql_upgrade_statements = array(
 "1.1.2 Dragonprime Edition"=>array(
   "UPDATE $settings SET value = 'UTF-8' WHERE setting = 'charset';",
 ),
+"1.2.0 Dragonprime Custom"=>array(
+),
 );
