@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 //This is a data caching library intended to lighten the load on lotgd.net
 //use of this library is not recommended for most installations as it raises
@@ -22,13 +23,18 @@ function datacache(string $name, $duration = 60): bool|array
 		return $datacache[$name];
 	} 
 	$fileName = makecachetempname($name);
+	if (!$fileName) return false;
 	if (
         file_exists($fileName)
         && filemtime($fileName) > strtotime("-$duration seconds")
     ) {
 		$file = @file_get_contents($fileName);
-        if ($file === "") return false;
-		$datacache[$name] = @unserialize($file);
+        if ($file === false || $file === "") return false;
+		$unserialized = @unserialize($file, ['allowed_classes' => false]);
+		if ($unserialized === false && $file !== serialize(false)) {
+			return false;
+		}
+		$datacache[$name] = $unserialized;
 		return $datacache[$name];
 	}
 	return false;
@@ -41,12 +47,37 @@ function updatedatacache(string $name, array $data): bool
 	if (!file_exists('dbconnect.php')) return false;
 	global $datacache;
 	$fileName = makecachetempname($name);
+	if (!$fileName) return false;
 	$datacache[$name] = $data;
-	$file = fopen($fileName, 'w');
+
+	$dir = dirname($fileName);
+	if (!is_dir($dir)) {
+		@mkdir($dir, 0777, true);
+	}
+
+	$tempFile = $fileName . '.' . bin2hex(random_bytes(6)) . '.tmp';
+	$file = @fopen($tempFile, 'w');
 	if (!$file) return false;
-    $written = fwrite($file, serialize($data));
+
+	flock($file, LOCK_EX);
+	$written = fwrite($file, serialize($data));
+	fflush($file);
+	flock($file, LOCK_UN);
 	fclose($file);
-	return $written !== false;
+
+	if ($written === false) {
+		@unlink($tempFile);
+		return false;
+	}
+
+	if (!@rename($tempFile, $fileName)) {
+		@unlink($fileName);
+		if (!@rename($tempFile, $fileName)) {
+			@unlink($tempFile);
+			return false;
+		}
+	}
+	return true;
 }
 
 //we want to be able to invalidate data caches when we know we've done

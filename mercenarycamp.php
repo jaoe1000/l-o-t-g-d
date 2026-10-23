@@ -2,6 +2,7 @@
 // translator ready
 // addnews ready
 // mail ready
+// modified by jaoe1000
 require_once("common.php");
 require_once("lib/http.php");
 require_once("lib/villagenav.php");
@@ -212,7 +213,7 @@ if ($op==""){
 		$row['maxhitpoints'] = $row['maxhitpoints'] + $row['maxhitpointsperlevel'] * $session['user']['level'];
 		$row['hitpoints'] = $row['maxhitpoints'];
 		$row = modulehook("alter-companion", $row);
-		$row['abilities'] = @unserialize($row['abilities']);
+		$row['abilities'] = @unserialize($row['abilities'], ['allowed_classes' => false]);
 		require_once("lib/buffs.php");
 		if (apply_companion($row['name'], $row)) {
 			output("`QYou hand over `^%s gold`Q and `%%s %s`Q.`n`n", (int)$row['companioncostgold'], (int)$row['companioncostgems'],translate_inline($row['companioncostgems'] == 1?"gem":"gems"));

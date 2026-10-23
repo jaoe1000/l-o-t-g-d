@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 require_once 'lib/nltoappon.php';
 
@@ -39,12 +40,6 @@ if ((int) $currentClanId === 0) {
 }
 addnav('List Clans', 'clan.php?op=list');
 addnav('Return to the Lobby', 'clan.php');
-
-page_header(
-    'clan.detail_header',
-    full_sanitize($clanName),
-    full_sanitize($clanTag)
-);
 
 // @todo Add/Rename SU constants, because this one doesn't seem right.
 if ($session['user']['superuser'] & SU_EDIT_COMMENTS) {
@@ -118,6 +113,7 @@ foreach ($clanMembers as $key => $clanMember) {
         $clanMember = $clanMembers;
     }
     $targetName = $clanMember['name'];
+    $totalDks += (int)($clanMember['dragonkills'] ?? 0);
     $bioUri = 'bio.php?char=' . $clanMember['acctid'] . '&ret=' . $returnLink;
     $bioLink = "<a href='$bioUri'>$targetName</a>";
     $currentRow = sprintf(

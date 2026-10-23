@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 output("`b`iMail Box`i`b");
 if (isset($session['message'])) {
 	output($session['message']);
@@ -25,7 +26,7 @@ if ($db_num_rows>0){
 			}
 			// Only translate the subject if it's an array, ie, it came from the game.
 			if (is_serialized($row['subject'])) {
-				$row_subject = @unserialize($row['subject']);
+				$row_subject = @unserialize($row['subject'], ['allowed_classes' => false]);
 				if ($row_subject !== false) {
 					$row['subject'] = sprintf_translate($row_subject);
 				} else {

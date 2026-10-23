@@ -2,6 +2,7 @@
 // translator ready
 // addnews ready
 // mail ready
+// modified by jaoe1000
 require_once("common.php");
 require_once("lib/http.php");
 require_once("lib/buffs.php");
@@ -170,9 +171,9 @@ if ($op == 'confirmbuy') {
 			$gemcost = $repaygems-$mount['mountcostgems'];
 			$session['user']['gems']+=$gemcost;
 			debuglog(($goldcost <= 0?"spent ":"gained ") . abs($goldcost) . " gold and " . ($gemcost <= 0?"spent ":"gained ") . abs($gemcost) . " gems trading $debugmount1 for a new mount, a $debugmount2");
-			$buff = unserialize($mount['mountbuff']);
+			$buff = unserialize($mount['mountbuff'], ['allowed_classes' => false]);
 			if ($buff['schema'] == "") $buff['schema'] = "mounts";
-			apply_buff('mount',unserialize($mount['mountbuff']));
+			apply_buff('mount',$buff);
 			// Recalculate so the selling stuff works right
 			$playermount = getmount($mount['mountid']);
 			$repaygold = round($playermount['mountcostgold']*2/3,0);
@@ -192,7 +193,7 @@ if ($op == 'confirmbuy') {
 				($session['user']['sex']?$texts["lass"]:$texts["lad"]));
 		tlschema();
 	} elseif($session['user']['gold']>=$grubprice) {
-		$buff = unserialize($playermount['mountbuff']);
+		$buff = unserialize($playermount['mountbuff'], ['allowed_classes' => false]);
 		if (!isset($buff['schema']) || $buff['schema'] == "") $buff['schema'] = "mounts";
 		if (isset($session['bufflist']['mount']) && $session['bufflist']['mount']['rounds'] == $buff['rounds']) {
 			tlschema($schemas['nothungry']);

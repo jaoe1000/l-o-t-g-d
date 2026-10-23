@@ -1,19 +1,30 @@
 <?php
+// modified by jaoe1000
 
 require_once 'lib/clan/func.php';
 
 $accountsPrefix = db_prefix('accounts');
-$clanId = $session['user']['clanid'];
+$clanId = (int)($session['user']['clanid'] ?? 0);
 $clansPrefix = db_prefix('clans');
-$selectedClanQuery = db_query_cached(
-    "SELECT clanname AS name,
-     FROM $clansPrefix
-     WHERE clanid = '$clanId'",
-    "clan_data:$clanId",
-    3600
-);
-$clanData = db_fetch_assoc($selectedClanQuery);
-['name' => $clanName] = $clanData;
+$clanData = [];
+if ($clanId > 0) {
+    $selectedClanQuery = db_query_cached(
+        "SELECT clanname AS name,
+         clanshort AS tag,
+         clandesc AS description,
+         clanmotd AS motd,
+         clanid AS id,
+         descauthor,
+         motdauthor,
+         customsay
+         FROM $clansPrefix
+         WHERE clanid = '$clanId'",
+        "clan_data:$clanId",
+        3600
+    );
+    $clanData = db_fetch_assoc($selectedClanQuery);
+}
+$clanName = (is_array($clanData) && isset($clanData['name'])) ? $clanData['name'] : 'Clan';
 
 page_header("$clanName Members"); 
 addnav('Clan Options');
@@ -22,75 +33,75 @@ output('This is your current clan membership:`n');
 
 $setRank = (int) httpget('setrank') ?: 0;
 $whoacctid = (int) httpget('whoacctid');
-[
-    'clanrank' => $userClanRank,
-    'clanid' => $userClanId,
-    'name' => $userName
-] = $session['user'];
+$userClanRank = (int)($session['user']['clanrank'] ?? 0);
+$userClanId = (int)($session['user']['clanid'] ?? 0);
+$userName = (string)($session['user']['name'] ?? '');
 
-if ($setRank > 0) {
-	$result = db_query(
-        "SELECT name, login, clanrank
-         FROM $accountsPrefix
-         WHERE acctid = $whoacctid
-         LIMIT 1"
-    );
-	$row = db_fetch_assoc($result);
-	$who = $row['login'];
-	$whoname = $row['name'];
-	if ($setRank > '') {
-		$args = modulehook(
-            'clan-setrank',
-            [
-                'setrank' => $setRank,
-                'login' => $who,
-                'name' => $whoname,
-                'acctid' => $whoacctid,
-                'clanid' => $userClanId,
-                'oldrank' => $row['clanrank']
-            ]
-        );
-		if (!(isset($args['handled']) && $args['handled'])) {
-			db_query(
-                "UPDATE $accountsPrefix
-                SET clanrank = GREATEST(0, least($userClanRank, $setRank))
-                WHERE login = '$who'"
-            );
-			debuglog("$userName changed rank of {$whoname} to {$setRank}.", $whoacctid);
+if ($userClanId > 0 && $userClanRank >= CLAN_OFFICER) {
+	if ($setRank > 0 && $whoacctid > 0) {
+		$result = db_query(
+	        "SELECT name, login, clanrank
+	         FROM $accountsPrefix
+	         WHERE acctid = $whoacctid AND clanid = $userClanId
+	         LIMIT 1"
+	    );
+		if ($row = db_fetch_assoc($result)) {
+			$targetRankCurrent = (int)$row['clanrank'];
+			$isFounderSteppingDown = ($targetRankCurrent == CLAN_FOUNDER && $whoacctid == (int)($session['user']['acctid'] ?? 0));
+			if (($targetRankCurrent < $userClanRank && $targetRankCurrent < CLAN_FOUNDER) || $isFounderSteppingDown) {
+				$who = $row['login'];
+				$whoname = $row['name'];
+				$args = modulehook(
+		            'clan-setrank',
+		            [
+		                'setrank' => $setRank,
+		                'login' => $who,
+		                'name' => $whoname,
+		                'acctid' => $whoacctid,
+		                'clanid' => $userClanId,
+		                'oldrank' => $row['clanrank']
+		            ]
+		        );
+				if (!(isset($args['handled']) && $args['handled'])) {
+					$targetRank = max(0, min($userClanRank, $setRank));
+					db_query("UPDATE $accountsPrefix SET clanrank = $targetRank WHERE acctid = $whoacctid AND clanid = $userClanId");
+					debuglog("$userName changed rank of {$whoname} to {$targetRank}.", $whoacctid);
+				}
+			}
 		}
 	}
-}
 
-$remove = (int) httpget('remove') ?: 0;
-if ($remove > 0) {
-    $applicantRank = CLAN_APPLICANT;
-    invalidatedatacache("clan_members:$userClanId");
-	$result = db_query(
-        "SELECT name, login, clanrank
-         FROM $accountsPrefix
-         WHERE acctid = $remove"
-    );
-	$row = db_fetch_assoc($result);
-	$args = modulehook(
-        'clan-setrank',
-        [
-            'setrank' => 0,
-            'login' => $row['login'],
-            'name' => $row['name'],
-            'acctid' => $remove,
-            'clanid' => $userClanId,
-            'oldrank' => $row['clanrank']
-        ]
-    );
-	db_query(
-        "UPDATE $accountsPrefix
-         SET clanrank = $applicantRank, clanid = 0, clanjoindate = NULL
-         WHERE acctid = $remove AND clanrank <= $userClanRank"
-     );
-	debuglog(
-        "$userName removed player {$row['login']} from {$clanData['name']}.",
-        $remove
-    );
+	$remove = (int) httpget('remove') ?: 0;
+	if ($remove > 0) {
+	    $applicantRank = CLAN_APPLICANT;
+	    invalidatedatacache("clan_members:$userClanId");
+		$result = db_query(
+	        "SELECT name, login, clanrank
+	         FROM $accountsPrefix
+	         WHERE acctid = $remove AND clanid = $userClanId
+	         LIMIT 1"
+	    );
+		if ($row = db_fetch_assoc($result)) {
+			if ((int)$row['clanrank'] < $userClanRank) {
+				$args = modulehook(
+			        'clan-setrank',
+			        [
+			            'setrank' => 0,
+			            'login' => $row['login'],
+			            'name' => $row['name'],
+			            'acctid' => $remove,
+			            'clanid' => $userClanId,
+			            'oldrank' => $row['clanrank']
+			        ]
+			    );
+				db_query("UPDATE $accountsPrefix SET clanrank = $applicantRank, clanid = 0, clanjoindate = NULL WHERE acctid = $remove AND clanrank < $userClanRank AND clanid = $userClanId");
+				debuglog(
+			        "$userName removed player {$row['login']} from {$clanName}.",
+			        $remove
+			    );
+			}
+		}
+	}
 }
 
 $clanRanks = [
@@ -168,7 +179,7 @@ while ($row = db_fetch_assoc($result)) {
 			$operationStr .= "<td>[ `)$promote`0 | ";
 		}
 		if (
-            $row['clanrank'] <= $session['user']['clanrank']
+            $row['clanrank'] < $userClanRank
             && $row['clanrank'] > CLAN_APPLICANT
             && $row['login'] != $session['user']['login']
             && $previousRank > 0
@@ -187,7 +198,7 @@ while ($row = db_fetch_assoc($result)) {
 		} else {
 			$operationStr .= "`)$demote`0 | ";
 		}
-		if ($row['clanrank'] <= $session['user']['clanrank'] && $row['login']!=$session['user']['login']) {
+		if ($row['clanrank'] < $userClanRank && $row['login']!=$session['user']['login']) {
             $removeUri = "clan.php?op=membership&remove=$targetId";
 			$operationStr .= "<a 
                 href='$removeUri'

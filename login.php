@@ -2,6 +2,7 @@
 // mail ready
 // addnews ready
 // translator ready
+// modified by jaoe1000
 define("ALLOW_ANONYMOUS",true);
 require_once("common.php");
 require_once("lib/systemmail.php");
@@ -19,26 +20,38 @@ if ($name!=""){
 	if ($session['loggedin']){
 		redirect("badnav.php");
 	}else{
-		$password = httppost('password');
-		$password = stripslashes($password);
-		if (substr($password, 0, 5) == "!md5!") {
-			$password = md5(substr($password, 5));
-		} elseif (substr($password, 0, 6) == "!md52!") {// && strlen($password) == 38) {
-			$force = httppost('force');
-			if ($force) {
-				$password = addslashes(substr($password, 6));
-			} else {
-				$password='no hax0rs for j00!';
+		$valToken = httppost('val_token');
+		$tokenAuthenticated = false;
+		if ($valToken && isset($session['email_validation_token'])) {
+			$tokData = $session['email_validation_token'];
+			if (is_array($tokData) && isset($tokData['token'], $tokData['login'], $tokData['expires'])) {
+				if (hash_equals($tokData['token'], $valToken) &&
+					$tokData['login'] === $name &&
+					time() <= $tokData['expires']) {
+					$tokenAuthenticated = true;
+				}
 			}
-		} else {
-			$password = md5(md5($password));
+			unset($session['email_validation_token']);
 		}
-		$sql = "SELECT * FROM " . db_prefix("accounts") . " WHERE login = ? AND password = ? AND locked = 0";
-		$result = db_query($sql, [$name, $password]);
+
+		if ($tokenAuthenticated) {
+			$sql = "SELECT * FROM " . db_prefix("accounts") . " WHERE login = ? AND locked = 0";
+			$result = db_query($sql, [$name]);
+		} else {
+			$password = httppost('password');
+			$password = stripslashes($password);
+			if (substr($password, 0, 5) == "!md5!") {
+				$password = md5(substr($password, 5));
+			} else {
+				$password = md5(md5($password));
+			}
+			$sql = "SELECT * FROM " . db_prefix("accounts") . " WHERE login = ? AND password = ? AND locked = 0";
+			$result = db_query($sql, [$name, $password]);
+		}
 		if (db_num_rows($result)==1){
 			$session['user']=db_fetch_assoc($result);
 			$companions = is_serialized($session['user']['companions']) ?
-                @unserialize($session['user']['companions']) :
+                @unserialize($session['user']['companions'], ['allowed_classes' => false]) :
                 [];
 			$baseaccount = $session['user'];
 			checkban($session['user']['login'], true); 
@@ -53,9 +66,9 @@ if ($name!=""){
 				$session['loggedin']=true;
 				$session['laston']=date("Y-m-d H:i:s");
 				$session['sentnotice']=0;
-				$session['user']['dragonpoints']=unserialize($session['user']['dragonpoints']);
-				$session['user']['prefs']=unserialize($session['user']['prefs']);
-				$session['bufflist']=unserialize($session['user']['bufflist']);
+				$session['user']['dragonpoints']=unserialize($session['user']['dragonpoints'], ['allowed_classes' => false]);
+				$session['user']['prefs']=unserialize($session['user']['prefs'], ['allowed_classes' => false]);
+				$session['bufflist']=unserialize($session['user']['bufflist'], ['allowed_classes' => false]);
 				if (!is_array($session['bufflist']))
 					$session['bufflist'] = array();
 				if (!is_array($session['user']['dragonpoints'])) $session['user']['dragonpoints']=array();
@@ -73,7 +86,7 @@ if ($name!=""){
 				modulehook("player-login");
 
 				if ($session['user']['loggedin']){
-					$session['allowednavs']=unserialize($session['user']['allowednavs']);
+					$session['allowednavs']=unserialize($session['user']['allowednavs'], ['allowed_classes' => false]);
 					$link = "<a href='" . $session['user']['restorepage'] . "'>" . $session['user']['restorepage'] . "</a>";
 
 					$str = sprintf_translate("Sending you to %s, have a safe journey", $link);

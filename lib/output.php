@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 require_once('lib/translations.php');
 
@@ -680,7 +681,7 @@ function buildnavs(){
 				if ($session['loggedin'] && isset($navschema[$key])) tlschema($navschema[$key]);
 				$navkey = $key;
 				if (substr($navkey, 0, 7) == "!array!") {
-					$navkey = unserialize(substr($navkey, 7));
+					$navkey = unserialize(substr($navkey, 7), ['allowed_classes' => false]);
 				}
 				$navbanner = private_addnav($navkey, '');
 				if ($session['loggedin']) tlschema();

@@ -2,6 +2,7 @@
 // translator ready
 // addnews ready
 // mail ready
+// modified by jaoe1000
 define("ALLOW_ANONYMOUS",true);
 require_once("common.php");
 require_once("lib/is_email.php");
@@ -18,17 +19,24 @@ checkban('', true);
 $op = httpget('op');
 
 if ($op=="val"){
-	$id = httpget('id');
-	$sql = "SELECT acctid,login,password,name FROM ". db_prefix("accounts") . " WHERE emailvalidation='$id' AND emailvalidation!=''";
-	$result = db_query($sql);
+	$id = (string)httpget('id');
+	$sql = "SELECT acctid,login,password,name FROM ". db_prefix("accounts") . " WHERE emailvalidation=? AND emailvalidation!=''";
+	$result = db_query($sql, [$id]);
 	if (db_num_rows($result)>0) {
 		$row = db_fetch_assoc($result);
-		$sql = "UPDATE " . db_prefix("accounts") . " SET emailvalidation='' WHERE emailvalidation='$id';";
-		db_query($sql);
+		$sql = "UPDATE " . db_prefix("accounts") . " SET emailvalidation='' WHERE emailvalidation=?;";
+		db_query($sql, [$id]);
+		$valToken = bin2hex(random_bytes(16));
+		$session['email_validation_token'] = [
+			'token'   => $valToken,
+			'login'   => $row['login'],
+			'acctid'  => (int)$row['acctid'],
+			'expires' => time() + 300,
+		];
 		output("`#`cYour email has been validated.  You may now log in.`c`0");
 		rawoutput("<form action='login.php' method='POST'>");
-		rawoutput("<input name='name' value=\"{$row['login']}\" type='hidden'>");
-		rawoutput("<input name='password' value=\"!md52!{$row['password']}\" type='hidden'>");
+		rawoutput("<input name='name' value=\"" . htmlentities($row['login'], ENT_QUOTES, 'UTF-8') . "\" type='hidden'>");
+		rawoutput("<input name='val_token' value=\"$valToken\" type='hidden'>");
 		rawoutput("<input name='force' value='1' type='hidden'>");
 		output("Your email has been validated, your login name is `^%s`0.`n`n",
 				$row['login']);
@@ -126,8 +134,7 @@ if (getsetting("allowcreation",1)==0){
 			}
 
 			$passlen = (int)httppost("passlen");
-			if (substr($pass1, 0, 5) != "!md5!" &&
-					substr($pass1, 0, 6) != "!md52!") {
+			if (substr($pass1, 0, 5) != "!md5!") {
 				$passlen = strlen($pass1);
 			}
 			if ($passlen<=3){

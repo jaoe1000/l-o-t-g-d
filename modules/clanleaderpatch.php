@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 require_once("common.php");
 require_once("lib/showform.php");
 require_once("lib/http.php");
@@ -28,8 +37,10 @@ if ($op=="save"){
 	$defsup = httppost("defaultsuperuser");
 	if ($defsup != "") {
 		$value = 0;
-		while(list($k, $v)=each($defsup)) {
-			if ($v) $value += (int)$k;
+		if (is_array($defsup)) {
+			foreach ($defsup as $k => $v) {
+				if ($v) $value += (int)$k;
+			}
 		}
 		httppostset('defaultsuperuser', $value);
 	}
@@ -58,9 +69,8 @@ if ($op=="save"){
 		invalidatedatacache("motd");
 	}
 	$post = httpallpost();
-	reset($post);
 	$old=$settings;
-	while (list($key,$val)=each($post)){
+	foreach ($post as $key => $val){
 		if (!isset($settings[$key]) ||
 				(stripslashes($val) != $settings[$key])) {
 			if (!isset($old[$key]))
@@ -92,8 +102,7 @@ if ($op=="save"){
 				output("Unable to change settings:`\$%s`0",
 						$post['validation_error']);
 			} else {
-				reset($post);
-				while (list($key,$val)=each($post)){
+				foreach ($post as $key => $val){
 					$key = stripslashes($key);
 					$val = stripslashes($val);
 					set_module_setting($key,$val);
@@ -118,7 +127,7 @@ if ($op=="save"){
 			if (count($info['settings'])>0){
 				load_module_settings($mostrecentmodule);
 				$msettings=array();
-				while (list($key,$val)=each($info['settings'])){
+				foreach ($info['settings'] as $key => $val){
 					if (is_array($val)) {
 						$v = $val[0];
 						$x = explode("|", $v);

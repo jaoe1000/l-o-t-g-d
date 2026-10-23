@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 /**
  * Village Creator Module
  *
@@ -138,7 +139,7 @@ function villageCreator_dohook(string $hookName, array $args)
 			if (empty($row) || !isset($row['block_mods'])) {
 				break; // Let the Master Template handle its own towns!
 			}
-			$row['block_mods'] = @unserialize($row['block_mods']);
+			$row['block_mods'] = @unserialize($row['block_mods'], ['allowed_classes' => false]);
 
             if (!is_array($row['block_mods'])) {
                 break;
@@ -180,7 +181,7 @@ function villageCreator_dohook(string $hookName, array $args)
                 break;
             }
             $row['block_navs'] = is_serialized($row['block_navs']) ?
-                @unserialize($row['block_navs']) :
+                @unserialize($row['block_navs'], ['allowed_classes' => false]) :
                 [];
 
             if (is_array($row['block_navs'])) {
@@ -351,7 +352,7 @@ function villageCreator_dohook(string $hookName, array $args)
             $result = db_query_cached($sql, 'village_locations', 86400);
             
             while ($row = db_fetch_assoc($result)) {
-                $row['block_navs'] = @unserialize(stripslashes($row['block_navs']));
+                $row['block_navs'] = @unserialize(stripslashes($row['block_navs']), ['allowed_classes' => false]);
                 if (!is_array($row['block_navs'])) {
                     $row['block_navs'] = ['all' => 0, 'forest.php' => 0];
                 }

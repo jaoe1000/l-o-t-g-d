@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 /**
  * Village Creator - Edit View
  * 
@@ -31,15 +32,15 @@ if ($villageId > 0) {
     } else {
         // Deserialize fields
         $row['mods'] = is_serialized($row['block_mods']) ?
-            @unserialize($row['block_mods']) :
+            @unserialize($row['block_mods'], ['allowed_classes' => false]) :
             '';
         $row['navs'] = is_serialized($row['block_navs']) ?
-            @unserialize($row['block_navs']) :
+            @unserialize($row['block_navs'], ['allowed_classes' => false]) :
             '';
         
         // Helper to get array details and unset removed fields
         $navsArray = is_serialized($row['block_navs']) ?
-            @unserialize($row['block_navs']) :
+            @unserialize($row['block_navs'], ['allowed_classes' => false]) :
             [];
         
         // Unset deprecated fields to clean up row before form display

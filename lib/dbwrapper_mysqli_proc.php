@@ -2,8 +2,17 @@
 // addnews ready
 // translator ready
 // mail ready
+// modified by jaoe1000
 
-function db_query($sql, $die = true) {
+function db_query($sql, $params = [], $die = true) {
+    // Handle backward compatibility for signature: db_query($sql, $die)
+    if (is_bool($params)) {
+        $die = $params;
+        $params = [];
+    }
+    if (!is_array($params)) {
+        $params = [$params];
+    }
     if (!defined('DB_NODB') && !defined('LINK')) return [];
     $bt = debug_backtrace();
     $isTableDescriptor = str_contains($bt[0]['file'], 'tabledescriptor');
@@ -15,20 +24,42 @@ function db_query($sql, $die = true) {
     ) return [];
 	global $session, $dbinfo, $mysqli_resource;
 	$dbinfo['queriesthishit']++;
-	// $fname = DBTYPE."_query";
 	$starttime = getmicrotime();
-	//$r = $fname($sql);
 	if (!$mysqli_resource) {
 		require_once('dbconnect.php');
 		db_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
 	}
-	$r = mysqli_query($mysqli_resource, $sql);
+	if (!empty($params)) {
+		if (function_exists('mysqli_execute_query')) {
+			$r = @mysqli_execute_query($mysqli_resource, $sql, $params);
+		} else {
+			$offset = 0;
+			foreach ($params as $param) {
+				$pos = strpos($sql, '?', $offset);
+				if ($pos === false) break;
+				if ($param === null) {
+					$rep = 'NULL';
+				} elseif (is_int($param) || is_float($param)) {
+					$rep = (string)$param;
+				} elseif (is_bool($param)) {
+					$rep = $param ? '1' : '0';
+				} else {
+					$rep = "'" . mysqli_real_escape_string($mysqli_resource, (string)$param) . "'";
+				}
+				$sql = substr_replace($sql, $rep, $pos, 1);
+				$offset = $pos + strlen($rep);
+			}
+			$r = mysqli_query($mysqli_resource, $sql);
+		}
+	} else {
+		$r = mysqli_query($mysqli_resource, $sql);
+	}
 
 	if (!$r && $die === true) {
 	 	if (defined("IS_INSTALLER")){
 	 		return array();
 		}else{
-			if ($session['user']['superuser'] & SU_DEVELOPER || 1){
+			if ((getSessionSuperUser() & SU_DEVELOPER)){
 				require_once("lib/show_backtrace.php");
 				die(
 					"<pre>".HTMLEntities($sql, ENT_COMPAT, getsetting("charset", "ISO-8859-1"))."</pre>"
@@ -57,7 +88,7 @@ function db_query($sql, $die = true) {
 //since it's possible this array is large, we'll save ourselves
 //the overhead of duplicating the array, then destroying the old
 //one by returning a reference instead.
-function &db_query_cached($sql,$name,$duration=900){
+function db_query_cached($sql,$name,$duration=900){
 	//this function takes advantage of the data caching library to make
 	//all of the other db_functions act just like MySQL queries but rely
 	//instead on disk cached data.

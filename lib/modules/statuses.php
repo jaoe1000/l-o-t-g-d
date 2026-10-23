@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 $injected_modules = array(1=>array(),0=>array());
 
@@ -19,8 +20,7 @@ function injectmodule($modulename,$force=false){
 	if (file_exists($modulefilename)){
 		tlschema("module-{$modulename}");
 		$sql = "SELECT active,filemoddate,infokeys,version FROM " . db_prefix("modules") . " WHERE modulename='$modulename'";
-		// $result = db_query_cached($sql, "inject-$modulename", 3600);
-		$result = db_query($sql);
+		$result = db_query_cached($sql, "inject-$modulename", 3600);
 		if (!$force) {
 			//our chance to abort if this module isn't currently installed
 			//or doesn't meet the prerequisites.
@@ -614,11 +614,11 @@ function get_module_info($shortName)
 
 function moduleStatusAll() {
 	$modules = ['active' => [], 'inactive' => []];
-	$sql = "SELECT category, modulename, active FROM modules
+	$sql = "SELECT category, modulename, active FROM " . db_prefix("modules") . "
 					ORDER BY category, active, modulename";
 	//db_query_cached($sql, 'installed-modules');
 	$result = db_query($sql);
-	foreach ($result as $row) {
+	while ($row = db_fetch_assoc($result)) {
 		$category = $row['category'];
 		$module = $row['modulename'];
 		$modules[$category][] = $module;
@@ -679,9 +679,14 @@ function getAllModuleStatuses()
 	$sql = "SELECT modulename as name, category, active FROM $modulesPrefix
 					ORDER BY category, active, modulename";
 	$result = @db_query($sql);
-	foreach ($result as $row) {
+	while ($row = db_fetch_assoc($result)) {
 		$modules['_all'][] = $row['name'];
-		$modules[$row['category']][$row['name']] = $row['active'];
+		$rawCat = $row['category'] ?? '';
+		$cat = !empty(trim($rawCat)) ? trim($rawCat) : 'Uncategorized';
+		$modules[$cat][$row['name']] = $row['active'];
+		if (!in_array($cat, $categories)) {
+			$categories[] = $cat;
+		}
 	}
 	
 	$handle = opendir('modules');
@@ -692,7 +697,8 @@ function getAllModuleStatuses()
 	while (false !== ($file = readdir($handle))){
 		$fileName = pathinfo($file, PATHINFO_FILENAME);
 		if ($file[0] == '.') continue;
-		if (!preg_match("/p$/", $file)) continue;
+		if (!preg_match('/\.php$/i', $file)) continue;
+		if (is_dir("modules/$file")) continue;
 		if (in_array($fileName, $modules['_all'])) continue;
 		$count++;
 		$uninstalled[] = $fileName;
@@ -701,7 +707,7 @@ function getAllModuleStatuses()
 	
 	return [
 		'installedcategories' => $categories,
-		'installedcount' => count($modules),
+		'installedcount' => count($modules['_all'] ?? []),
 		'installedmodules' => $modules,
 		'uninstalledcount' => count($uninstalled),
 		'uninstalledmodules' => $uninstalled,

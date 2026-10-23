@@ -1,4 +1,12 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
 
 require_once("common.php");
 
@@ -171,10 +179,12 @@ function housebathroom_run() {
 				$row 				= db_fetch_assoc($result);
 				if ($row['arguments']>""){
 			$arguments 			= array();
-			$base_arguments 	= unserialize($row['arguments']);
+			$base_arguments 	= unserialize($row['arguments'], ['allowed_classes' => false]);
 			array_push($arguments,$row['newstext']);
-			while (list($key,$val)=each($base_arguments)){
-				array_push($arguments,$val);
+			if (is_array($base_arguments)) {
+				foreach ($base_arguments as $key => $val){
+					array_push($arguments,$val);
+				}
 			}
 			$newnews 			= call_user_func_array("sprintf_translate",$arguments);
 			}else{

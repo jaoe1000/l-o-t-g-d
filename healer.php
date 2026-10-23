@@ -2,6 +2,7 @@
 // addnews ready
 // translator ready
 // mail ready
+// modified by jaoe1000
 require_once("common.php");
 require_once("lib/forest.php");
 require_once("lib/http.php");
@@ -10,7 +11,7 @@ require_once("lib/villagenav.php");
 tlschema("healer");
 
 $config = is_serialized($session['user']['donationconfig']) ?
-    unserialize($session['user']['donationconfig']) :
+    unserialize($session['user']['donationconfig'], ['allowed_classes' => false]) :
     [];
 
 $return = httpget("return");

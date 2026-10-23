@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 	$mdule = httpget("mdule");
 	if($mdule == ""){
 		output("Select a pref to edit.");
@@ -13,8 +22,7 @@
 		if (httpget('sub') == "save") {
 			// Save module prefs
 			$post = httpallpost();
-			reset($post);
-			while(list($key, $val) = each($post)) {
+			foreach ($post as $key => $val) {
 				set_module_objpref("dwellingtypes", $typeid, $key, $val, $mdule);
 			}
 			output("`^Saved!`0`n");

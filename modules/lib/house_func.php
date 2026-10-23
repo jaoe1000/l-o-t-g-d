@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 function house_appraise(){
     global $session;
 
@@ -393,19 +402,19 @@ global $session;
                 $sql = "SELECT ownerid FROM ".db_prefix("housekeys")." WHERE houseid=$id";
                 $result = db_query($sql);
                 $sql = "SELECT acctid,name FROM ".db_prefix("accounts")." WHERE acctid=";
-                while ($row = mysql_fetch_row ($result)) $sql .= $row[0]." OR acctid=";
+                while ($row = db_fetch_assoc ($result)) $sql .= $row['ownerid']." OR acctid=";
                 $sql = substr($sql, 0, -11);
                 $result = db_query($sql);
                 $i = 0;
-                while ($row = mysql_fetch_array ($result)){
+                while ($row = db_fetch_assoc ($result)){
                     $i ++;
-                    if ($row['acctid'] == $session['user']['acctid']) output_notl("`n$i. ".ereg_replace("`.","",$row['name']));
+                    if ($row['acctid'] == $session['user']['acctid']) output_notl("`n$i. ".preg_replace('/`./', '', $row['name']));
                     else
                     {
                         rawoutput("<br><form name='delete$i' action='runmodule.php?module=house&lo=house&id=$id&op=withk' method='POST'>");
                         rawoutput("<input type='hidden' name='nick' value='".$row['name']."'>");
                         rawoutput("<input type='hidden' name='acc' value='".$row['acctid']."'>");
-                        rawoutput("$i. <a href='javascript:document.delete$i.submit();'>".ereg_replace("`.","",$row['name'])."</a></form>");
+                        rawoutput("$i. <a href='javascript:document.delete$i.submit();'>".preg_replace('/`./', '', $row['name'])."</a></form>");
                     }
                 }
                 addnav("","runmodule.php?module=house&lo=house&id=$id&op=withk");
@@ -601,13 +610,13 @@ global $session;
                 $sql = "SELECT ownerid FROM ".db_prefix("housekeys")." WHERE houseid=$id";
                 $result = db_query($sql);
                 $sql = "SELECT name FROM ".db_prefix("accounts")." WHERE acctid=";
-                while ($row = mysql_fetch_array ($result)) $sql .= $row['ownerid']." OR acctid=";
+                while ($row = db_fetch_assoc ($result)) $sql .= $row['ownerid']." OR acctid=";
                 $sql = substr($sql, 0, -11);
                 $result = db_query($sql);
                 $i = 0;
-                while ($row = mysql_fetch_row ($result)){
+                while ($row = db_fetch_assoc ($result)){
                     $i ++;
-                    output_notl ("`&%s. %s`n", $i, $row[0]);
+                    output_notl ("`&%s. %s`n", $i, $row['name']);
                 }
             }
         break;

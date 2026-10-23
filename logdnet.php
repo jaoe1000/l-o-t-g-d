@@ -2,6 +2,7 @@
 // translator ready
 // addnews ready
 // mail ready
+// modified by jaoe1000
 
 define("ALLOW_ANONYMOUS",true);
 if (!isset($_GET['op']) || $_GET['op']!='list'){
@@ -219,9 +220,8 @@ if ($op==""){
 	if (!$servers) $servers = array();
 	$i = 0;
 	foreach ($servers as $key => $val) {
-        $row = is_serialized($val) ? unserialize($val) : [];
-        if (empty($row)) break;
-		$row=unserialize($val);
+        $row = is_serialized($val) ? unserialize($val, ['allowed_classes' => false]) : [];
+        if (empty($row)) continue;
         // If we aren't given an address, continue on.
         if (!$row['address']) {
             break;

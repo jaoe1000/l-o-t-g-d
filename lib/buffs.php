@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 // addnews ready
 // translator ready
 // mail ready
@@ -11,7 +20,6 @@ function calculate_buff_fields(){
 
     $buffList = getSession('bufflist');
 	//run temp stats
-	reset($buffList);
 	foreach ($buffList as $buffName => $buff) {
 		if (!isset($buff['tempstats_calculated'])) {
 			foreach ($buff as $property => $value) {
@@ -24,7 +32,6 @@ function calculate_buff_fields(){
 	}
 
 	//process calculated buff fields.
-	reset($buffList);
 	if (!is_array($buffreplacements)) $buffreplacements = array();
 	foreach ($buffList as $buffName => $buff) {
 		if (!isset($buff['fields_calculated'])){
@@ -105,14 +112,14 @@ function calculate_buff_fields(){
 function restore_buff_fields(){
 	global $session, $buffreplacements;
 	if (is_array($buffreplacements)){
-		reset($buffreplacements);
 		foreach ($buffreplacements as $buffName => $val) {
-			reset($val);
-			foreach ($val as $property => $value) {
-				if (isset($session['bufflist'][$buffName])){
-					$session['bufflist'][$buffName][$property] = $value;
-					unset($session['bufflist'][$buffName]['fields_calculated']);
-				}//end if
+			if (is_array($val)) {
+				foreach ($val as $property => $value) {
+					if (isset($session['bufflist'][$buffName])){
+						$session['bufflist'][$buffName][$property] = $value;
+						unset($session['bufflist'][$buffName]['fields_calculated']);
+					}//end if
+				}
 			}
 			unset($buffreplacements[$buffName]);
 		}
@@ -120,13 +127,13 @@ function restore_buff_fields(){
 
 	//restore temp stats
 	if (!is_array(getSession('bufflist'))) $session['bufflist'] = array();
-	reset($session['bufflist']);
 	foreach ($session['bufflist'] as $buffName => $buff) {
 		if (array_key_exists("tempstats_calculated",$buff) && $buff['tempstats_calculated']){
-			reset($buff);
-			foreach ($buff as $property => $value) {
-				if (substr($property,0,9)=='tempstat-'){
-					apply_temp_stat(substr($property,9),-$value);
+			if (is_array($buff)) {
+				foreach ($buff as $property => $value) {
+					if (substr($property,0,9)=='tempstat-'){
+						apply_temp_stat(substr($property,9),-$value);
+					}
 				}
 			}
 			unset($session['bufflist'][$buffName]['tempstats_calculated']);
@@ -155,7 +162,7 @@ function apply_buff($name,$buff){
 function apply_companion($name,$companion,$ignorelimit=false){
 	global $session, $companions;
 	if (!is_array($companions)) {
-		$companions = @unserialize($session['user']['companions']);
+		$companions = @unserialize($session['user']['companions'], ['allowed_classes' => false]);
 	}
 	$companionsallowed = getsetting("companionsallowed", 1);
 	$args = modulehook("companionsallowed", array("maxallowed"=>$companionsallowed));
@@ -198,9 +205,10 @@ function strip_buff($name){
 function strip_all_buffs(){
 	global $session;
 	$thebuffs = $session['bufflist'];
-	reset($thebuffs);
-	foreach ($thebuffs as $buffName => $buff) {
-		strip_buff($buffName);
+	if (is_array($thebuffs)) {
+		foreach ($thebuffs as $buffName => $buff) {
+			strip_buff($buffName);
+		}
 	}
 }
 

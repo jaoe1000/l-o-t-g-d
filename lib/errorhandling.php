@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 // addnews ready
 // translator ready
 // mail ready
@@ -12,9 +21,9 @@ if (defined('E_DEPRECATED')) {
 
 function set_magic_quotes(&$vars) {
 	if (is_array($vars)) {
-		reset($vars);
-		while (list($key,$val) = each($vars))
-			set_magic_quotes($vars[$key]);
+		foreach ($vars as $key => &$val) {
+			set_magic_quotes($val);
+		}
 	}else{
 		$vars = addslashes($vars);
 	}
@@ -27,8 +36,6 @@ if (function_exists("get_magic_quotes_runtime") && function_exists("get_magic_qu
 	set_magic_quotes($_POST);
 	set_magic_quotes($_SESSION);
 	set_magic_quotes($_COOKIE);
-	set_magic_quotes($HTTP_GET_VARS);
-	set_magic_quotes($HTTP_POST_VARS);
-	set_magic_quotes($HTTP_COOKIE_VARS);
 	ini_set("magic_quotes_gpc",1);
 }
+

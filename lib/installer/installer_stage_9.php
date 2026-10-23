@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 require_once("lib/installer/installer_sqlstatements.php");
 require_once("lib/installer/installer_functions.php");
 require_once("lib/installer/installer_default_settings.php");
@@ -10,7 +19,6 @@ output("`n`@Table Synchronization Logs:`n");
 rawoutput("<div style='width: 100%; height: 150px; max-height: 150px; overflow: auto;'>");
 $descriptors = descriptors($DB_PREFIX);
 require_once("lib/tabledescriptor.php");
-reset($descriptors);
 foreach ($descriptors as $tableName => $descriptor) {
 	output("`3Synchronizing table `#$tableName`3..`n");
 	synctable($tableName, $descriptor, true);
@@ -67,11 +75,12 @@ rawoutput("</div>");
 output("`n`2Now I'll install the recommended modules.");
 output("Please note that these modules will be installed, but not activated.");
 output("Once installation is complete, you should use the Module Manager found in the superuser grotto to activate those modules you wish to use.");
-reset($recommended_modules);
 rawoutput("<div style='width: 100%; height: 150px; max-height: 150px; overflow: auto;'>");
-while (list($key,$modulename)=each($recommended_modules)){
-output("`3Installing `#$modulename`\$`n");
-install_module($modulename, false);
+if (isset($recommended_modules) && is_array($recommended_modules)) {
+	foreach ($recommended_modules as $key => $modulename){
+		output("`3Installing `#$modulename`\$`n");
+		install_module($modulename, false);
+	}
 }
 rawoutput("</div>");
 */
@@ -80,7 +89,6 @@ if (!getSession('skipmodules')) {
   rawoutput("<div style='width: 100%; height: 150px; max-height: 150px; overflow: auto;'>");
   foreach($session['moduleoperations'] as $modName => $val) {
 	  $ops = explode(',', $val);
-	  reset($ops);
 		foreach ($ops as $trash => $op) {
 		  switch ($op) {
 			  case "uninstall":

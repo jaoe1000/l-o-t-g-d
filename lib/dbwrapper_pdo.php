@@ -2,6 +2,7 @@
 // addnews ready
 // translator ready
 // mail ready
+// modified by jaoe1000
 
 /**
  * PDO-based Database Wrapper for Legend of the Green Dragon.
@@ -55,6 +56,9 @@ function db_query($sql, $params = [], $die = true) {
         $die = $params;
         $params = [];
     }
+    if (!is_array($params)) {
+        $params = [$params];
+    }
 
     if (!defined('DB_NODB') && !defined('LINK')) return [];
     
@@ -93,7 +97,7 @@ function db_query($sql, $params = [], $die = true) {
             if (defined("IS_INSTALLER")) {
                 return [];
             } else {
-                if ($session['user']['superuser'] & SU_DEVELOPER || 1) {
+                if ((getSessionSuperUser() & SU_DEVELOPER)) {
                     require_once("lib/show_backtrace.php");
                     die(
                         "<pre>" . htmlentities($sql, ENT_COMPAT, getsetting("charset", "ISO-8859-1")) . "</pre>"
@@ -123,7 +127,7 @@ function db_query($sql, $params = [], $die = true) {
     return $stmt;
 }
 
-function &db_query_cached($sql, $name, $duration = 900) {
+function db_query_cached($sql, $name, $duration = 900) {
     global $dbinfo;
     if (defined('IS_INSTALLER') && IS_INSTALLER === true) return [];
     

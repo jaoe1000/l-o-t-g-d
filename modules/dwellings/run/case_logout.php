@@ -1,4 +1,6 @@
-<?php $owner = httpget('owner');
+<?php
+// modified by jaoe1000
+$owner = httpget('owner');
 	$ac = db_prefix("accounts"); 
 	$mu = db_prefix("module_userprefs");
 	$sql = "SELECT $ac.name AS name,
@@ -57,7 +59,10 @@
         // Check if we got anything (we should)
         if (db_num_rows($result) == 1) {
             $row = db_fetch_assoc($result);
-            $allowednavs = \Lotgd\Serialization::safeUnserialize($row['allowednavs']);
+            $allowednavs = @unserialize($row['allowednavs'], ['allowed_classes' => false]);
+            if (!is_array($allowednavs)) {
+                $allowednavs = [];
+            }
             $allowednavs[$row['restorepage']] = true;
             // Write back to database
             $serialized = addslashes(serialize($allowednavs));

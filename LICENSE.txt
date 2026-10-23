@@ -1,3 +1,9 @@
+Legend of the Green Dragon (LotGD)
+This software is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 2.0 (CC BY-NC-SA 2.0) License.
+Full legal code: http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+
+--------------------------------------------------------------------------------
+
 I'm going to take a few moments to try and explain this new license and
 the reasons behind it in plain English.  The legalese for the license can
 be found online at http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode

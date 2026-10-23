@@ -1,8 +1,9 @@
 <?php
+// modified by jaoe1000
 $sql = "";
 $updates=0;
 $oldvalues = stripslashes(httppost('oldvalues'));
-$oldvalues = unserialize($oldvalues);
+$oldvalues = unserialize($oldvalues, ['allowed_classes' => false]);
 // Handle recombining the old name
 $otitle = isset($oldvalues['title']) ? $oldvalues['title'] : '';
 if (isset($oldvalues['ctitle'])) $otitle = $oldvalues['ctitle'];

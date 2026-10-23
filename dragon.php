@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 // addnews ready
 // translator ready
 // mail ready
@@ -36,7 +45,6 @@ if ($op==""){
     // Coded by JT, based on collaboration with MightyE
     $points = 0;
     restore_buff_fields();
-    reset($session['user']['dragonpoints']);
     foreach (getSessionUser('dragonpoints') as $key => $val) {
         if ($val=="at" || $val == "de") $points++;
     }
@@ -97,7 +105,6 @@ if ($op==""){
     $sql = "DESCRIBE " . db_prefix("accounts");
     $result = db_query($sql);
 
-    reset($session['user']['dragonpoints']);
     $dkpoints = 0;
     foreach (getSessionUser('dragonpoints') as $key => $val) {
         if ($val=="hp") $dkpoints+=5;
@@ -217,7 +224,6 @@ if ($op==""){
     $session['user']['title'] = $newtitle;
     $session['user']['name'] = $newname;
 
-    reset($session['user']['dragonpoints']);
     foreach (getSessionUser('dragonpoints') as $key => $val) {
         if ($val=="at"){
             $session['user']['attack']++;

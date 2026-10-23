@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 /**
  * Village Creator - Insert/Update Logic
  * 
@@ -75,7 +76,7 @@ $serializedNavs = !empty($processedNavs) ? serialize($processedNavs) : '';
 // --- Database Operation ---
 
 if ($op === 'update') {
-    $oldValues = @unserialize(base64_decode(httppost('oldvalues')));
+    $oldValues = @unserialize(base64_decode(httppost('oldvalues')), ['allowed_classes' => false]);
 
     // 1. Handle Renaming (YAML & Accounts)
     if ($coreFields['name'] !== $oldValues['name']) {

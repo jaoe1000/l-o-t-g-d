@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 /**
  * An event that should be triggered
@@ -79,8 +80,7 @@ function modulehook(
 			ORDER BY
 				" . db_prefix("module_hooks") . ".priority,
 				" . db_prefix("module_hooks") . ".modulename";
-		// $result = db_query_cached($sql,"hook-".$hookname);
-		$result = db_query($sql);
+		$result = db_query_cached($sql,"hook-".$hookname);
 	}
 	// $args is an array passed by value and we take the output and pass it
 	// back through

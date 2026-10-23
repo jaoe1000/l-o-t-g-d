@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 // translator ready
 // addnews ready
 // mail ready
@@ -67,7 +76,6 @@ if ($op==""){
             invalidatedatacache("petition_counts");
         }
     }
-    reset($statuses);
     $sort = "";
     $pos = 0;
     foreach ($statuses as $key => $val) {
@@ -247,7 +255,6 @@ if ($op==""){
     addnav("User Ops");
 
     addnav("Petition Ops");
-    reset($statuses);
     foreach($statuses as $key => $val) {
         $plain = full_sanitize($val);
         addnav(array("%s?Mark %s", substr($plain,0,1), $val),

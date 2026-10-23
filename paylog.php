@@ -2,6 +2,7 @@
 // mail ready
 // addnews ready
 // translator ready
+// modified by jaoe1000
 require_once("common.php");
 require_once("lib/http.php");
 
@@ -34,7 +35,7 @@ if ($op==""){
 	$sql = "SELECT info,txnid FROM ".db_prefix("paylog")." WHERE processdate='0000-00-00'";
 	$result = db_query($sql);
 	while ($row = db_fetch_assoc($result)){
-		$info = unserialize($row['info']);
+		$info = unserialize($row['info'], ['allowed_classes' => false]);
 		$sql = "UPDATE ".db_prefix('paylog')." SET processdate='".date("Y-m-d H:i:s",strtotime($info['payment_date']))."' WHERE txnid='".addslashes($row['txnid'])."'";
 		db_query($sql);
 	}
@@ -64,7 +65,7 @@ if ($op==""){
 	$number=db_num_rows($result);
 	for ($i=0;$i<$number;$i++){
 		$row = db_fetch_assoc($result);
-		$info = unserialize($row['info']);
+		$info = unserialize($row['info'], ['allowed_classes' => false]);
 		rawoutput("<tr class='".($i%2?"trlight":"trdark")."'><td nowrap>");
 		output_notl(date("m/d H:i",strtotime($info['payment_date'])));
 		rawoutput("</td><td>");

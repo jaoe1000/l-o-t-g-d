@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 /**
  * Returns the numeric value of the next rank from the given array
@@ -7,7 +8,7 @@
  * @param int $current The numeric value of the current rank
  * @return int The numeric value of the next rank
  */
-function clan_nextrank(array $ranks, int$current): int
+function clan_nextrank(array $ranks, int $current): int
 {
 	$temp = array_pop($ranks);
 	$ranks = array_keys($ranks);

@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 	page_header("Dwelling Listing");
 	$dwid = httpget("dwid");
 	addnav("Back to Dwelling List","runmodule.php?module=dwellingseditor");
@@ -9,8 +18,7 @@
 		if (httpget('sub') == "save") {
 			// Save module prefs
 			$post = httpallpost();
-			reset($post);
-			while(list($key, $val) = each($post)) {
+			foreach ($post as $key => $val) {
 				set_module_objpref("dwellings", $dwid, $key, $val, $mdule);
 			}
 			output("`^Saved!`0`n");

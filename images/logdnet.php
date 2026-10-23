@@ -2,6 +2,7 @@
 // addnews ready
 // mail ready
 // translator ready
+// modified by jaoe1000
 session_start();
 //unset($_SESSION['logdnet']);
 //session_register("session");
@@ -32,7 +33,7 @@ if (isset($_GET['op']) && $_GET['op']=="register"){
 		$info = @pullurl($url);
 		if ($info !== false) {
 			$info = base64_decode(join("",$info));
-			$_SESSION['logdnet'] = unserialize($info);
+			$_SESSION['logdnet'] = unserialize($info, ['allowed_classes' => false]);
 			$_SESSION['logdnet']['when'] = date("Y-m-d H:i:s");
 			$_SESSION['logdnet']['note'] =  "\n// registered with logdnet successfully";
 			$_SESSION['logdnet']['note'] .= "\n// ".$url;

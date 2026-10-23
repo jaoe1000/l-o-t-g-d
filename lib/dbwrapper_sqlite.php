@@ -2,32 +2,88 @@
 // addnews ready
 // translator ready
 // mail ready
+// modified by jaoe1000
+
+if (!defined('SQLITE3_ASSOC')) {
+    define('SQLITE3_ASSOC', 1);
+}
 
 /**
  * Execute a SQLite query.
  * @return void
  */
-function db_query(string $sql = '', bool $die = true)
+function db_query($sql = '', $params = [], $die = true)
 {
     global $session, $dbinfo, $sqlite_resource;
+    // Handle backward compatibility for signature: db_query($sql, $die)
+    if (is_bool($params)) {
+        $die = $params;
+        $params = [];
+    }
+    if (!is_array($params)) {
+        $params = [$params];
+    }
     if (defined("DB_NODB") && !defined("LINK") && !is_object($sqlite_resource)) {
         return [];
     }
     $dbinfo['queriesthishit']++;
     $starttime = getmicrotime();
-    //var_dump($sql);
-    if (IS_INSTALLER) {
-        $r = @$sqlite_resource->query($sql);
-    }
-    else {
-        $r = $sqlite_resource->query($sql);
+
+    if (!empty($params) && is_object($sqlite_resource)) {
+        $stmt = $sqlite_resource->prepare($sql);
+        if ($stmt === false) {
+            // Parameter substitution fallback if prepare fails
+            $offset = 0;
+            foreach ($params as $param) {
+                $pos = strpos($sql, '?', $offset);
+                if ($pos === false) break;
+                if ($param === null) {
+                    $rep = 'NULL';
+                } elseif (is_int($param) || is_float($param)) {
+                    $rep = (string)$param;
+                } elseif (is_bool($param)) {
+                    $rep = $param ? '1' : '0';
+                } else {
+                    $rep = "'" . $sqlite_resource->escapeString((string)$param) . "'";
+                }
+                $sql = substr_replace($sql, $rep, $pos, 1);
+                $offset = $pos + strlen($rep);
+            }
+            if (defined("IS_INSTALLER") && IS_INSTALLER) {
+                $r = @$sqlite_resource->query($sql);
+            } else {
+                $r = $sqlite_resource->query($sql);
+            }
+        } else {
+            $i = 1;
+            foreach ($params as $val) {
+                if (is_int($val)) {
+                    $stmt->bindValue($i, $val, SQLITE3_INTEGER);
+                } elseif (is_float($val)) {
+                    $stmt->bindValue($i, $val, SQLITE3_FLOAT);
+                } elseif (is_null($val)) {
+                    $stmt->bindValue($i, null, SQLITE3_NULL);
+                } else {
+                    $stmt->bindValue($i, (string)$val, SQLITE3_TEXT);
+                }
+                $i++;
+            }
+            $r = $stmt->execute();
+        }
+    } else {
+        if (defined("IS_INSTALLER") && IS_INSTALLER) {
+            $r = @$sqlite_resource->query($sql);
+        }
+        else {
+            $r = $sqlite_resource->query($sql);
+        }
     }
     if (!$r && $die === true) {
         if (defined("IS_INSTALLER")) {
             return [];
         }
         else {
-            if ($session['user']['superuser'] & SU_DEVELOPER || 1) {
+            if ((getSessionSuperUser() & SU_DEVELOPER)) {
                 require_once("lib/show_backtrace.php");
                 die(
                     "<pre>".
@@ -43,7 +99,7 @@ function db_query(string $sql = '', bool $die = true)
             }
             else {
                 die(
-                    "Please use your browser's back button and try again."
+                    "A most bogus error has occurred.  I apologise, but the page you were trying to access is broken.  Please use your browser's back button and try again."
                 );
             }
         }
@@ -72,7 +128,7 @@ function db_query(string $sql = '', bool $die = true)
  * Execute a command and cache the results.
  * @return array
  */
-function &db_query_cached(string $sql, string $name, int $duration=900): array
+function db_query_cached(string $sql, string $name, int $duration=900): array
 {
     global $dbinfo;
     $data = datacache($name, $duration);
@@ -114,21 +170,19 @@ function db_error(): string
 
 /**
  * Return an associative array of recent statement, or checks the cache.
- * @return array
+ * @return array|false
  */
-function db_fetch_assoc(array $result)
+function db_fetch_assoc(&$result)
 {
     if (is_array($result)) {
-        if (list($key, $val) = each($result)) {
-            return $val;
-        }
-        else {
-            return false;
-        }
+        $val = array_shift($result);
+        return $val !== null ? $val : false;
     }
-    else {
-        return $result->fetchArray(SQLITE3_ASSOC);
+    if ($result instanceof SQLite3Result || (is_object($result) && method_exists($result, 'fetchArray'))) {
+        $mode = defined('SQLITE3_ASSOC') ? SQLITE3_ASSOC : 1;
+        return $result->fetchArray($mode) ?: false;
     }
+    return false;
 }
 
 /**
@@ -150,22 +204,25 @@ function db_insert_id(): int
  * Count the number of rows in a query result.
  * @return int
  */
-function db_num_rows(array $result): int
+function db_num_rows($result): int
 {
     if (is_array($result)) {
         return count($result);
     }
-    else {
-        if (defined("DB_NODB") && !defined("LINK")) {
-            return 0;
+    if ($result instanceof SQLite3Result || (is_object($result) && method_exists($result, 'fetchArray'))) {
+        $rows = 0;
+        if (method_exists($result, 'reset')) {
+            $result->reset();
         }
-        else {
-            while ($i < count($result)) {
-                $i++;
-            }
-            return $i;
+        while ($result->fetchArray()) {
+            $rows++;
         }
+        if (method_exists($result, 'reset')) {
+            $result->reset();
+        }
+        return $rows;
     }
+    return 0;
 }
 
 /**
@@ -216,7 +273,7 @@ function db_get_server_version(): string
 function db_select_db(string $dbName): bool
 {
     global $sqlite_resource;
-    $dbName = filter_var($dbName, FILTER_SANITIZE_MAGIC_QUOTES);
+    $dbName = addslashes($dbName);
     return is_object($sqlite_resource->query(
         "SELECT name FROM sqlite_master
         WHERE type='table' AND name='$dbName'"

@@ -2,6 +2,7 @@
 // addnews ready
 // translator ready
 // mail ready
+// modified by jaoe1000
 
 function motd_admin($id, $poll=false) {
 	global $session;
@@ -43,7 +44,7 @@ function pollitem($id,$subject,$body,$author,$date,$showpoll=true){
 	$result = db_query($sql);
 	$row = db_fetch_assoc($result);
 	$choice = $row['choice'];
-	$body = unserialize($body);
+	$body = unserialize($body, ['allowed_classes' => false]);
 
 	$poll = translate_inline("Poll:");
 	if ($session['user']['loggedin'] && $showpoll) {

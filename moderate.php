@@ -2,6 +2,7 @@
 // translator ready
 // addnews ready
 // mail ready
+// modified by jaoe1000
 require_once("common.php");
 require_once("lib/commentary.php");
 require_once("lib/sanitize.php");
@@ -126,7 +127,7 @@ if ($op==""){
 			$sql = "SELECT * FROM ".db_prefix("moderatedcomments")." WHERE modid IN ('".join("','",array_keys($unkeys))."')";
 			$result = db_query($sql);
 			while ($row = db_fetch_assoc($result)){
-				$comment = unserialize($row['comment']);
+				$comment = unserialize($row['comment'], ['allowed_classes' => false]);
 				$id = addslashes($comment['commentid']);
 				$postdate = addslashes($comment['postdate']);
 				$section = addslashes($comment['section']);
@@ -189,7 +190,7 @@ if ($op==""){
 		output_notl("%s", $row['moddate']);
 		rawoutput("</td>");
 		rawoutput("<td>");
-		$comment = unserialize($row['comment']);
+		$comment = unserialize($row['comment'], ['allowed_classes' => false]);
 		output_notl("`0(%s)", $comment['section']);
 
 		if ($comment['clanrank']>0)

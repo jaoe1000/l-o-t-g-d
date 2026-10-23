@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 // translator ready
 // addnews ready
 // mail ready
@@ -115,7 +124,6 @@ $sql = "SELECT * FROM " . db_prefix("nastywords") . " WHERE type='nasty'";
 $result = db_query($sql);
 $row = db_fetch_assoc($result);
 $words = explode(" ",$row['words']);
-reset($words);
 
 if ($op=="add"){
 

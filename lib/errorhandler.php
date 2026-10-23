@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 function logd_error_handler($errno, $errstr, $errfile, $errline){
 	global $session;
@@ -19,7 +20,7 @@ function logd_error_handler($errno, $errstr, $errfile, $errline){
 	case E_NOTICE:
 	case E_USER_NOTICE:
 		if (getsetting('show_notices', 0) &&
-				$session['user']['superuser'] & SU_SHOW_PHPNOTICE) {
+				!empty($session['user']['superuser']) && ($session['user']['superuser'] & SU_SHOW_PHPNOTICE)) {
 			debug("PHP Notice: \"$errstr\"<br>in <b>$errfile</b> at <b>$errline</b>.");
 		}
 		break;
@@ -31,6 +32,7 @@ function logd_error_handler($errno, $errstr, $errfile, $errline){
 		tlschema();
 		$backtrace = show_backtrace();
         rawoutput($backtrace);
+		if (getsetting('notify_on_warn', 0)) logd_error_notify($errno, $errstr, $errfile, $errline, $backtrace);
 		break;
 	case E_ERROR:
 	case E_USER_ERROR:
@@ -38,6 +40,7 @@ function logd_error_handler($errno, $errstr, $errfile, $errline){
 		echo sprintf("PHP ERROR: \"%s\"<br>in <b>%s</b> at <b>%s</b>.<br>",$errstr,$errfile,$errline);
 		$backtrace = show_backtrace();
 		echo "<pre>$backtrace</pre>";
+		if (getsetting('notify_on_error', 0)) logd_error_notify($errno, $errstr, $errfile, $errline, $backtrace);
 		die();
 		break;
 	}
@@ -69,19 +72,27 @@ function logd_error_notify($errno, $errstr, $errfile, $errline, $backtrace){
 			/***
 			  * Set up the mime bits
 			 **/
-			require_once("sanitize.php");
+			require_once(__DIR__ . "/sanitize.php");
 			$notice_text = "This is a multi-part message in MIME format.";
 			$userstr = "";
-			if ($session && isset($session['user']['name']) && isset($sesson['user']['acctid'])) {
+			if ($session && isset($session['user']['name']) && isset($session['user']['acctid'])) {
 				$userstr = "Error triggered by user " . $session['user']['name'] . " (" . $session['user']['acctid'] . ")\n";
 			}
 			$plain_text = "$userstr$errstr in $errfile ($errline)\n".sanitize_html($backtrace);
 			$html_text = "<html><body>$errstr in $errfile ($errline)<hr>$backtrace</body></html>";
 
+			$level = match($errno) {
+				E_NOTICE, E_USER_NOTICE => "Notice",
+				E_WARNING, E_USER_WARNING => "Warning",
+				default => "Error"
+			};
+			$from = getsetting("gameadminemail", "postmaster@" . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+
 			$semi_rand = md5(time());
 			$mime_boundary = "==MULTIPART_BOUNDARY_$semi_rand";
 			$mime_boundary_header = chr(34) . $mime_boundary . chr(34);
-			$subject = "{$_SERVER['HTTP_HOST']} $level";
+			$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+			$subject = "$host $level";
 
 			$body = "$notice_text
 

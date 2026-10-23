@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 // translator ready
 // addnews ready
 // mail ready
@@ -125,14 +134,9 @@ function showform($layout,$row,$nosave=false,$keypref=false){
 			$pretrans = 1;
 			// FALLTHROUGH
 		case "checklist":
-			reset($info);
-			// list($k,$v)=each($info);
-			// list($k,$v)=each($info);
 			$select="";
 			foreach ($info as $k => $v) {
 				$optval = $v;
-				// $k = key($info);
-				// list($k,$v)=each($info);
 				$optdis = $v;
 				if (!$pretrans) $optdis = translate_inline($optdis);
 				if (is_array($row[$key])){
@@ -154,9 +158,6 @@ function showform($layout,$row,$nosave=false,$keypref=false){
 			$pretrans = 1;
 			// FALLTHROUGH
 		case "radio":
-			reset($info);
-			// list($k,$v)=each($info);
-			// list($k,$v)=each($info);
 			$select="";
 			foreach ($info as $k => $v) {
 				$optval = $v;

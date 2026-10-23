@@ -1,4 +1,12 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
 /* dannic06@gmail.com */ 
 /* */ 
 /* 12-29-2004 */ 
@@ -199,13 +207,14 @@ function specialtymonkskills_dohook($hookname,$args){
                 $session['user']['weaponvalue']=0; 
                 $session['user']['defense']=$session['user']['level']*2; 
                 $xpoints=0; 
-                reset($session['user']['dragonpoints']); 
-                while(list($key,$val)=each($session['user']['dragonpoints'])){ 
-                    if ($val=="at" || $val == "de"){ 
-                        if($val == "de"){ 
-                            $xpoints++; 
+                if (is_array($session['user']['dragonpoints'])) {
+                    foreach ($session['user']['dragonpoints'] as $key => $val) { 
+                        if ($val=="at" || $val == "de"){ 
+                            if($val == "de"){ 
+                                $xpoints++; 
+                            } 
                         } 
-                    } 
+                    }
                 } 
                 $session['user']['defense']= $session['user']['defense'] + $xpoints; 
                 
@@ -217,13 +226,14 @@ function specialtymonkskills_dohook($hookname,$args){
                 $session['user']['armorvalue']=0; 
                 $session['user']['attack']=$session['user']['level']*2; 
                 $xpoints=0; 
-                reset($session['user']['dragonpoints']); 
-                while(list($key,$val)=each($session['user']['dragonpoints'])){ 
-                    if ($val=="at" || $val == "de"){ 
-                        if($val == "at"){ 
-                            $xpoints++; 
+                if (is_array($session['user']['dragonpoints'])) {
+                    foreach ($session['user']['dragonpoints'] as $key => $val) { 
+                        if ($val=="at" || $val == "de"){ 
+                            if($val == "at"){ 
+                                $xpoints++; 
+                            } 
                         } 
-                    } 
+                    }
                 } 
                 $session['user']['attack']= $session['user']['attack'] + $xpoints; 
             } 

@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 function apply_clan_buff_for_one() {
 	global $session;
 	strip_buff("clanbuff");
@@ -142,7 +143,7 @@ function remake_costs() {
 
 function calculate_level() {
 	global $session;
-	$cost = unserialize(get_module_setting("costarray"));
+	$cost = unserialize(get_module_setting("costarray"), ['allowed_classes' => false]);
 	
 	$total = 0;
 

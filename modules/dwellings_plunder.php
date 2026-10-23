@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 /*
 
 v1.0 basic performance, no gems
@@ -94,7 +95,7 @@ function dwellings_plunder_run(){
 		$plunder=plunder_getmemyarray($dwid);
 		$session['user']['specialmisc']=rawurlencode(serialize($plunder));
 	} else {
-		$plunder=unserialize(rawurldecode($session['user']['specialmisc']));
+		$plunder=unserialize(rawurldecode($session['user']['specialmisc']), ['allowed_classes' => false]);
 		if (!is_array($plunder)) $plunder=plunder_getmemyarray($dwid);
 		//reload if no array
 	}

@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 // translator ready
 // addnews ready
 // mail ready
@@ -58,7 +67,6 @@ $retargs = modulehook("dkpointlabels", array('desc'=>$labels, 'buy'=>$canbuy));
 $labels = $retargs['desc'];
 $canbuy = $retargs['buy'];
 $pdks = array();
-reset($labels);
 foreach($labels as $type=>$label) {
     $pdks[$type] = (int)httppost($type);
 }
@@ -69,7 +77,6 @@ $dp = count($session['user']['dragonpoints']);
 $dkills = $session['user']['dragonkills'];
 
 if ($pdk==1){
-    reset($labels);
     $pdktotal = 0;
     $pdkneg = false;
     modulehook("pdkpointrecalc");
@@ -82,7 +89,6 @@ if ($pdk==1){
         $session['user']['maxhitpoints'] += (5 * $pdks["hp"]);
         $session['user']['attack'] += $pdks["at"];
         $session['user']['defense'] += $pdks["de"];
-        reset($labels);
         foreach($labels as $type=>$label) {
             $count = 0;
             if (isset($pdks[$type])) $count = (int)$pdks[$type];
@@ -143,7 +149,8 @@ if ($dp < $dkills) {
     }
 
     //clear all standard buffs
-    $tempbuf = unserialize($session['user']['bufflist']);
+    $tempbuf = unserialize($session['user']['bufflist'], ['allowed_classes' => false]);
+    if (!is_array($tempbuf)) $tempbuf = [];
     $session['user']['bufflist']="";
     strip_all_buffs();
     tlschema("buffs");
@@ -167,7 +174,6 @@ if ($dp < $dkills) {
 
     output("`2Hitpoints have been restored to `^%s`2.`n",$session['user']['maxhitpoints']);
 
-    reset($session['user']['dragonpoints']);
     $dkff=0;
     foreach (getSessionUser('dragonpoints') as $key => $val) {
         if ($val=="ff"){
@@ -175,7 +181,7 @@ if ($dp < $dkills) {
         }
     }
     if ($session['user']['hashorse']){
-        $buff = unserialize($playermount['mountbuff']);
+        $buff = unserialize($playermount['mountbuff'], ['allowed_classes' => false]);
         if (!isset($buff['schema']) || $buff['schema'] == "")
             $buff['schema']="mounts";
         apply_buff('mount',$buff);

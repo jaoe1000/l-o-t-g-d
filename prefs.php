@@ -2,6 +2,7 @@
 // addnews ready
 // mail ready
 // translator ready
+// modified by jaoe1000
 
 require_once("lib/http.php");
 
@@ -55,7 +56,7 @@ if ($op=="suicide" && getsetting("selfdelete",0)!=0) {
 
 
     $oldvalues = stripslashes(httppost('oldvalues'));
-    $oldvalues = unserialize($oldvalues);
+    $oldvalues = unserialize($oldvalues, ['allowed_classes' => false]);
 
     $post = httpallpost();
     unset($post['oldvalues']);

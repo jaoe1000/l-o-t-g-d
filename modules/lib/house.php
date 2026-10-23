@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
     global $session;
 	$points = $session['user']['donation'];
     page_header(array("The residential area of %s", $session['user']['location']));
@@ -30,14 +39,17 @@
     if ($loc == ""){
         $sql = "SELECT * FROM ".db_prefix("housekeys")." WHERE ownerid=".$session['user']['acctid']." AND location='".$session['user']['location']."'";
         $result = db_query($sql);
-        $rownumber = mysql_num_rows ($result);
+        $rownumber = db_num_rows ($result);
         $i = 0;
         $row = array();
-        while ($row[$i] = mysql_fetch_row($result)) $i++;
+        while ($r = db_fetch_assoc($result)) {
+            $row[$i] = $r;
+            $i++;
+        }
         if ($rownumber > 0){
             addnav ("Other Houses");
             for ($i = 0; $i < $rownumber; $i++){
-                addnav (stripslashes($row[$i][2]), "runmodule.php?module=house&lo=house&id=".$row[$i][1]);
+                addnav (stripslashes($row[$i]['housename']), "runmodule.php?module=house&lo=house&id=".$row[$i]['houseid']);
             }
         }
     }

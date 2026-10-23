@@ -1,10 +1,11 @@
 <?php
+// modified by jaoe1000
 
 function dump_item(array|string $item): string
 {
 	$out = '';
 	if (is_array($item)) $temp = $item;
-	else $temp = is_serialized($item) ? @unserialize($item) : $item;
+	else $temp = is_serialized($item) ? @unserialize($item, ['allowed_classes' => false]) : $item;
 	if (is_array($temp)) {
         $length = count($temp);
 		$out .= "array($length) {<div style='padding-left: 20pt;'>";
@@ -23,7 +24,7 @@ function dump_item_ascode(array|string $item): string
 {
 	$out = '';
 	if (is_array($item)) $temp = $item;
-	else $temp = @unserialize($item);
+	else $temp = @unserialize($item, ['allowed_classes' => false]);
 	if (is_array($temp)) {
 		$out .= "array(\n\t";
 		$row = [];

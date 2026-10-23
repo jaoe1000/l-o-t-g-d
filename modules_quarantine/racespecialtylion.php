@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 /*
 Details:
  * Translator Ready
@@ -460,11 +469,12 @@ function racespecialtylion_change() {
 	$spec="LN"; // ***CHANGE
 	if (get_module_setting("wepchange")==1&&$session['user']['race']==$race&&$session['user']['specialty']==$spec) {
 		$nstr = "`%".racespecialtylion_namer("Y");
-		if (!ereg($nstr,$session['user']['weapon'],$whatevr)) {
+		$pattern = '/' . preg_quote($nstr, '/') . '/';
+		if (!preg_match($pattern, $session['user']['weapon'])) {
 			$n = $nstr." ".$session['user']['weapon'];
 			if (strlen($n)<50) $session['user']['weapon']=$n;
 		}
-		if (!ereg($nstr,$session['user']['armor'],$whatevr)) {
+		if (!preg_match($pattern, $session['user']['armor'])) {
 			$n = $nstr." ".$session['user']['armor'];
 			if (strlen($n)<50) $session['user']['armor']=$n;
 		}

@@ -1,5 +1,6 @@
 <?php
-$config = unserialize($session['user']['donationconfig']);
+// modified by jaoe1000
+$config = unserialize($session['user']['donationconfig'], ['allowed_classes' => false]);
 $expense = round(($session['user']['level']*(10+log($session['user']['level']))),0);
 $pay = httpget('pay');
 if ($pay){

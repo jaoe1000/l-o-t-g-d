@@ -1,4 +1,12 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
 
 // TODO: 'collapse' module hooks could probably be removed when module handling is refactored
 require_once('common.php');
@@ -8,7 +16,7 @@ require_once('lib/experience.php');
 
 checkday();
 
-loadNamespace('village');
+$i18n = loadNamespace('village');
 $villageName = getsetting('villagename', LOCATION_FIELDS);
 $innName = getsetting('innname', LOCATION_INN);
 $validLocations = [];
@@ -32,12 +40,11 @@ $sql = db_query_cached(
 );
 $newCharacter = db_fetch_assoc($sql);
 
-// Pull translations from the cache for local language, more manageable than repeated loadTranslation() calls
-$i18n = $TRANSLATION_CACHE[$language]['village'];
+// Pull translations directly from loadNamespace
+$i18n = loadNamespace('village');
 $i18n['title'] = sprintf($i18n['title'], $villageName);
 $i18n['description'] = str_replace('`%', '`%%', $i18n['description']);
 $i18n['description'] = sprintf($i18n['description'], $villageName, $villageName);
-$i18n['new_character'] = sprintf($i18n['new_character'], $newCharacter['name']);
 $i18n['new_character_data'] = $newCharacter;
 $texts = modulehook('villagetext', $i18n);
 $texts = modulehook("villagetext-{$session['user']['location']}", $texts);
@@ -126,7 +133,7 @@ $navigation = [
 ];
 if (!getsetting('enablecompanions', false)) unset($navigation['gate']['mercenary']);
 if (!getsetting('pvp', true)) unset($navigation['gate']['pvp']);
-if (!getsetting('allowclans', true)) unset($navigation['gate']['clan']);
+if (!getsetting('allowclans', true)) unset($navigation['tavern']['clan']);
 
 // Lock race master training to allowed cities only
 $userRace = $session['user']['race'] ?? '';
@@ -167,22 +174,29 @@ foreach ($navigation as $section => $links) {
 }
 
 
-// Display base description and current game time
-modulehook('collapse{', ['name' => "village-desc-{$currentLocation}"]);
-output($texts['description']);
-modulehook('}collapse');
-modulehook('collapse{', ['name' => "village-clock-{$currentLocation}"]);
-output($texts['clock'], getgametime());
-modulehook('}collapse');
+if (!$skipDescription) {
+    // Display base description and current game time
+    modulehook('collapse{', ['name' => "village-desc-{$currentLocation}"]);
+    output($texts['description']);
+    modulehook('}collapse');
+    modulehook('collapse{', ['name' => "village-clock-{$currentLocation}"]);
+    output($texts['clock'], getgametime());
+    modulehook('}collapse');
 
-// Hook for village being displayed, without an event
-modulehook('village-desc', $texts);
-modulehook("village-desc-{$currentLocation}", $texts);
+    // Hook for village being displayed, without an event
+    modulehook('village-desc', $texts);
+    modulehook("village-desc-{$currentLocation}", $texts);
+}
 
 // Handle newest player display
-$newCharacterMsg = ($session['user']['acctid'] == $newCharacter['acctid']) ?
-    $texts['new_character_is_user'] :
-    sprintf($texts['new_character'], $newCharacter['name']);
+if ($session['user']['acctid'] == $newCharacter['acctid']) {
+    $newCharacterMsg = $texts['new_character_is_user'];
+} else {
+    $template = str_replace('`%s', '%s', $texts['new_character']);
+    $template = str_replace('`%', '`%%', $template);
+    $safeName = preg_replace('/(?<!`)%/', '%%', $newCharacter['name']);
+    $newCharacterMsg = sprintf($template, $safeName);
+}
 modulehook('collapse{', ['name' => "village-newest-{$currentLocation}"]);
 
 // Display newest character, add user editor navigation if user has SU_EDIT_USERS

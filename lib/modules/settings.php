@@ -1,5 +1,5 @@
 <?php
-
+// modified by jaoe1000
 
 $module_settings = array();
 function get_all_module_settings($module=false){
@@ -81,9 +81,7 @@ function load_module_settings($module){
 	if (!isset($module_settings[$module])){
 		$module_settings[$module] = array();
 		$sql = "SELECT * FROM " . db_prefix("module_settings") . " WHERE modulename='$module'";
-		// TODO: Fix the cached db queries.
-		// $result = db_query_cached($sql,"modulesettings-$module");
-		$result = db_query($sql);
+		$result = db_query_cached($sql,"modulesettings-$module");
 		while ($row = db_fetch_assoc($result)){
 			$module_settings[$module][$row['setting']] = $row['value'];
 		}//end while

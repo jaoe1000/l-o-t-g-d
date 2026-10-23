@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 function sanitize(string $in): array|string|null
 {
@@ -223,7 +224,7 @@ function is_serialized($value, &$result = null): bool
 			return false;
 	}
 
-	if (($result = @unserialize($value)) === false) {
+	if (($result = @unserialize($value, ['allowed_classes' => false])) === false) {
 		$result = null;
 		return false;
 	}

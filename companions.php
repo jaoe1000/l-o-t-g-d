@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 // addnews ready
 // mail ready
 // translator ready
@@ -51,7 +60,7 @@ if ($op=="deactivate"){
 		$row['maxhitpoints'] = $row['maxhitpoints'] + $row['maxhitpointsperlevel'] * $session['user']['level'];
 		$row['hitpoints'] = $row['maxhitpoints'];
 		$row = modulehook("alter-companion", $row);
-		$row['abilities'] = @unserialize($row['abilities']);
+		$row['abilities'] = @unserialize($row['abilities'], ['allowed_classes' => false]);
 		require_once("lib/buffs.php");
 		apply_companion($row['name'], $row);
 		output("`\$Succesfully taken `^%s`\$ as companion.", $row['name']);
@@ -115,7 +124,6 @@ if ($op=="deactivate"){
 		// Save modules settings
 		$module = httpget("module");
 		$post = httpallpost();
-		reset($post);
 		foreach ($post as $key => $val) {
 			set_module_objpref("companions", $id, $key, $val, $module);
 		}
@@ -212,7 +220,7 @@ if ($op==""){
 		} else {
 			output("Companion Editor:`n");
 			$row = db_fetch_assoc($result);
-			$row['abilities'] = @unserialize($row['abilities']);
+			$row['abilities'] = @unserialize($row['abilities'], ['allowed_classes' => false]);
 			companionform($row);
 		}
 	}
@@ -282,7 +290,6 @@ function companionform($companion){
 	$locs = modulehook("camplocs", $locs);
 	$locs['all'] = translate_inline("Everywhere");
 	ksort($locs);
-	reset($locs);
 	rawoutput("<select name='companion[companionlocation]'>");
 	foreach($locs as $loc=>$name) {
 		rawoutput("<option value='$loc'".($companion['companionlocation']==$loc?" selected":"").">$name</option>");

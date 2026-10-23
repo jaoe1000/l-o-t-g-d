@@ -2,6 +2,7 @@
 //addnews ready
 // mail ready
 // translator ready
+// modified by jaoe1000
 require_once("common.php");
 require_once("lib/systemmail.php");
 require_once("lib/increment_specialty.php");
@@ -131,7 +132,7 @@ if (db_num_rows($result) > 0 && $session['user']['level'] <= 14){
 
                 $battle=true;
                 if ($victory) {
-                    $badguy = unserialize($session['user']['badguy']);
+                    $badguy = unserialize($session['user']['badguy'], ['allowed_classes' => false]);
                     $badguy = $badguy['enemies'][0];
                     output("With a flurry of blows you dispatch your master.`n");
                 }

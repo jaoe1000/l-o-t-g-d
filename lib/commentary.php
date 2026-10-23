@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 // translator ready
 // addnews ready
 // mail ready
@@ -43,8 +52,8 @@ function addcommentary() {
 	$schema = httppost('schema');
 	$comment = trim(httppost('insertcommentary'));
 	$counter = httppost('counter');
-	$remove = URLDecode(httpget('removecomment'));
-	if ($remove>0) {
+	$remove = (int)httpget('removecomment');
+	if ($remove>0 && (getSessionSuperUser() & SU_EDIT_COMMENTS)) {
 		$return = '/' . httpget('returnpath');
 		$section = httpget('section');
         $sql = "SELECT " .
@@ -60,7 +69,7 @@ function addcommentary() {
 		$sql = "INSERT LOW_PRIORITY INTO ".db_prefix("moderatedcomments").
 			" (moderator,moddate,comment) VALUES ('{$session['user']['acctid']}','".date("Y-m-d H:i:s")."','".addslashes(serialize($row))."')";
 		db_query($sql);
-		$sql = "DELETE FROM ".db_prefix("commentary")." WHERE commentid='$remove';";
+		$sql = "DELETE FROM ".db_prefix("commentary")." WHERE commentid=$remove;";
 		db_query($sql);
 		invalidatedatacache("comments-$section");
 		invalidatedatacache("comments-or11");
@@ -431,7 +440,6 @@ function viewcommentary($section,$message="Interject your own commentary?",$limi
 
 	//output the comments
 	ksort($outputcomments);
-	reset($outputcomments);
 	$sections = commentarylocs();
 	$needclose = 0;
 
@@ -447,12 +455,13 @@ function viewcommentary($section,$message="Interject your own commentary?",$limi
 			modulehook("collapse{",array("name"=>"com-".$section));
 			$needclose = 1;
 		}
-		reset($v);
-		foreach ($v as $key => $val) {
-			$args = array('commentline'=>$val);
-			$args = modulehook("viewcommentary", $args);
-			$val = $args['commentline'];
-			output_notl($val, true);
+		if (is_array($v)) {
+			foreach ($v as $key => $val) {
+				$args = array('commentline'=>$val);
+				$args = modulehook("viewcommentary", $args);
+				$val = $args['commentline'];
+				output_notl($val, true);
+			}
 		}
 	}
 
@@ -622,7 +631,6 @@ function talkform($section,$talkline,$limit=10,$schema=false){
 		$vname = getsetting("villagename", LOCATION_FIELDS);
 		$iname = getsetting("innname", LOCATION_INN);
 		$sections = commentarylocs();
-		reset ($sections);
 		output_notl("<select name='section'>",true);
 		foreach ($sections as $key => $val) {
 			output_notl("<option value='$key'>$val</option>",true);

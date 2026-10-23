@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 /**
  * Set up the correct language for the current user
@@ -144,7 +145,7 @@ function translate_mail($in,$to=0){
 	//$in[0] = str_replace("`%","`%%",$in[0]);
 	if ($to>0){
 		$language = db_fetch_assoc(db_query("SELECT prefs FROM ".db_prefix("accounts")." WHERE acctid=$to"));
-		$language['prefs'] = unserialize($language['prefs']);
+		$language['prefs'] = unserialize($language['prefs'], ['allowed_classes' => false]);
 		$session['tlanguage'] = $language['prefs']['language']?$language['prefs']['language']:getsetting("defaultlanguage","en");
 	}
 	reset($in);
@@ -243,7 +244,7 @@ function tlbutton_pop(): string
 function tlbutton_clear(): string
 {
 	global $translatorbuttons;
-    if (!getSessionSuperUser() & SU_IS_TRANSLATOR) {
+    if (!(getSessionSuperUser() & SU_IS_TRANSLATOR)) {
         return '';
     }
     $return = tlbutton_pop().join('', $translatorbuttons);

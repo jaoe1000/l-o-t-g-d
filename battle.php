@@ -2,6 +2,7 @@
 // translator ready
 // addnews ready
 // mail ready
+// modified by jaoe1000
 require_once("lib/bell_rand.php");
 require_once("common.php");
 require_once("lib/http.php");
@@ -19,7 +20,7 @@ tlschema("battle");
 
 $newcompanions = array();
 $attackstack = is_serialized($session['user']['badguy']) ?
-    @unserialize($session['user']['badguy']):
+    @unserialize($session['user']['badguy'], ['allowed_classes' => false]):
     [];
 if (isset($attackstack['enemies'])) $enemies = $attackstack['enemies'];
 if (isset($attackstack['options'])) $options = $attackstack['options'];

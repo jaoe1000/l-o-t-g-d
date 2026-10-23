@@ -2,6 +2,7 @@
 // translator ready
 // addnews ready
 // mail ready
+// modified by jaoe1000
 
 $baseaccount = array();
 function do_forced_nav($anonymous,$overrideforced){
@@ -13,13 +14,14 @@ function do_forced_nav($anonymous,$overrideforced){
 		if (db_num_rows($result)==1){
 			$session['user']=db_fetch_assoc($result);
 			$baseaccount = $session['user'];
-			$session['bufflist']=unserialize($session['user']['bufflist']);
+			$session['bufflist']=unserialize($session['user']['bufflist'], ['allowed_classes' => false]);
 			if (!is_array($session['bufflist'])) $session['bufflist']=array();
-			$session['user']['dragonpoints']=unserialize($session['user']['dragonpoints']);
-			$session['user']['prefs']=unserialize($session['user']['prefs']);
+			$session['user']['dragonpoints']=unserialize($session['user']['dragonpoints'], ['allowed_classes' => false]);
+			$session['user']['prefs']=unserialize($session['user']['prefs'], ['allowed_classes' => false]);
 			if (!is_array($session['user']['dragonpoints'])) $session['user']['dragonpoints']=array();
-			if (is_array(unserialize($session['user']['allowednavs']))){
-				$session['allowednavs']=unserialize($session['user']['allowednavs']);
+			$allowed = unserialize($session['user']['allowednavs'], ['allowed_classes' => false]);
+			if (is_array($allowed)){
+				$session['allowednavs']=$allowed;
 			}else{
 				$session['allowednavs']=array($session['user']['allowednavs']);
 			}

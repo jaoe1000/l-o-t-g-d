@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 declare(strict_types=1);
 
@@ -90,7 +91,7 @@ function handleSubtranslations(string $string, string $currentNamespace): string
 function getLanguage(): string
 {
     global $session;
-    if (!array_key_exists('language', $session['user'])) {
+    if (!isset($session['user']) || !is_array($session['user']) || !array_key_exists('language', $session['user'])) {
         return getsetting('defaultlanguage', 'en');
     }
     return $session['user']['language'] ?? getsetting('defaultlanguage', 'en');
@@ -112,8 +113,26 @@ function loadNamespace(string $namespace): array
     global $TRANSLATION_CACHE;
 
     $language = getLanguage();
+    $language = preg_replace('/[^a-zA-Z0-9_\-]/', '', $language);
+    if ($language === '') {
+        $language = 'en';
+    }
+    $namespace = preg_replace('/[^a-zA-Z0-9_\-]/', '', $namespace);
+    if ($namespace === '') {
+        return [];
+    }
+
     if (isset($TRANSLATION_CACHE[$language][$namespace])) {
         return $TRANSLATION_CACHE[$language][$namespace];
+    }
+
+    $cacheKey = "i18n_{$language}_{$namespace}";
+    if (function_exists('datacache')) {
+        $cached = datacache($cacheKey, 86400);
+        if (is_array($cached)) {
+            $TRANSLATION_CACHE[$language][$namespace] = $cached;
+            return $cached;
+        }
     }
 
     $filePath = "translations/{$language}/{$namespace}.yaml";
@@ -145,6 +164,9 @@ function loadNamespace(string $namespace): array
         $translations = [];
     }
 
+    if (function_exists('updatedatacache')) {
+        updatedatacache($cacheKey, $translations);
+    }
     $TRANSLATION_CACHE[$language][$namespace] = $translations;
 
     return $translations;
@@ -278,6 +300,9 @@ function invalidateTranslationCache(): void
 
     $TRANSLATION_CACHE = [];
     $TRANSLATION_RESOLVING = [];
+    if (function_exists('massinvalidate')) {
+        massinvalidate("i18n_");
+    }
 }
 
 
@@ -298,7 +323,7 @@ function isTranslateKey($str) {
 function hasTranslateKey($str): bool {
     return (
         is_string($str) &&
-        preg_match('/\{\{[a-z_\-\.]+\}\}/', $str)
+        (bool)preg_match('/\{\{[a-zA-Z0-9_\-\.]+(\|[^\}]*)?\}\}/', $str)
     );
 }
 

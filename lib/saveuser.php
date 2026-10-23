@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 // translator ready
 // addnews ready
 // mail ready
@@ -50,8 +51,13 @@ function saveuser(){
 	$sql="UPDATE " . db_prefix("accounts") . " SET " . $sql .
 		" WHERE acctid = ".$session['user']['acctid'];
 	db_query($sql);
-	if (isset($session['output']) && $session['output']) {
-		file_put_contents("accounts-output/$acctId.html", $session['output']);
+	$saveOutput = (int)getsetting('saveaccountsoutput', 0);
+	$sanitizedAcctId = (int)$acctId;
+	if ($saveOutput && $sanitizedAcctId > 0 && isset($session['output']) && $session['output']) {
+		if (!is_dir('accounts-output')) {
+			@mkdir('accounts-output', 0777, true);
+		}
+		@file_put_contents("accounts-output/{$sanitizedAcctId}.html", $session['output']);
 	}
     unset($session['output']);
 	unset($session['bufflist']);

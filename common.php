@@ -8,6 +8,7 @@
 // 		name at the end indicating which parts are copyright by you.
 // Eg:
 // Copyright 2002-2004, Game: Eric Stevens & JT Traub, modified by Your Name
+// License: Creative Commons Attribution-NonCommercial-ShareAlike 2.0
 $copyright = "Game Design and Code: Copyright &copy; 2002-2005, Eric Stevens & JT Traub, &copy; 2006-2007, Dragonprime Development Team, modified by jaoe1000 (<a href='https://github.com/jaoe1000/l-o-t-g-d' target='_blank'>Repository</a>)";
 // **** NOTICE ****
 // This series of scripts (collectively known as Legend of the Green Dragon
@@ -247,7 +248,7 @@ else {
 	$session['user']['alive'] = false;
 }
 if (getSession('bufflist'))
-	$session['bufflist'] = unserialize($session['user']['bufflist']);
+	$session['bufflist'] = unserialize($session['user']['bufflist'], ['allowed_classes' => false]);
 else
 	$session['bufflist'] = [];
 if (!is_array(getSession('bufflist'))) $session['bufflist'] = [];
@@ -319,7 +320,7 @@ prepare_template();
 if (!getSessionUser('hashorse')) $session['user']['hashorse']=0;
 $playermount = getmount($session['user']['hashorse']);
 $temp_comp = isset($session['user']['companions']) ?
-    @unserialize($session['user']['companions']) :
+    @unserialize($session['user']['companions'], ['allowed_classes' => false]) :
     [];
 $companions = array();
 if(is_array($temp_comp)) {

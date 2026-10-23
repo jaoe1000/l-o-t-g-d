@@ -1,22 +1,27 @@
 <?php
+// modified by jaoe1000
 
+$clansPrefix = db_prefix('clans');
 $registrar = getsetting('clanregistrar', '`%Karissa');
-$currentClanId = (int)$session['user']['clanid'];
-$sql = db_query_cached(
-    "SELECT clanname AS name,
-     clanshort AS tag,
-     clandesc AS description,
-     clanmotd AS motd,
-     clanid AS id,
-     descauthor,
-     motdauthor,
-     customsay
-     FROM $clansPrefix
-     WHERE clanid = '$currentClanId'",
-    "clan_data:$currentClanId",
-    3600
-);
-$clanData = db_fetch_assoc($sql);
+$currentClanId = (int)($session['user']['clanid'] ?? 0);
+$clanData = [];
+if ($currentClanId > 0) {
+    $sql = db_query_cached(
+        "SELECT clanname AS name,
+         clanshort AS tag,
+         clandesc AS description,
+         clanmotd AS motd,
+         clanid AS id,
+         descauthor,
+         motdauthor,
+         customsay
+         FROM $clansPrefix
+         WHERE clanid = '$currentClanId'",
+        "clan_data:$currentClanId",
+        3600
+    );
+    $clanData = db_fetch_assoc($sql) ?: [];
+}
 
 page_header('Clan Halls');
 
@@ -28,7 +33,7 @@ if ($currentClanId > 0 && httpget('op') === false) {
     output(
         "clan.awaiting_approval",
         $registrar,
-        $clanData['name']
+        $clanData['name'] ?? ''
     );
     addnav('List Clans', 'clan.php?op=list');
     addnav('Withdraw Application', 'clan.php?op=withdraw');
@@ -53,7 +58,7 @@ switch (httpget('op')) {
 		output(
             "clan.withdraw_application",
             $registrar,
-            $clanData['clanname']
+            $clanData['name'] ?? ''
         );
         addnav('List Clans', 'clan.php?op=list');
 		addnav('Create a new Clan', 'clan.php?op=new');

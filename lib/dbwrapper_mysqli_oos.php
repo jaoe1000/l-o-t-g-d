@@ -2,21 +2,52 @@
 // addnews ready
 // translator ready
 // mail ready
+// modified by jaoe1000
 
-function db_query($sql, $die=true){
+function db_query($sql, $params = [], $die = true){
+    // Handle backward compatibility for signature: db_query($sql, $die)
+    if (is_bool($params)) {
+        $die = $params;
+        $params = [];
+    }
+    if (!is_array($params)) {
+        $params = [$params];
+    }
  	if (defined("DB_NODB") && !defined("LINK")) return array();
 	global $session,$dbinfo,$mysqli_resource;
 	$dbinfo['queriesthishit']++;
-	// $fname = DBTYPE."_query";
 	$starttime = getmicrotime();
-	//$r = $fname($sql);
-	$r = $mysqli_resource->Query($sql);
+	if (!empty($params)) {
+		if (method_exists($mysqli_resource, 'execute_query')) {
+			$r = @$mysqli_resource->execute_query($sql, $params);
+		} else {
+			$offset = 0;
+			foreach ($params as $param) {
+				$pos = strpos($sql, '?', $offset);
+				if ($pos === false) break;
+				if ($param === null) {
+					$rep = 'NULL';
+				} elseif (is_int($param) || is_float($param)) {
+					$rep = (string)$param;
+				} elseif (is_bool($param)) {
+					$rep = $param ? '1' : '0';
+				} else {
+					$rep = "'" . $mysqli_resource->real_escape_string((string)$param) . "'";
+				}
+				$sql = substr_replace($sql, $rep, $pos, 1);
+				$offset = $pos + strlen($rep);
+			}
+			$r = $mysqli_resource->query($sql);
+		}
+	} else {
+		$r = $mysqli_resource->Query($sql);
+	}
 
 	if (!$r && $die === true) {
 	 	if (defined("IS_INSTALLER")){
 	 		return array();
 		}else{
-			if ($session['user']['superuser'] & SU_DEVELOPER || 1){
+			if ((getSessionSuperUser() & SU_DEVELOPER)){
 				require_once("lib/show_backtrace.php");
 				die(
 					"<pre>".HTMLEntities($sql, ENT_COMPAT, getsetting("charset", "ISO-8859-1"))."</pre>"
@@ -44,7 +75,7 @@ function db_query($sql, $die=true){
 //since it's possible this array is large, we'll save ourselves
 //the overhead of duplicating the array, then destroying the old
 //one by returning a reference instead.
-function &db_query_cached($sql,$name,$duration=900){
+function db_query_cached($sql,$name,$duration=900){
 	//this function takes advantage of the data caching library to make
 	//all of the other db_functions act just like MySQL queries but rely
 	//instead on disk cached data.
@@ -82,10 +113,7 @@ function db_error(){
 function db_fetch_assoc(&$result){
 	if (is_array($result)){
 		//cached data
-		if (list($key,$val)=each($result))
-			return $val;
-		else
-			return false;
+		return array_shift($result);
 	}else{
 		//$fname = DBTYPE."_fetch_assoc";
 		//$r = $fname($result);

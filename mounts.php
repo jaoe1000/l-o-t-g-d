@@ -1,4 +1,13 @@
 <?php
+/**
+ * @copyright Copyright © 2002-2005, Eric Stevens & JT Traub, © 2006-2009, Dragonprime Development Team
+ * @license http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode
+ * @author Eric Stevens & JT Traub
+ * @author Dragonprime Development Team
+ * @author modified by jaoe1000
+ */
+// modified by jaoe1000
+
 // addnews ready
 // mail ready
 // translator ready
@@ -71,7 +80,7 @@ if ($op=="deactivate"){
 	$sql = "SELECT * FROM ".db_prefix("mounts")." WHERE mountid='$id'";
 	$result = db_query($sql);
 	$row = db_fetch_assoc($result);
-	$buff = isset($row['mountbuff']) ? unserialize($row['mountbuff']) : [];
+	$buff = isset($row['mountbuff']) ? unserialize($row['mountbuff'], ['allowed_classes' => false]) : [];
 	if (!isset($buff['schema'])) $buff['schema'] = "mounts";
 	apply_buff("mount",$buff);
 	$op="";
@@ -82,7 +91,6 @@ if ($op=="deactivate"){
 		$buff = array();
 		$mount = httppost('mount');
 		if ($mount) {
-			reset($mount['mountbuff']);
 			foreach ($mount['mountbuff'] as $key => $val) {
 				if ($val>""){
 					$buff[$key]=stripslashes($val);
@@ -111,7 +119,6 @@ if ($op=="deactivate"){
 		// Save modules settings
 		$module = httpget("module");
 		$post = httpallpost();
-		reset($post);
 		foreach ($post as $key => $val) {
 			set_module_objpref("mounts", $id, $key, $val, $module);
 		}
@@ -216,7 +223,6 @@ if ($op==""){
 		$features = array("FF"=>$row['mountforestfights']);
 		$args = array("id"=>$row['mountid'],"features"=>&$features);
 		$args = modulehook("mountfeatures", $args);
-		reset($features);
 		$mcount = 1;
 		$max = count($features);
 		foreach ($features as $fname=>$fval) {
@@ -259,7 +265,7 @@ if ($op==""){
 		} else {
 			output("Mount Editor:`n");
 			$row = db_fetch_assoc($result);
-			$row['mountbuff']=unserialize($row['mountbuff']);
+			$row['mountbuff']=unserialize($row['mountbuff'], ['allowed_classes' => false]);
 			mountform($row);
 		}
 	}
@@ -350,7 +356,6 @@ function mountform($mount){
 	$locs = modulehook("stablelocs", $locs);
 	$locs['all'] = translate_inline("Everywhere");
 	ksort($locs);
-	reset($locs);
 	rawoutput("<select name='mount[mountlocation]'>");
 	foreach($locs as $loc=>$name) {
 		rawoutput("<option value='$loc'".($mount['mountlocation']==$loc?" selected":"").">$name</option>");
