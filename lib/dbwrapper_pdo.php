@@ -60,7 +60,7 @@ function db_query($sql, $params = [], $die = true) {
         $params = [$params];
     }
 
-    if (!defined('DB_NODB') && !defined('LINK')) return [];
+    if ((defined('DB_NODB') && DB_NODB) || (!defined('DB_NODB') && !defined('LINK'))) return [];
     
     // Check installer restrictions (mirrored from mysqli_proc)
     $bt = debug_backtrace();
@@ -76,8 +76,18 @@ function db_query($sql, $params = [], $die = true) {
     $starttime = getmicrotime();
 
     if (!$pdo_connection) {
-        require_once('dbconnect.php');
-        db_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+        if (file_exists('dbconnect.php')) {
+            require('dbconnect.php');
+            if (isset($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME)) {
+                db_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+            }
+        }
+        if (!$pdo_connection) {
+            if ($die === true && (!defined("IS_INSTALLER") || !IS_INSTALLER)) {
+                die("A most bogus error has occurred.  I apologise, but the page you were trying to access is broken.  Please use your browser's back button and try again.");
+            }
+            return [];
+        }
     }
 
     try {
@@ -94,7 +104,7 @@ function db_query($sql, $params = [], $die = true) {
         }
     } catch (PDOException $e) {
         if ($die === true) {
-            if (defined("IS_INSTALLER")) {
+            if (defined("IS_INSTALLER") && IS_INSTALLER) {
                 return [];
             } else {
                 if ((getSessionSuperUser() & SU_DEVELOPER)) {

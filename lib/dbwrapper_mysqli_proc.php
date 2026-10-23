@@ -13,7 +13,7 @@ function db_query($sql, $params = [], $die = true) {
     if (!is_array($params)) {
         $params = [$params];
     }
-    if (!defined('DB_NODB') && !defined('LINK')) return [];
+    if ((defined('DB_NODB') && DB_NODB) || (!defined('DB_NODB') && !defined('LINK'))) return [];
     $bt = debug_backtrace();
     $isTableDescriptor = str_contains($bt[0]['file'], 'tabledescriptor');
     $isInstaller = str_contains($bt[0]['file'], 'installer_stage');
@@ -26,8 +26,18 @@ function db_query($sql, $params = [], $die = true) {
 	$dbinfo['queriesthishit']++;
 	$starttime = getmicrotime();
 	if (!$mysqli_resource) {
-		require_once('dbconnect.php');
-		db_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+		if (file_exists('dbconnect.php')) {
+			require('dbconnect.php');
+			if (isset($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME)) {
+				db_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+			}
+		}
+		if (!$mysqli_resource) {
+			if ($die === true && (!defined("IS_INSTALLER") || !IS_INSTALLER)) {
+				die("A most bogus error has occurred.  I apologise, but the page you were trying to access is broken.  Please use your browser's back button and try again.");
+			}
+			return [];
+		}
 	}
 	if (!empty($params)) {
 		if (function_exists('mysqli_execute_query')) {
@@ -56,7 +66,7 @@ function db_query($sql, $params = [], $die = true) {
 	}
 
 	if (!$r && $die === true) {
-	 	if (defined("IS_INSTALLER")){
+	 	if (defined("IS_INSTALLER") && IS_INSTALLER){
 	 		return array();
 		}else{
 			if ((getSessionSuperUser() & SU_DEVELOPER)){

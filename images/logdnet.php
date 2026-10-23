@@ -33,10 +33,18 @@ if (isset($_GET['op']) && $_GET['op']=="register"){
 		$info = @pullurl($url);
 		if ($info !== false) {
 			$info = base64_decode(join("",$info));
-			$_SESSION['logdnet'] = unserialize($info, ['allowed_classes' => false]);
-			$_SESSION['logdnet']['when'] = date("Y-m-d H:i:s");
-			$_SESSION['logdnet']['note'] =  "\n// registered with logdnet successfully";
-			$_SESSION['logdnet']['note'] .= "\n// ".$url;
+			$unserialized = @unserialize($info, ['allowed_classes' => false]);
+			if (is_array($unserialized) && isset($unserialized[''])) {
+				$_SESSION['logdnet'] = $unserialized;
+				$_SESSION['logdnet']['when'] = date("Y-m-d H:i:s");
+				$_SESSION['logdnet']['note'] =  "\n// registered with logdnet successfully";
+				$_SESSION['logdnet']['note'] .= "\n// ".$url;
+			} else {
+				$info = false;
+				$_SESSION['logdnet']['when'] = date("Y-m-d H:i:s");
+				$_SESSION['logdnet']['note'] =  "\n// There was trouble registering on logdnet.";
+				$_SESSION['logdnet']['note'] .= "\n// ".$url;
+			}
 		}else{
 			$_SESSION['logdnet']['when'] = date("Y-m-d H:i:s");
 			$_SESSION['logdnet']['note'] =  "\n// There was trouble registering on logdnet.";
@@ -47,7 +55,7 @@ if (isset($_GET['op']) && $_GET['op']=="register"){
 	}
 	if ($info !== false) {
 		require_once("../lib/sanitize.php");
-		$o = addslashes($_SESSION['logdnet']['']);
+		$o = addslashes($_SESSION['logdnet'][''] ?? '');
 		$o = str_replace("\n\r","\n",$o);
 		$o = str_replace("\r","\n",$o);
 		$o = str_replace("\n","\\n",$o);

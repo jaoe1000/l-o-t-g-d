@@ -53,6 +53,7 @@ require_once("lib/template.php");
 require_once("lib/settings.php");
 require_once("lib/pageparts.php");
 require_once("lib/output.php");
+require_once("lib/lotgd_compat.php");
 require_once("lib/tempstat.php");
 require_once("lib/su_access.php");
 require_once("lib/datetime.php");
@@ -97,9 +98,11 @@ php_generic_environment();
 ob_start();
 if (file_exists("dbconnect.php")){
 	require_once("dbconnect.php");
-    define('IS_INSTALLER', false);
+    if (!defined('IS_INSTALLER')) {
+        define('IS_INSTALLER', false);
+    }
 	$link = db_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
-} else if (!defined("IS_INSTALLER")) {
+} else if (!defined("IS_INSTALLER") || !IS_INSTALLER) {
  	if (!defined("DB_NODB")) define("DB_NODB",true);
  	page_header("The game has not yet been installed");
 	output("`#Welcome to `@Legend of the Green Dragon`#, a game by Eric Stevens & JT Traub.`n`n");
@@ -122,12 +125,8 @@ if (file_exists("dbconnect.php")){
 
 $out = ob_get_contents();
 ob_end_clean();
-unset($DB_HOST);
-unset($DB_USER);
-unset($DB_PASS);
-unset($DB_NAME);
 if (isset($link) && $link===false){
- 	if (!defined("IS_INSTALLER")){
+ 	if (!defined("IS_INSTALLER") || !IS_INSTALLER){
 		echo $out;
 		// And tell the user it died.  No translation here, we need the DB for
 		// translation.
@@ -142,7 +141,7 @@ if (isset($link) && $link===false){
 }
 
 if (isset($DB_NAME) && (!DB_CONNECTED || !$DB_NAME || !db_select_db($DB_NAME))){
-	if (!defined("IS_INSTALLER") && DB_CONNECTED){
+	if ((!defined("IS_INSTALLER") || !IS_INSTALLER) && DB_CONNECTED){
 		// And tell the user it died.  No translation here, we need the DB for
 		// translation.
 	 	if (!defined("DB_NODB")) define("DB_NODB",true);
@@ -159,8 +158,12 @@ else {
 		define('LINK', false);
 	define("DB_CHOSEN",true);
 }
+unset($DB_HOST);
+unset($DB_USER);
+unset($DB_PASS);
+unset($DB_NAME);
 
-if (defined('IS_INSTALLER') == false) {
+if (!defined('IS_INSTALLER') || !IS_INSTALLER) {
     header("Content-Type: text/html; charset=".getsetting('charset','ISO-8859-1'));
 
     if (strtotime("-".getsetting("LOGINTIMEOUT",900)." seconds") > $session['lasthit'] && $session['lasthit']>0 && $session['loggedin']){
@@ -229,7 +232,7 @@ if (!isset($nokeeprestore[$SCRIPT_NAME]) || !$nokeeprestore[$SCRIPT_NAME]) {
 }else{
 
 }
-if ($logd_version != getsetting('installer_version', '-1') && !defined("IS_INSTALLER")) {
+if ($logd_version != getsetting('installer_version', '-1') && (!defined("IS_INSTALLER") || !IS_INSTALLER)) {
 	page_header("Upgrade Needed");
 	output("`#The game is temporarily unavailable while a game upgrade is applied, please be patient, the upgrade will be completed soon.");
 	output("In order to perform the upgrade, an admin will have to run through the installer.");

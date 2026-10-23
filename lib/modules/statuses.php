@@ -114,9 +114,18 @@ function injectmodule($modulename,$force=false){
 					if (basename($_SERVER['SCRIPT_NAME'] ?? '') !== 'modules.php') {
 						$block_new_output = true;
 					}
-					$install_result = $fname();
+					try {
+						$install_result = $fname();
+					} catch (\Throwable $e) {
+						$block_new_output = $old_block_new_output;
+						db_query("UPDATE " . db_prefix("modules") . " SET filemoddate='" . DATETIME_DATEMIN . "' WHERE modulename='$modulename'");
+						invalidatedatacache("inject-$modulename");
+						throw $e;
+					}
 					$block_new_output = $old_block_new_output;
 					if ($install_result === false) {
+						db_query("UPDATE " . db_prefix("modules") . " SET filemoddate='" . DATETIME_DATEMIN . "' WHERE modulename='$modulename'");
+						invalidatedatacache("inject-$modulename");
 						return false;
 					}
 					invalidatedatacache("inject-$modulename");

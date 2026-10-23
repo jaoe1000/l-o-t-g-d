@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 require_once('lib/translations.php');
 
@@ -156,7 +157,7 @@ foreach ($replacementbits as $key => $val) {
 	restore_buff_fields();
 
 	$headscript = "";
-	if (file_exists('dbconnect.php') && !defined('IS_INSTALLER')) {
+	if (file_exists('dbconnect.php') && (!defined('IS_INSTALLER') || !IS_INSTALLER)) {
 	$sql = "SELECT motddate FROM " . db_prefix("motd") . " ORDER BY motditem DESC LIMIT 1";
 	$result = db_query($sql);
 	$row = db_fetch_assoc($result);
@@ -880,7 +881,7 @@ function charstats(){
 				if ($onlinecount == 0)
 					$ret .= appoencode(translate_inline("`iNone`i"));
 			}
-			if (file_exists('dbconnect.php') && !defined('IS_INSTALLER')) {
+			if (file_exists('dbconnect.php') && (!defined('IS_INSTALLER') || !IS_INSTALLER)) {
 			savesetting("OnlineCount",$onlinecount);
 			savesetting("OnlineCountLast",strtotime("now"));
 			updatedatacache("charlisthomepage",$ret);

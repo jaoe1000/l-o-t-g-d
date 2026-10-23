@@ -87,6 +87,13 @@ if ($name!=""){
 
 				if ($session['user']['loggedin']){
 					$session['allowednavs']=unserialize($session['user']['allowednavs'], ['allowed_classes' => false]);
+					if (!is_array($session['allowednavs'])) {
+						$session['allowednavs'] = array();
+					}
+					if (empty($session['user']['restorepage'])) {
+						$session['user']['restorepage'] = "news.php";
+					}
+					addnav("", $session['user']['restorepage']);
 					$link = "<a href='" . $session['user']['restorepage'] . "'>" . $session['user']['restorepage'] . "</a>";
 
 					$str = sprintf_translate("Sending you to %s, have a safe journey", $link);

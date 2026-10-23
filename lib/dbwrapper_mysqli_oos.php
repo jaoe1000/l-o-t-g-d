@@ -44,7 +44,7 @@ function db_query($sql, $params = [], $die = true){
 	}
 
 	if (!$r && $die === true) {
-	 	if (defined("IS_INSTALLER")){
+	 	if (defined("IS_INSTALLER") && IS_INSTALLER){
 	 		return array();
 		}else{
 			if ((getSessionSuperUser() & SU_DEVELOPER)){

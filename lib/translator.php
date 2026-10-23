@@ -168,7 +168,7 @@ function tl($in){
 
 function translate_loadnamespace(string $namespace, string|null $language = null): array
 {
-    if (defined('IS_INSTALLER') && IS_INSTALLER === 1) return [];
+    if (defined('IS_INSTALLER') && IS_INSTALLER) return [];
 
     global $language;
 	$page = translator_page($namespace);

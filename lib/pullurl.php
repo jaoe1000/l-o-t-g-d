@@ -2,6 +2,7 @@
 // addnews ready
 // translator ready
 // mail ready
+// modified by jaoe1000
 
 function _curl($url)
 {
@@ -27,6 +28,10 @@ function _curl($url)
 
 	// close curl resource, and free up system resources
 	curl_close($ch);
+
+	if ($ret === false || $ret === '') {
+		return false;
+	}
 
 	$val = explode("\n", $ret);
 	$total = count($val);

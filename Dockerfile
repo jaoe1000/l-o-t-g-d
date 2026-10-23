@@ -27,6 +27,7 @@ COPY fix_modules.sh /tmp/fix_modules.sh
 
 # Clone, run the fix script, and move in one layer to keep the build stable
 RUN git clone https://github.com/NB-Core/modules.git /tmp/modules \
+    && git -C /tmp/modules checkout 867ea9b \
     && rm -rf /tmp/modules/_old_dragonprime_snapshot \
     && mkdir -p /var/www/html/modules \
     && chmod +x /tmp/fix_modules.sh \

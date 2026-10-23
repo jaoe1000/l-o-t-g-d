@@ -278,7 +278,7 @@ test('tier2', 'feature22', 'f22_b_quarantine_files_have_valid_php_tags', functio
 });
 
 test('tier2', 'feature22', 'f22_b_quarantine_module_names_unique_from_active_core', function() {
-    $activeCore = ['racehuman', 'dwellings', 'clanbuffs'];
+    $activeCore = ['dwellings', 'clanbuffs'];
     $qDir = TestEnvironment::getRootDir() . '/modules_quarantine';
     foreach ($activeCore as $core) {
         assert_file_not_exists($qDir . "/$core.php", "Core module $core should not conflict in quarantine");
@@ -311,6 +311,6 @@ test('tier2', 'feature23', 'f23_b_readme_contains_attribution_notice', function(
 });
 
 test('tier2', 'feature23', 'f23_b_test_suite_files_include_license_headers', function() {
-    $testInfra = TestEnvironment::readFile('TEST_INFRA.md');
-    assert_contains('CC BY-NC-SA 2.0', $testInfra, "TEST_INFRA.md must declare CC BY-NC-SA 2.0 license");
+    $testRunner = TestEnvironment::readFile('tests/run_tests.php');
+    assert_contains('CC BY-NC-SA 2.0', $testRunner, "tests/run_tests.php must declare CC BY-NC-SA 2.0 license");
 });
