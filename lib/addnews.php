@@ -1,16 +1,24 @@
 <?php
+// modified by jaoe1000
 declare(strict_types=1);
 
 /**
  * Adds a news item for the current user
  *
- * @param string $text Line of text for the news.
+ * @param string|array $text Line of text for the news.
  * @param array $options List of options, including replacements, to modify the acctid, date, or hide from biographies.
  * @todo Change the date format from Y-m-d to Y-m-d H:i:s.
  */
-function addnews(string $text = '', ...$args)
+function addnews($text = '', ...$args)
 {
     global $i18nNamespace, $session;
+
+    if (is_array($text)) {
+        $args = array_slice($text, 1);
+        $text = (string)($text[0] ?? '');
+    } else {
+        $text = (string)($text ?? '');
+    }
     
     if (count($args) === 1 && is_array($args[0])) {
         $options = $args[0];
@@ -26,7 +34,7 @@ function addnews(string $text = '', ...$args)
     $news = db_prefix('news');
     $date = $options['date'] ?? date('Y-m-d');
     $acctid = isset($options['hide']) ?
-    0 : ($options['acctid'] ?? $session['user']['acctid']);
+    0 : ($options['acctid'] ?? ($session['user']['acctid'] ?? 0));
     foreach (['date', 'hide'] as $key) {
         unset($options[$key]);
     }

@@ -385,20 +385,23 @@ function mass_module_prepare($hooknames){
 	}
 
 	//Load the current user's prefs for the modules on these hooks.
-	$sql =
-		"SELECT
-			modulename,
-			setting,
-			userid,
-			value
-		FROM
-			$Pmodule_userprefs
-		WHERE
-			modulename IN ($modulelist)
-		AND	userid = ".(int)$session['user']['acctid'];
-	$result = db_query($sql);
-	while ($row = db_fetch_assoc($result)){
-		$module_prefs[$row['userid']][$row['modulename']][$row['setting']] = $row['value'];
+	$acctid = (int)($session['user']['acctid'] ?? 0);
+	if ($acctid > 0) {
+		$sql =
+			"SELECT
+				modulename,
+				setting,
+				userid,
+				value
+			FROM
+				$Pmodule_userprefs
+			WHERE
+				modulename IN ($modulelist)
+			AND	userid = $acctid";
+		$result = db_query($sql);
+		while ($row = db_fetch_assoc($result)){
+			$module_prefs[$row['userid']][$row['modulename']][$row['setting']] = $row['value'];
+		}
 	}
 	return true;
 }

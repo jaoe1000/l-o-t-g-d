@@ -1,6 +1,7 @@
 <?php
+// modified by jaoe1000
 
-function villagenav(bool $extra = false)
+function villagenav($extra = false)
 {
 	global $session;
 	$location = $session['user']['location'];

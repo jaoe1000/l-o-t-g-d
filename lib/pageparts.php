@@ -164,8 +164,8 @@ foreach ($replacementbits as $key => $val) {
 	db_free_result($result);
 	$lastMotd = getSessionUser('lastmotd');
 	if ($lastMotd &&
-			($row['motddate'] > $lastMotd) &&
-			(!isset($nopopup[$SCRIPT_NAME]) || $nopopups[$SCRIPT_NAME] != 1) &&
+			is_array($row) && isset($row['motddate']) && ($row['motddate'] > $lastMotd) &&
+			(!isset($nopopups[$SCRIPT_NAME]) || $nopopups[$SCRIPT_NAME] != 1) &&
 			getSessionUser('loggedin')) {
 		$headscript .= popup("motd.php");
 		$session['needtoviewmotd'] = true;
@@ -565,9 +565,10 @@ function wipe_charstats(){
  * @param string $label The label to use
  * @param mixed $value (optional) value to display
  */
-function addcharstat(string $label, string|int|bool $value = false): void
+function addcharstat($label, $value = false): void
 {
 	global $charstat_info, $last_charstat_label;
+    $label = (string)$label;
     if (isTranslateKey($label)) {
         $label = loadTranslation($label);
     }

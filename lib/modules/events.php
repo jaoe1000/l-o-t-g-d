@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 /**
  * Provides a hook for events to be fired.
@@ -7,9 +8,11 @@
  * @param string|bool $baseLink Base uri the event displays as
  * @return bool Truthy value on whether an event was fired
  */
-function module_events(string $eventType, int $baseChance, string|bool $baseLink = false): bool
+function module_events($eventType, $baseChance, $baseLink = false): bool
 {
     global $PHP_SELF;
+    $eventType = (string)$eventType;
+    $baseChance = (int)$baseChance;
 	if ($baseLink === false) {
 		$baseLink = substr($PHP_SELF, strrpos($PHP_SELF, '/') + 1) . '?';
 	}

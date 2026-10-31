@@ -1,8 +1,9 @@
 <?php
 // modified by jaoe1000
 
-function sanitize(string $in): array|string|null
+function sanitize($in): array|string|null
 {
+    $in = (string)($in ?? '');
     return preg_replace(
         "/[`][1234567890!@#\$%^&)~QqRVvGgTtjJeElLxXyYkKpPmM?*AabicnHw]/",
         "",
@@ -10,13 +11,15 @@ function sanitize(string $in): array|string|null
     );
 }
 
-function newline_sanitize(string $in): array|string|null
+function newline_sanitize($in): array|string|null
 {
+    $in = (string)($in ?? '');
     return preg_replace("/`n/", "", $in);
 }
 
-function color_sanitize(string $in): array|string|null
+function color_sanitize($in): array|string|null
 {
+    $in = (string)($in ?? '');
     return preg_replace(
         "/[`][1234567890!@#\$%^&)~QqRVvGgTtjJeElLxXyYkKpPmM?*Aabi]/",
         "",
@@ -24,8 +27,9 @@ function color_sanitize(string $in): array|string|null
     );
 }
 
-function comment_sanitize(string $in): array|string
+function comment_sanitize($in): array|string
 {
+    $in = (string)($in ?? '');
     // to keep the regexp from boinging this, we need to make sure
     // that we're not replacing in with the ` mark.
     $out = preg_replace(
@@ -37,8 +41,9 @@ function comment_sanitize(string $in): array|string
     return $out;
 }
 
-function logdnet_sanitize(string $in): array|string
+function logdnet_sanitize($in): array|string
 {
+    $in = (string)($in ?? '');
     // to keep the regexp from boinging this, we need to make sure
     // that we're not replacing in with the ` mark.
     $out = preg_replace(
@@ -50,18 +55,21 @@ function logdnet_sanitize(string $in): array|string
     return $out;
 }
 
-function full_sanitize(string $in): array|string|null
+function full_sanitize($in): array|string|null
 {
+    $in = (string)($in ?? '');
     return preg_replace("/[`]./", "", sanitizeTranslateKeys($in));
 }
 
-function cmd_sanitize(string $in): array|string|null
+function cmd_sanitize($in): array|string|null
 {
+    $in = (string)($in ?? '');
     return preg_replace("'[&?]c=[[:digit:]-]+'", "", $in);
 }
 
-function comscroll_sanitize(string $in): string
+function comscroll_sanitize($in): string
 {
+    $in = (string)($in ?? '');
     $out = preg_replace("'&c(omscroll)?=([[:digit:]]|-)*'", "", $in);
     $out = preg_replace("'\\?c(omscroll)?=([[:digit:]]|-)*'", "?", $out);
     $out = preg_replace("'&(refresh|comment)=1'", "", $out);
@@ -69,13 +77,15 @@ function comscroll_sanitize(string $in): string
     return $out;
 }
 
-function prevent_colors(string $in): array|string
+function prevent_colors($in): array|string
 {
+    $in = (string)($in ?? '');
     return str_replace("`", "&#0096;", $in);
 }
 
-function translator_uri(string $in): array|string|null
+function translator_uri($in): array|string|null
 {
+    $in = (string)($in ?? '');
     $uri = comscroll_sanitize($in);
     $uri = cmd_sanitize($uri);
     if (substr($uri,-1)=="?") $uri = substr($uri,0,-1);
@@ -84,7 +94,7 @@ function translator_uri(string $in): array|string|null
 
 function translator_page(?string $in): ?string
 {
-    $page = $in;
+    $page = (string)($in ?? '');
     if (strpos($page,"?")!==false) $page=substr($page,0,strpos($page,"?"));
     //if ($page=="runmodule.php" && 0){
     //  //we should handle this in runmodule.php now that we have tlschema.
@@ -95,8 +105,9 @@ function translator_page(?string $in): ?string
     return $page;
 }
 
-function modulename_sanitize(string $in): array|string|null
+function modulename_sanitize($in): array|string|null
 {
+    $in = (string)($in ?? '');
     return preg_replace("'[^0-9A-Za-z_]'","",$in);
 }
 
@@ -109,8 +120,9 @@ function stripslashes_array(array|string $given): array|string {
 }
 
 // Handle spaces in character names
-function sanitize_name(bool $spaceallowed, string $inname): string|null
+function sanitize_name($spaceallowed, $inname): string|null
 {
+    $inname = (string)($inname ?? '');
     if ($spaceallowed)
         $expr = "([^[:alpha:] _-])";
     else
@@ -119,8 +131,9 @@ function sanitize_name(bool $spaceallowed, string $inname): string|null
 }
 
 // Handle spaces and color in character names
-function sanitize_colorname(bool $spaceallowed, string $inname, bool $admin = false): string|null
+function sanitize_colorname($spaceallowed, $inname, $admin = false): string|null
 {
+    $inname = (string)($inname ?? '');
     if ($admin && getsetting("allowoddadminrenames", 0)) return $inname;
     if ($spaceallowed)
         $expr = "([^[:alpha:]`!@#$%^&\\)12345670 _-])";
@@ -136,6 +149,7 @@ function sanitize_colorname(bool $spaceallowed, string $inname, bool $admin = fa
 // insert.. Bah
 function sanitize_html($str)
 {
+    $str = (string)($str ?? '');
     //take out script blocks
     $str = preg_replace("/<script[^>]*>.+<\\/script[^>]*>/", "", $str);
     //take out css blocks
@@ -154,8 +168,9 @@ function sanitize_html($str)
  *  @param string $string The string to convert with htmlentities().
  *  @return string $string The string ran through htmlentities().
  */
-function htmlent(string $string): string
+function htmlent($string): string
 {
+    $string = (string)($string ?? '');
     return htmlentities(
         $string,
         ENT_COMPAT,
@@ -237,9 +252,10 @@ function is_serialized($value, &$result = null): bool
  * @param string $in The string to sanitize
  * @return string The sanitized string
  */
-function sanitizeTranslateKeys(string $in): string
+function sanitizeTranslateKeys($in): string
 {
+    $in = (string)($in ?? '');
     // Remove {{...}} patterns
     // We use a non-greedy match for the content between braces
-    return preg_replace('/\{\{.*?\}\}/', '', $in);
+    return (string)preg_replace('/\{\{.*?\}\}/', '', $in);
 }

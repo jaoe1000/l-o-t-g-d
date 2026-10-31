@@ -1,13 +1,16 @@
 <?php
+// modified by jaoe1000
 declare(strict_types=1);
 
-function checkban(string $login): bool
+function checkban($login = '', $force = false): bool
 {
     global $session;
+    $login = (string)($login ?? '');
     $accounts = db_prefix('accounts');
     $bans = db_prefix('bans');
     $today = date('Y-m-d H:i:s');
-    $uniqueId = isset($_COOKIE['lgi']) ? $_COOKIE['lgi'] : '';
+    $uniqueId = isset($_COOKIE['lgi']) ? (string)$_COOKIE['lgi'] : '';
+    $remoteAddr = (string)($_SERVER['REMOTE_ADDR'] ?? '');
     $sql = db_query(
         "SELECT lastip, uniqueid, banoverride, superuser FROM $accounts
         WHERE login = '$login'"
@@ -20,10 +23,10 @@ function checkban(string $login): bool
 
     if (isset($row['lastip'])) {
         $ipFilter = "(ipfilter = '{$row['lastip']}'
-        OR ipfilter = '{$_SERVER['REMOTE_ADDR']}')";
+        OR ipfilter = '$remoteAddr')";
     }
     else {
-        $ipFilter = "(ipfilter = '{$_SERVER['REMOTE_ADDR']}')";
+        $ipFilter = "(ipfilter = '$remoteAddr')";
     }
 
     if (isset($row['uniqueid'])) {
@@ -46,7 +49,7 @@ function checkban(string $login): bool
 
     $session = [];
     tlschema('ban');
-    $session['message'] .= translate_inline('`n`4You fall under a ban currently in place on this website:');
+    $session['message'] = ($session['message'] ?? '') . translate_inline('`n`4You fall under a ban currently in place on this website:');
     while ($row = db_fetch_assoc($sql)) {
         $session['message'] .= "`n{$row['banreason']}`n";
         if ($row['banexpire'] == null) {

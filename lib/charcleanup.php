@@ -1,8 +1,11 @@
 <?php
+// modified by jaoe1000
 declare(strict_types=1);
 
-function char_cleanup(int $id, int $type): bool
+function char_cleanup($id, $type): bool
 {
+    $id = (int)$id;
+    $type = (int)$type;
     $return = modulehook(
         'delete_character',
         [
@@ -27,7 +30,7 @@ function char_cleanup(int $id, int $type): bool
     $applicant = CLAN_APPLICANT;
     $sql = db_query("SELECT clanrank, clanid FROM $accounts WHERE acctid = '$id'");
     $row = db_fetch_assoc($sql);
-    if ($row['clanid'] != 0 && $row['clanrank'] == $leader) {
+    if (is_array($row) && ($row['clanid'] ?? 0) != 0 && ($row['clanrank'] ?? 0) == $leader) {
         $cid = $row['clanid'];
         $sql = db_query(
             "SELECT acctid, clanrank

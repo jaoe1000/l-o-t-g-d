@@ -327,20 +327,31 @@ function hasTranslateKey($str): bool {
     );
 }
 
+global $TRANSLATION_NAMESPACE_STACK;
+$TRANSLATION_NAMESPACE_STACK = [];
+
 function pushTranslationNamespace(string $namespace): void
 {
     global $TRANSLATION_NAMESPACE_STACK;
+    if (!is_array($TRANSLATION_NAMESPACE_STACK)) {
+        $TRANSLATION_NAMESPACE_STACK = [];
+    }
     $TRANSLATION_NAMESPACE_STACK[] = $namespace;
 }
 
 function popTranslationNamespace(): void
 {
     global $TRANSLATION_NAMESPACE_STACK;
-    array_pop($TRANSLATION_NAMESPACE_STACK);
+    if (is_array($TRANSLATION_NAMESPACE_STACK)) {
+        array_pop($TRANSLATION_NAMESPACE_STACK);
+    }
 }
 
 function currentTranslationNamespace(): ?string
 {
     global $TRANSLATION_NAMESPACE_STACK;
+    if (!is_array($TRANSLATION_NAMESPACE_STACK) || empty($TRANSLATION_NAMESPACE_STACK)) {
+        return null;
+    }
     return end($TRANSLATION_NAMESPACE_STACK) ?: null;
 }

@@ -1,6 +1,8 @@
 <?php
+// modified by jaoe1000
 
-function getmount(int $horse = 0) {
+function getmount($horse = 0) {
+	$horse = (int)$horse;
 	if (!file_exists('dbconnect.php')) return [];
 	$mounts = db_prefix('mounts');
 	$sql = "SELECT * FROM $mounts WHERE mountid = '$horse';";

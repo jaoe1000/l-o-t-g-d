@@ -1,13 +1,14 @@
 <?php
+// modified by jaoe1000
 declare(strict_types=1);
 
-function soap(string $input, bool $debug = false, bool $skiphook = false): string
+function soap($input, bool $debug = false, bool $skiphook = false): string
 {
     global $session;
     require_once("lib/sanitize.php");
-    require_once('lib/sanitize.php');
+    $input = (string)($input ?? '');
     $final_output = $input;
-    $output = full_sanitize($input);
+    $output = (string)full_sanitize($input);
     $mix_mask = str_pad('', strlen($output), 'X');
     if (getsetting('soap', 1)) {
         $search = nasty_word_list();
@@ -76,7 +77,7 @@ function soap(string $input, bool $debug = false, bool $skiphook = false): strin
             }
             $y++;
         }
-        if ($session['user']['superuser'] & SU_EDIT_COMMENTS && $changed_content) {
+        if ((getSessionSuperUser() & SU_EDIT_COMMENTS) && $changed_content) {
             output(
                 "`0The filter would have tripped on \"`#%s`0\" but since you're a moderator, I'm going to be lenient on you.  The text would have read, \"`#%s`0\"`n`n",
                 $input,
@@ -121,7 +122,7 @@ function nasty_word_list(): array
     $nastyWords = db_prefix('nastywords');
     $sql = db_query("SELECT * FROM $nastyWords WHERE type = 'nasty'");
     $row = db_fetch_assoc($sql);
-    $search = $row['words'];
+    $search = (string)($row['words'] ?? '');
     $search = preg_replace('/(?<=.)(?<!\\\\)\'(?=.)/', '\\\'', $search);
     $search = str_replace('a', '[a4@ªÀÁÂÃÄÅàáâãäå]', $search);
     $search = str_replace('b', '[bß]', $search);

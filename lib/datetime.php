@@ -1,17 +1,19 @@
 <?php
+// modified by jaoe1000
 declare(strict_types = 1);
 
-function reltime(int $date, bool $short = true)
+function reltime($date, bool $short = true)
 {
+    $date = (int)$date;
     $now = strtotime('now');
-    $x = abs($now - $date);
-    $d = ($x/86400);
+    $x = (int)abs($now - $date);
+    $d = (int)floor($x / 86400);
     $x = $x % 86400;
-    $h = ($x/3600);
+    $h = (int)floor($x / 3600);
     $x = $x % 3600;
-    $m = ($x/60);
+    $m = (int)floor($x / 60);
     $x = $x % 60;
-    $s = ($x);
+    $s = (int)$x;
     if ($short) {
         $array = [
             'day' => 'd',
@@ -61,17 +63,26 @@ function reltime(int $date, bool $short = true)
     return $o;
 }
 
-function relativedate(string $indate): string
+function relativedate($indate): string
 {
-    $lastOn = round((strtotime('now') - strtotime($indate)) / 86400, 0) . 'days';
+    $indate = (string)($indate ?? '');
+    if ($indate === '' || strpos($indate, '0000-00-00') !== false) {
+        tlschema('datetime');
+        $lastOn = (string)translate_inline('Never');
+        tlschema();
+        return $lastOn;
+    }
+    $inTs = (int)strtotime($indate);
+    $daysDiff = round((strtotime('now') - $inTs) / 86400, 0);
+    $lastOn = $daysDiff . 'days';
     tlschema('datetime');
     if (substr($lastOn, 0, 2) == '1 ') {
         $lastOn = translate_inline('1 day');
     }
-    else if (date('Y-m-d', strtotime($lastOn)) == date('Y-m-d')) {
+    else if (date('Y-m-d', (int)strtotime($lastOn)) == date('Y-m-d')) {
         $lastOn = translate_inline('Today');
     }
-    else if (date('Y-m-d', strtotime($lastOn)) == date('Y-m-d', strtotime('-1 day'))) {
+    else if (date('Y-m-d', (int)strtotime($lastOn)) == date('Y-m-d', (int)strtotime('-1 day'))) {
         $lastOn = translate_inline('Yesterday');
     }
     else if (strpos($indate, '0000-00-00') !== false){
@@ -80,12 +91,12 @@ function relativedate(string $indate): string
     else {
         $lastOn = sprintf_translate(
             '%s days',
-            round((strtotime('now') - strtotime($indate)) / 86400, 0)
+            $daysDiff
         );
         rawoutput(tlbutton_clear());
     }
     tlschema();
-    return $lastOn;
+    return (string)$lastOn;
 }
 
 function checkday(bool $force = true): bool
@@ -138,17 +149,18 @@ function gametime(): int
     return $time;
 }
 
-function convertgametime(int $inTime, bool $debug = false): int
+function convertgametime($inTime, bool $debug = false): int
 {
-    $inTime -= getsetting('gameoffsetseconds',0);
-    $epoch = strtotime(
-        getsetting(
+    $inTime = (int)$inTime - (int)getsetting('gameoffsetseconds', 0);
+    $epoch = (int)strtotime(
+        (string)getsetting(
             'game_epoch',
             gmdate('Y-m-d 00:00:00 O', strtotime('-30 days'))
         )
     );
-    $now = strtotime(gmdate('Y-m-d H:i:s O', $inTime));
-    $logdTimestamp = (($now - $epoch) * getsetting('daysperday', 4));
+    $now = (int)strtotime(gmdate('Y-m-d H:i:s O', $inTime));
+    $daysPerDay = (float)getsetting('daysperday', 4) ?: 4.0;
+    $logdTimestamp = (int)round(($now - $epoch) * $daysPerDay);
     if ($debug) {
         debug(
             "Game Timestamp: %s, which makes it %s.",
@@ -162,9 +174,9 @@ function convertgametime(int $inTime, bool $debug = false): int
 function gametimedetails(): array
 {
     $gameTime = gametime();
-    $today = strtotime(gmdate('Y-m-d 00:00:00 O'), $gameTime);
-    $tomorrow = strtotime(gmdate('Y-m-d 00:00:00 O') . '+1 day', $gameTime);
-    $daysPerDay = getsetting('daysperday', 4);
+    $today = (int)strtotime(gmdate('Y-m-d 00:00:00 O', $gameTime));
+    $tomorrow = (int)strtotime(gmdate('Y-m-d 00:00:00 O', $gameTime) . ' + 1 day');
+    $daysPerDay = (float)getsetting('daysperday', 4) ?: 4.0;
     $details = [
         'now' => date('Y-m-d H:i:s'),
         'gametime' => $gameTime,
@@ -186,18 +198,20 @@ function secondstonextgameday($details = false): int
     if ($details === false) {
         $details = gametimedetails();
     }
-    return strtotime("{$details['now']} + {$details['realsecstotomorrow']} seconds");
+    $secs = (int)round((float)($details['realsecstotomorrow'] ?? 0));
+    return (int)strtotime("{$details['now']} + {$secs} seconds");
 }
 
 function getmicrotime(): float
 {
     list($usec, $sec) = explode(' ', microtime());
-    return $usec + $sec;
+    return (float)$usec + (float)$sec;
 }
 
 
-function dhms(float $seconds, bool $ms = false): string
+function dhms($seconds, bool $ms = false): string
 {
+    $seconds = (float)$seconds;
     $times = [
         604800 => 'w',
         86400 => 'd',
@@ -208,10 +222,11 @@ function dhms(float $seconds, bool $ms = false): string
     ];
     $return = '';
     foreach ($times as $time => $unit) {
-        $divided = $seconds/$time;
-        if ($divided > 1) {
+        $timeFloat = (float)$time;
+        $divided = $seconds / $timeFloat;
+        if ($divided >= 1) {
             if ($unit != 'ms' && $unit != 's') {
-                $seconds = $seconds % $time;
+                $seconds = fmod($seconds, $timeFloat);
             }
             else if ($unit == 's') {
                 $seconds = $seconds - floor($divided);
@@ -219,7 +234,7 @@ function dhms(float $seconds, bool $ms = false): string
             else if ($unit == 'ms') {
                 $seconds = 0;
             }
-            $return .= round($divided, 0) . "$unit ";
+            $return .= floor($divided) . "$unit ";
         }
     }
     if ($ms == false) {

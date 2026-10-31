@@ -14,7 +14,7 @@ $datacache = [];
 $datacachefilepath = '';
 define("DATACACHE_FILENAME_PREFIX", "cache_");
 
-function datacache(string $name, $duration = 60): bool|array
+function datacache(string $name, $duration = 60): mixed
 {
 	if (!file_exists('dbconnect.php')) return false;
 	global $datacache;
@@ -42,7 +42,7 @@ function datacache(string $name, $duration = 60): bool|array
 
 //do NOT send simply a false value in to array or it will bork datacache in to
 //thinking that no data is cached or we are outside of the cache period.
-function updatedatacache(string $name, array $data): bool
+function updatedatacache(string $name, mixed $data): bool
 {
 	if (!file_exists('dbconnect.php')) return false;
 	global $datacache;

@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 /**
  * Returns the experience needed to advance to the next level.
@@ -7,8 +8,10 @@
  * @param int $currentDk Player's current dragon kills.
  * @return int The amount of experience needed to advance to the next level.
  */
-function exp_for_next_level(int $currentLvl, int $currentDk): int
+function exp_for_next_level($currentLvl, $currentDk): int
 {
+	$currentLvl = (int)$currentLvl;
+	$currentDk = (int)$currentDk;
 	if ($currentLvl < 1) return 0;
     $expArray = [
         1 => 100,
@@ -29,11 +32,11 @@ function exp_for_next_level(int $currentLvl, int $currentDk): int
     ];
 
 	foreach ($expArray as $lvl => $expRequired) {
-		$expArray[$lvl] = round(
+		$expArray[$lvl] = (int)round(
             $expRequired + ($currentDk / 4) * $lvl * 100,
             0
         );
 	}
 	if ($currentLvl > 15) $currentLvl = 15;
-	return $expArray[$currentLvl];
+	return (int)$expArray[$currentLvl];
 }

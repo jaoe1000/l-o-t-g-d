@@ -1,8 +1,10 @@
 <?php
+// modified by jaoe1000
 declare(strict_types=1);
 
-function creature_stats(int $level): array
+function creature_stats($level): array
 {
+    $level = (int)$level;
     $stats = [
         'creaturelevel' => $level,
         'creaturehealth' => creature_health($level),
@@ -14,8 +16,9 @@ function creature_stats(int $level): array
     return $stats;
 }
 
-function creature_health(int $level): int
+function creature_health($level): int
 {
+    $level = (int)$level;
     switch ($level) {
         case 1:
         case 2:
@@ -49,12 +52,16 @@ function creature_health(int $level): int
         case 18:
             $health = 190;
             break;
+        default:
+            $health = max(1, $level * 10 + 5);
+            break;
     }
     return $health;
 }
 
-function creature_attack(int $level): int
+function creature_attack($level): int
 {
+    $level = (int)$level;
     $attack = 1;
     for($i = 1; $i < $level; $i++) {
         $attack += 2;
@@ -65,8 +72,9 @@ function creature_attack(int $level): int
 // Not sure if this was intended, but defense only is ever 1 or 2.
 // Seems as if it was meant to increase by 1/2 per level.
 // @TODO: Design a better algorithm for defense.  
-function creature_defense(int $level): int
+function creature_defense($level): int
 {
+    $level = (int)$level;
     $defense = 0;
     switch ($level) {
         case 1:
@@ -95,8 +103,9 @@ function creature_defense(int $level): int
     return $defense;
 }
 
-function creature_exp(int $level): int
+function creature_exp($level): int
 {
+    $level = (int)$level;
     switch($level) {
         case 1:
         case 2:
@@ -133,8 +142,9 @@ function creature_exp(int $level): int
     return intval($exp);
 }
 
-function creature_gold(int $level): int
+function creature_gold($level): int
 {
+    $level = (int)$level;
     switch($level) {
         case 1:
         case 2:

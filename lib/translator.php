@@ -33,19 +33,20 @@ function translator_setup(): void
  * @param string|null $namespace
  * @return string|array
  */
-function translate(string|array $input, string|null $namespace = null): string|array
+function translate($input, $namespace = null): string|array
 {
     if (
         !file_exists('dbconnect.php') ||
         getsetting('translatorenabled', true) == false
     ) {
-        return $input;
+        return is_array($input) ? $input : (string)($input ?? '');
     }
     $translation_table = [];
     global $language, $session, $translation_table, $i18nNamespace, $mysqli_resource;
-    if (!$namespace) $namespace = $i18nNamespace;
+    if (!$namespace) $namespace = (string)($i18nNamespace ?? '');
+    $namespace = (string)$namespace;
     if ($namespace == 'notranslate') {
-        return $input;
+        return is_array($input) ? $input : (string)($input ?? '');
     }
     
     if (!$language) {
@@ -54,7 +55,10 @@ function translate(string|array $input, string|null $namespace = null): string|a
 
 	$output = $input;
     $foundTranslation = false;
-	if ($namespace == '') tlschema();
+	if ($namespace == '') {
+        tlschema();
+        $namespace = (string)($i18nNamespace ?? '');
+    }
 
 	if (
         !isset($translation_table[$namespace]) ||
@@ -73,6 +77,8 @@ function translate(string|array $input, string|null $namespace = null): string|a
 		}
         return $output;
 	}
+    $input = (string)($input ?? '');
+    $output = $input;
 	if (isset($translation_table[$namespace][$input])) {
 		$output = $translation_table[$namespace][$input];
 		$foundTranslation = true;
@@ -130,7 +136,7 @@ function sprintf_translate(){
 	return $return;
 }
 
-function translate_inline(string|array $input, string|null $namespace = null): string|array
+function translate_inline($input, $namespace = null): string|array
 {
 	$out = translate($input, $namespace);
 	rawoutput(tlbutton_clear());
@@ -166,11 +172,12 @@ function tl($in){
 	return tlbutton_clear().$out;
 }
 
-function translate_loadnamespace(string $namespace, string|null $language = null): array
+function translate_loadnamespace($namespace, $language = null): array
 {
     if (defined('IS_INSTALLER') && IS_INSTALLER) return [];
 
     global $language;
+    $namespace = (string)($namespace ?? '');
 	$page = translator_page($namespace);
 	$uri = translator_uri($namespace);
 	if ($page==$uri)
@@ -200,12 +207,15 @@ function translate_loadnamespace(string $namespace, string|null $language = null
 
 $translatorbuttons = [];
 $seentlbuttons = [];
-function tlbutton_push(string|array $indata, bool $hot = false, string|bool $namespace = FALSE): bool
+function tlbutton_push($indata, bool $hot = false, $namespace = FALSE): bool
 {
 	require_once('lib/session.php');
 	global $translatorbuttons;
 	global $translation_is_enabled,$seentlbuttons,$session;
 	if (!$namespace) $namespace = 'unknown';
+    $namespace = (string)$namespace;
+    if (is_array($indata)) return false;
+    $indata = (string)($indata ?? '');
     if (
         !(getSessionSuperUser() & SU_IS_TRANSLATOR) ||
         !$translation_is_enabled ||
@@ -253,25 +263,25 @@ function tlbutton_clear(): string
 }
 
 $translation_is_enabled = true;
-function enable_translation(bool $enable = true): void
+function enable_translation($enable = true): void
 {
 	global $translation_is_enabled;
-	$translation_is_enabled = $enable;
+	$translation_is_enabled = (bool)$enable;
 }
 
 $i18nNamespace = '';
 $i18nNamespaceArray = [];
-function tlschema(string|null $schema = null){
+function tlschema($schema = null){
 	global $i18nNamespace, $i18nNamespaceArray, $REQUEST_URI;
 	if (!$schema) {
-		$i18nNamespace = array_pop($i18nNamespaceArray);
+		$i18nNamespace = (string)(array_pop($i18nNamespaceArray) ?? '');
 		if ($i18nNamespace == '') {
-			$i18nNamespace = translator_uri($REQUEST_URI);
+			$i18nNamespace = (string)translator_uri($REQUEST_URI ?? '');
         }
 	}
     else {
 		array_push($i18nNamespaceArray, $i18nNamespace);
-		$i18nNamespace = $schema;
+		$i18nNamespace = (string)$schema;
 	}
 }
 

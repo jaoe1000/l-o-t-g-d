@@ -87,7 +87,9 @@ require_once('lib/translations.php');
 require_once('vendor/autoload.php');
 
 session_start();
-$session = [];
+if (!isset($_SESSION['session']) || !is_array($_SESSION['session'])) {
+	$_SESSION['session'] = [];
+}
 $session =& $_SESSION['session'];
 require_once('lib/session.php');
 php_generic_environment();
@@ -166,7 +168,9 @@ unset($DB_NAME);
 if (!defined('IS_INSTALLER') || !IS_INSTALLER) {
     header("Content-Type: text/html; charset=".getsetting('charset','ISO-8859-1'));
 
-    if (strtotime("-".getsetting("LOGINTIMEOUT",900)." seconds") > $session['lasthit'] && $session['lasthit']>0 && $session['loggedin']){
+    $lastHit = $session['lasthit'] ?? 0;
+    $lastHitTs = is_numeric($lastHit) ? (int)$lastHit : (int)strtotime((string)$lastHit);
+    if ($lastHitTs > 0 && !empty($session['loggedin']) && strtotime("-".getsetting("LOGINTIMEOUT",900)." seconds") > $lastHitTs){
     	// force the abandoning of the session when the user should have been
     	// sent to the fields.
     	$session=array();
@@ -174,7 +178,7 @@ if (!defined('IS_INSTALLER') || !IS_INSTALLER) {
     	// ignore it.
     	// 1.1.1 now should be a good time to get it on with it, added tl-inline
     	translator_setup();
-    	$session['message'].=translate_inline("`nYour session has expired!`n","common");
+    	$session['message'] = ($session['message'] ?? '') . translate_inline("`nYour session has expired!`n","common");
     }
     $session['lasthit'] = date('Y-m-d H:i:s');
     mass_module_prepare([
@@ -232,13 +236,19 @@ if (!isset($nokeeprestore[$SCRIPT_NAME]) || !$nokeeprestore[$SCRIPT_NAME]) {
 }else{
 
 }
-if ($logd_version != getsetting('installer_version', '-1') && (!defined("IS_INSTALLER") || !IS_INSTALLER)) {
+$installedVersion = getsetting('installer_version', '-1');
+if ($installedVersion === '1.1.2 Dragonprime Edition' && $logd_version === '1.2.0 Dragonprime Custom') {
+	savesetting('installer_version', $logd_version);
+	$installedVersion = $logd_version;
+}
+if ($logd_version != $installedVersion && (!defined("IS_INSTALLER") || !IS_INSTALLER)) {
 	page_header("Upgrade Needed");
 	output("`#The game is temporarily unavailable while a game upgrade is applied, please be patient, the upgrade will be completed soon.");
 	output("In order to perform the upgrade, an admin will have to run through the installer.");
 	output("If you are an admin, please <a href='installer.php'>visit the Installer</a> and complete the upgrade process.`n`n",true);
 	output("`@If you don't know what this all means, just sit tight, we're doing an upgrade and will be done soon, you will be automatically returned to the game when the upgrade is complete.");
-	rawoutput("<meta http-equiv='refresh' content='30; url={$session['user']['restorepage']}'>");
+	$restoreUrl = $session['user']['restorepage'] ?? 'index.php';
+	rawoutput("<meta http-equiv='refresh' content='30; url={$restoreUrl}'>");
 	addnav("Installer (Admins only!)","installer.php");
 	define("NO_SAVE_USER",true);
 	page_footer();
