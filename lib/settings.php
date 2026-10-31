@@ -50,9 +50,9 @@ function loadsettings()
             return;
         }
     }
-    if (!is_array($settings)) {
+    if (!is_array($settings) || empty($settings)) {
         $settings = datacache('game-settings');
-        if (!is_array($settings)) {
+        if (!is_array($settings) || empty($settings)) {
             $settings = [];
             $sql = db_query(
                 "SELECT * FROM " . db_prefix('settings')
@@ -61,7 +61,9 @@ function loadsettings()
                 $settings[$row['setting']] = $row['value'];
             }
             db_free_result($sql);
-            updatedatacache('game-settings', $settings);
+            if (!empty($settings)) {
+                updatedatacache('game-settings', $settings);
+            }
         }
     }
 }

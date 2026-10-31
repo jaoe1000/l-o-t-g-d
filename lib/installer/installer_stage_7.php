@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 require('lib/installer/installer_sqlstatements.php');
 if (httppost('type') > '') {
 	if (httppost('type') == 'install') {
@@ -41,7 +42,14 @@ if (!isset($session['fromversion']) || $session['fromversion'] == '') {
 	$session['stagecompleted']=$stage - 1;
 }else{
 	$session['stagecompleted']=$stage;
-	header("Location: installer.php?stage=".($stage+1));
-	exit();
+	if (!headers_sent()) {
+		header("Location: installer.php?stage=".($stage+1));
+		exit();
+	} else {
+		$nextStage = $stage + 1;
+		rawoutput("<script type='text/javascript'>window.location.href='installer.php?stage=$nextStage';</script>");
+		rawoutput("<meta http-equiv='refresh' content='0;url=installer.php?stage=$nextStage'>");
+		output("`@Continuing to <a href='installer.php?stage=$nextStage'>Stage $nextStage</a>...`0`n", true);
+	}
 }
 ?>

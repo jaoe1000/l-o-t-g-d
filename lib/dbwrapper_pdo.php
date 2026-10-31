@@ -63,14 +63,15 @@ function db_query($sql, $params = [], $die = true) {
     if ((defined('DB_NODB') && DB_NODB) || (!defined('DB_NODB') && !defined('LINK'))) return [];
     
     // Check installer restrictions (mirrored from mysqli_proc)
-    $bt = debug_backtrace();
-    $isTableDescriptor = str_contains($bt[0]['file'], 'tabledescriptor');
-    $isInstaller = str_contains($bt[0]['file'], 'installer_stage');
-    if (defined("IS_INSTALLER")
-        && IS_INSTALLER !== false 
-        && !$isTableDescriptor
-        && !$isInstaller
-    ) return [];
+    if (defined("IS_INSTALLER") && IS_INSTALLER !== false && (!defined('DB_CHOSEN') || !DB_CHOSEN)) {
+        $bt = debug_backtrace();
+        $callerFile = $bt[0]['file'] ?? '';
+        $isTableDescriptor = str_contains($callerFile, 'tabledescriptor');
+        $isInstaller = str_contains($callerFile, 'installer');
+        if (!$isTableDescriptor && !$isInstaller) {
+            return [];
+        }
+    }
 
     $dbinfo['queriesthishit']++;
     $starttime = getmicrotime();

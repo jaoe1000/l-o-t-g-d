@@ -11,7 +11,7 @@ if (DB_CHOSEN && file_exists('dbconnect.php')) {
 	$sql = "SELECT count(*) AS c FROM $accountsPrefix WHERE superuser & ".SU_MEGAUSER;
 	$result = db_query($sql);
 	$row = db_fetch_assoc($result);
-	if ($row['c'] == 0){
+	if (!is_array($row) || ($row['c'] ?? 0) == 0){
 		$needsauthentication = false;
 	}
 	if (httppost("username")>""){
@@ -30,9 +30,9 @@ if (DB_CHOSEN && file_exists('dbconnect.php')) {
 		if (db_num_rows($result) > 0){
 			$row = db_fetch_assoc($result);
 			$needsauthentication = true;
-			if ($row['password'] === $p2 || $row['password'] === $p1) {
+			if (is_array($row) && ($row['password'] === $p2 || $row['password'] === $p1)) {
 				$needsauthentication = false;
-			} elseif ($version == "-1" && $row['password'] === $rawPassword) {
+			} elseif (is_array($row) && $version == "-1" && $row['password'] === $rawPassword) {
 				$needsauthentication = false;
 			}
 			if ($needsauthentication === false) {
@@ -43,9 +43,17 @@ if (DB_CHOSEN && file_exists('dbconnect.php')) {
 				} else {
 					$session['user']['superuser'] = (int)$row['superuser'];
 				}
-				redirect("installer.php?stage=1");
+				if (!headers_sent()) {
+					redirect("installer.php?stage=1");
+				} else {
+					rawoutput("<script type='text/javascript'>window.location.href='installer.php?stage=1';</script>");
+					rawoutput("<meta http-equiv='refresh' content='0;url=installer.php?stage=1'>");
+					output("`@Authentication successful! <a href='installer.php?stage=1'>Continue to Stage 1 (License Agreement)</a>.`0`n", true);
+					addnav("Continue to Stage 1", "installer.php?stage=1");
+				}
+			} else {
+				output("`\$That username / password was not found, or is not an account with sufficient privileges to perform the upgrade.`n");
 			}
-			output("`\$That username / password was not found, or is not an account with sufficient privileges to perform the upgrade.`n");
 		}else{
 			$needsauthentication=true;
 			output("`\$That username / password was not found, or is not an account with sufficient privileges to perform the upgrade.`n");
@@ -54,7 +62,7 @@ if (DB_CHOSEN && file_exists('dbconnect.php')) {
 		$sql = "SELECT count(*) AS c FROM ".db_prefix("accounts")." WHERE superuser & ".SU_MEGAUSER;
 		$result = db_query($sql);
 		$row = db_fetch_assoc($result);
-		if ($row['c']>0){
+		if (is_array($row) && ($row['c'] ?? 0) > 0){
 			$needsauthentication=true;
 		}else{
 			$needsauthentication=false;

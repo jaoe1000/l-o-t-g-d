@@ -4,8 +4,16 @@ require_once('lib/installer/installer_functions.php');
 if (array_key_exists('modules', $_POST)) {
 	$session['moduleoperations'] = $_POST['modules'];
 	$session['stagecompleted'] = $stage;
-	header('Location: installer.php?stage=' . ($stage + 1));
-	exit();
+	$nextStage = $stage + 1;
+	if (!headers_sent()) {
+		header('Location: installer.php?stage=' . $nextStage);
+		exit();
+	} else {
+		rawoutput("<script type='text/javascript'>window.location.href='installer.php?stage=$nextStage';</script>");
+		rawoutput("<meta http-equiv='refresh' content='0;url=installer.php?stage=$nextStage'>");
+		output("`@Continuing to <a href='installer.php?stage=$nextStage'>Stage $nextStage</a>...`0`n", true);
+		return;
+	}
 }
 elseif (array_key_exists('moduleoperations', $session)
 	&& is_array($session['moduleoperations']))
@@ -102,8 +110,16 @@ else {
 	if (count($allMods) == 0) {
 		$session['skipmodules'] = true;
 		$session['stagecompleted'] = $stage;
-		header('Location: installer.php?stage=' . ($stage + 1));
-		exit();
+		$nextStage = $stage + 1;
+		if (!headers_sent()) {
+			header('Location: installer.php?stage=' . $nextStage);
+			exit();
+		} else {
+			rawoutput("<script type='text/javascript'>window.location.href='installer.php?stage=$nextStage';</script>");
+			rawoutput("<meta http-equiv='refresh' content='0;url=installer.php?stage=$nextStage'>");
+			output("`@Continuing to <a href='installer.php?stage=$nextStage'>Stage $nextStage</a>...`0`n", true);
+			return;
+		}
 	}
 	output_notl("`0");
 	rawoutput("<form action='installer.php?stage=$stage' method='POST'>");
