@@ -17,12 +17,12 @@ output("If this is an upgrade, your current tables will be brought in line with 
 output("If it's an install, the necessary tables will be placed in your database.`n");
 output("`n`@Table Synchronization Logs:`n");
 rawoutput("<div style='width: 100%; height: 150px; max-height: 150px; overflow: auto;'>");
-$descriptors = descriptors($DB_PREFIX);
+$descriptors = descriptors($DB_PREFIX ?? '');
 require_once("lib/tabledescriptor.php");
 foreach ($descriptors as $tableName => $descriptor) {
 	output("`3Synchronizing table `#$tableName`3..`n");
 	synctable($tableName, $descriptor, true);
-	if ($session['dbinfo']['upgrade'] == false)
+	if (empty($session['dbinfo']['upgrade']))
 		db_query("TRUNCATE TABLE $tableName;");
 }
 rawoutput("</div>");
@@ -45,7 +45,7 @@ foreach ($sql_upgrade_statements as $key => $val) {
 				}
 				// Skip any statements that should only be run during
 				// upgrades from previous versions.
-				if (!$session['dbinfo']['upgrade'] && $onlyupgrade) {
+				if (empty($session['dbinfo']['upgrade']) && $onlyupgrade) {
 					continue;
 				}
 				$count++;
@@ -59,14 +59,17 @@ foreach ($sql_upgrade_statements as $key => $val) {
 			output("$count.`n");
 		}
 	}
-	if ($key == $session['fromversion'] ||
-	$session['dbinfo']['upgrade'] == false) $doSQL=true;
+	if ($key == ($session['fromversion'] ?? '-1') ||
+	empty($session['dbinfo']['upgrade'])) $doSQL=true;
 }
 rawoutput("</div>");
 output("Now I'm going to insert default settings that you don't have.");
 rawoutput("<div style='width: 100%; height: 150px; max-height: 150px; overflow: auto;'>");
+unset($settings);
+loadsettings();
+global $settings;
 foreach ($defaultSettings as $setting => $value) {
-	if(!isset($settings[$setting]) && getsetting($setting, $value) == $value) {
+	if((!is_array($settings) || !isset($settings[$setting])) && getsetting($setting, $value) == $value) {
 		output_notl("Setting $setting to default value of $value`n");
 	}
 }
@@ -84,7 +87,7 @@ if (isset($recommended_modules) && is_array($recommended_modules)) {
 }
 rawoutput("</div>");
 */
-if (!getSession('skipmodules')) {
+if (!getSession('skipmodules') && !empty($session['moduleoperations']) && is_array($session['moduleoperations'])) {
   output("`n`2Now I'll install and configure your modules.");
   rawoutput("<div style='width: 100%; height: 150px; max-height: 150px; overflow: auto;'>");
   foreach($session['moduleoperations'] as $modName => $val) {
@@ -104,7 +107,6 @@ if (!getSession('skipmodules')) {
 					  output("`@OK!`0`n");
 				  else
 					  output("`\$Failed!`0`n");
-				  install_module($modName);
 				  break;
 			  case "activate":
 				  output("`3Activating `#$modName`3: ");

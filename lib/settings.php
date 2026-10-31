@@ -1,23 +1,30 @@
 <?php
+// modified by jaoe1000
 
 function savesetting(string $settingname, $value)
 {
     global $settings, $mysqli_resource;
-    if (!file_exists('dbconnect.php')
-        || $mysqli_resource === null
-        || (defined('IS_INSTALLER') && IS_INSTALLER))
+    if (!file_exists('dbconnect.php') || $mysqli_resource === null) {
         return false;
+    }
+    if (defined('IS_INSTALLER') && IS_INSTALLER) {
+        if (!defined('DB_CHOSEN') || !DB_CHOSEN || !function_exists('db_table_exists') || !db_table_exists(db_prefix('settings'))) {
+            return false;
+        }
+    }
     $table = db_prefix('settings');
     loadsettings();
+    $escapedName = addslashes($settingname);
+    $escapedVal = addslashes((string)($value ?? ''));
     if (!isset($settings[$settingname])) {
             $sql = db_query(
                 "INSERT INTO $table (setting, value)
-                VALUES ('" . addslashes($settingname) . "', '" . addslashes($value) . "')"
+                VALUES ('$escapedName', '$escapedVal')"
             );
     }
     else if (isset($settings[$settingname])) {
             $sql = db_query(
-                "UPDATE $table SET value = '" . addslashes($value) . "' WHERE setting = '" . addslashes($settingname) . "'"
+                "UPDATE $table SET value = '$escapedVal' WHERE setting = '$escapedName'"
             );
     }
     else {
@@ -38,7 +45,11 @@ function loadsettings()
     global $settings, $mysqli_resource;
     if (!file_exists('dbconnect.php')) return;
     if ($mysqli_resource === null) return;
-    if (defined('IS_INSTALLER') && IS_INSTALLER) return;
+    if (defined('IS_INSTALLER') && IS_INSTALLER) {
+        if (!defined('DB_CHOSEN') || !DB_CHOSEN || !function_exists('db_table_exists') || !db_table_exists(db_prefix('settings'))) {
+            return;
+        }
+    }
     if (!is_array($settings)) {
         $settings = datacache('game-settings');
         if (!is_array($settings)) {

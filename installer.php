@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 //translator ready
 //addnews ready
@@ -12,7 +13,7 @@ if (!file_exists("dbconnect.php")){
 }
 require_once("common.php");
 if (file_exists("dbconnect.php")){
-	require_once("dbconnect.php");
+	require("dbconnect.php");
 }
 $noinstallnavs=false;
 
@@ -107,11 +108,14 @@ if (!isset($session['stagecompleted'])) $session['stagecompleted'] = 0;
 if ($stage > $session['stagecompleted']+1) $stage = $session['stagecompleted'];
 if (!isset($session['dbinfo'])) {
 	 $session['dbinfo'] = [
-		'DB_HOST' => '',
-		'DB_USER' => '',
-		'DB_PASS' => '',
-		'DB_NAME' => '',
-		'DB_DATACACHEPATH' => '',
+		'DB_HOST' => $DB_HOST ?? '',
+		'DB_USER' => $DB_USER ?? '',
+		'DB_PASS' => $DB_PASS ?? '',
+		'DB_NAME' => $DB_NAME ?? '',
+		'DB_PREFIX' => $DB_PREFIX ?? '',
+		'DB_USEDATACACHE' => $DB_USEDATACACHE ?? 0,
+		'DB_DATACACHEPATH' => $DB_DATACACHEPATH ?? '',
+		'upgrade' => file_exists("dbconnect.php"),
 	];
 }
 if (file_exists("dbconnect.php") && (

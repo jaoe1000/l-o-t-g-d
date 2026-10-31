@@ -237,7 +237,10 @@ if (!isset($nokeeprestore[$SCRIPT_NAME]) || !$nokeeprestore[$SCRIPT_NAME]) {
 
 }
 $installedVersion = getsetting('installer_version', '-1');
-if ($installedVersion === '1.1.2 Dragonprime Edition' && $logd_version === '1.2.0 Dragonprime Custom') {
+if (
+	($installedVersion === '1.1.2 Dragonprime Edition' || ($installedVersion === '-1' && getsetting('villagename', '') !== ''))
+	&& $logd_version === '1.2.0 Dragonprime Custom'
+) {
 	savesetting('installer_version', $logd_version);
 	$installedVersion = $logd_version;
 }

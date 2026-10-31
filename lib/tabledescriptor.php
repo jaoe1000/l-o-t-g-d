@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 // translator ready
 // addnews ready
 // mail ready
@@ -17,9 +18,12 @@ function synctable(string $tableName, $descriptor, $nodrop = false) {
 	//table names should be db_prefix'd before they get in to
 	//this function.
 	global $session;
-	require_once('dbconnect.php');
+	if (file_exists('dbconnect.php')) {
+		require('dbconnect.php');
+	}
 	global $DB_NAME;
-	$database = ($DB_NAME > '' ? $DB_NAME : ($session['dbinfo']['DB_NAME'] ?? ''));	unset($DB_NAME);
+	$database = (!empty($DB_NAME) ? $DB_NAME : ($session['dbinfo']['DB_NAME'] ?? ''));
+	unset($DB_NAME);
 	$sql = db_query("SHOW TABLES LIKE '$tableName';");
 	// $row = db_num_rows($sql);
 	// var_dump($row);
@@ -179,9 +183,11 @@ function table_create_descriptor($tablename) {
 		$item = array();
 		$item['name']=$row['Field'];
 		$item['type']=$row['Type'];
-		if ($row['Null']) $item['null'] = true;
-		if (trim($row['Default'])!="") $item['default']=$row['Default'];
-		if (trim($row['Extra'])!=="") $item['extra']=$row['Extra'];
+		if (($row['Null'] ?? '') === 'YES' || ($row['Null'] ?? '') === '1' || $row['Null'] === true) $item['null'] = true;
+		$defaultVal = (string)($row['Default'] ?? '');
+		if (trim($defaultVal)!="") $item['default']=$defaultVal;
+		$extraVal = (string)($row['Extra'] ?? '');
+		if (trim($extraVal)!=="") $item['extra']=$extraVal;
 		$descriptor[$item['name']] = $item;
 	}
 

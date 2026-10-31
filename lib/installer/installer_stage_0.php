@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 output("`@`c`bWelcome to Legend of the Green Dragon`b`c`0");
 output("`2This is the installer script for Legend of the Green Dragon, by Eric Stevens & JT Traub.`n");
 output("`nIn order to install and use Legend of the Green Dragon (LoGD), you must agree to the license under which it is deployed.`n");
@@ -6,57 +7,42 @@ output("`n`&This game is a small project into which we have invested a tremendou
 output("Please understand that if you modify our copyright, or otherwise violate the license, you are not only breaking international copyright law (which includes penalties which are defined in whichever country you live), but you're also defeating the spirit of open source, and ruining any good faith which we have demonstrated by providing our blood, sweat, and tears to you free of charge.  You should also know that by breaking the license even one time, it is within our rights to require you to permanently cease running LoGD forever.`n");
 output("`nPlease note that in order to use the installer, you must have cookies enabled in your browser.`n");
 if (DB_CHOSEN && file_exists('dbconnect.php')) {
-	global $mysqli_resource;
-	$sql = "SELECT count(*) AS c FROM accounts WHERE superuser & ".SU_MEGAUSER;
+	$accountsPrefix = db_prefix('accounts');
+	$sql = "SELECT count(*) AS c FROM $accountsPrefix WHERE superuser & ".SU_MEGAUSER;
 	$result = db_query($sql);
 	$row = db_fetch_assoc($result);
 	if ($row['c'] == 0){
 		$needsauthentication = false;
 	}
 	if (httppost("username")>""){
-		debug(md5(md5(stripslashes(httppost("password")))), true);
 		$version = getsetting("installer_version","-1");
-		$accountsPrefix = db_prefix('accounts');
-		$userName = mysqli_real_escape_string($mysqli_resource, httppost('username'));
-		$password = mysqli_real_escape_string($mysqli_resource, httppost('password'));
-		$newPassworc = md5(md5(stripslashes(httppost('password'))));
+		$userName = db_escape(httppost('username'));
+		$rawPassword = stripslashes(httppost('password'));
+		$p1 = md5($rawPassword);
+		$p2 = md5($p1);
+		$escapedPass = db_escape($rawPassword);
 		$megaUser = SU_MEGAUSER;
-		if ($version == "-1")
-			$sql = "SELECT * FROM $accountsPrefix
-				WHERE login='$userName' AND password='$password'
-				AND superuser & $megaUser";
-		else
-			$sql = "SELECT * FROM $accountsPrefix
-			WHERE login='$userName' AND password='$newPassword'
-			AND superuser & $megaUser";
+		$sql = "SELECT * FROM $accountsPrefix
+			WHERE login='$userName'
+			AND (password='$p2' OR password='$p1' OR password='$escapedPass')
+			AND (superuser & $megaUser)";
 		$result = db_query($sql);
 		if (db_num_rows($result) > 0){
 			$row = db_fetch_assoc($result);
-			debug($row['password'], true);
-			debug(httppost('password'), true);
-			// Okay, we have a username with megauser, now we need to do
-			// some hackery with the password.
-			$needsauthentication=true;
-			$p = stripslashes(httppost("password"));
-			$p1 = md5($p);
-			$p2 = md5($p1);
-			debug($p2, true);
-
-			if (getsetting("installer_version", "-1") == "-1") {
-				debug("HERE I AM", true);
-				// Okay, they are upgrading from 0.9.7  they will have
-				// either a non-encrypted password, or an encrypted singly
-				// password.
-				if (strlen($row['password']) == 32 &&
-				$row['password'] == $p1) {
-					$needsauthentication = false;
-				} elseif ($row['password'] == $p) {
-					$needsauthentication = false;
-				}
-			} elseif ($row['password'] == $p2) {
+			$needsauthentication = true;
+			if ($row['password'] === $p2 || $row['password'] === $p1) {
+				$needsauthentication = false;
+			} elseif ($version == "-1" && $row['password'] === $rawPassword) {
 				$needsauthentication = false;
 			}
 			if ($needsauthentication === false) {
+				$session['stagecompleted'] = 0;
+				$session['installer_auth'] = true;
+				if (!isset($session['user']) || !is_array($session['user'])) {
+					$session['user'] = $row;
+				} else {
+					$session['user']['superuser'] = (int)$row['superuser'];
+				}
 				redirect("installer.php?stage=1");
 			}
 			output("`\$That username / password was not found, or is not an account with sufficient privileges to perform the upgrade.`n");
@@ -79,7 +65,7 @@ else {
 	$needsauthentication = false;
 }
 //if a user with appropriate privs is already logged in, let's let them past.
-if (getSessionSuperUser() & SU_MEGAUSER) $needsauthentication=false;
+if ((getSessionSuperUser() & SU_MEGAUSER) || !empty($session['installer_auth'])) $needsauthentication=false;
 if ($needsauthentication) {
 	$session['stagecompleted'] = -1;
 	rawoutput("<form action='installer.php?stage=0' method='POST'>");

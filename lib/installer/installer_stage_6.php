@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 if (file_exists("dbconnect.php")){
 	$success=true;
 	$initial=false;
@@ -46,7 +47,7 @@ if ($success && !$initial){
 	$version = getsetting("installer_version","-1");
 	$sub = substr($version, 0, 5);
 	$sub = (int)str_replace(".", "", $sub);
-	if ($sub < 110) {
+	if ($version != "-1" && $sub > 0 && $sub < 110 && !isset($DB_USEDATACACHE)) {
 		$DB_DATACACHE = (string) $session['dbinfo']['DB_DATACACHEPATH'];
 		$DB_USEDATACACHE = (int) $session['dbinfo']['DB_USEDATACACHE'];
 		$fp = @fopen("dbconnect.php","r+");

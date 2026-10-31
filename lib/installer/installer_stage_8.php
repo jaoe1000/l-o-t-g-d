@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 require_once('lib/installer/installer_functions.php');
 if (array_key_exists('modules', $_POST)) {
 	$session['moduleoperations'] = $_POST['modules'];
@@ -21,8 +22,8 @@ output("`n`n`@There is an extensive community of users who write modules for LoG
 $ramLimit = ini_get('memory_limit');
 if (return_bytes($ramLimit) < 12582912
 	&& $ramLimit != -1
-	&& !$session['overridememorylimit']
-	&& !$session['dbinfo']['upgrade']) {
+	&& empty($session['overridememorylimit'])
+	&& empty($session['dbinfo']['upgrade'])) {
 	// enter this ONLY if it's not an upgrade and if the limit is really too low
 	output("`n`n`\$Warning: Your PHP memory limit is set to a very low level.");
 	output("Smaller servers should not be affected by this during normal gameplay but for this installation step you should assign at least 12 Megabytes of RAM for your PHP process.");
@@ -217,7 +218,7 @@ else {
 	reset($defaultMods);
 	foreach ($defaultMods as $key => $val) {
 		rawoutput("thisItem = document.getElementById('activate-$val'); ");
-		rawoutput("if (!thisItem.checked) { selectedCount++; thisItem.checked=true; }\n");
+		rawoutput("if (thisItem && !thisItem.checked) { selectedCount++; thisItem.checked=true; }\n");
 	}
 	rawoutput("alert('I selected '+selectedCount+' modules that I recommend, but which were not already selected.');
 }");

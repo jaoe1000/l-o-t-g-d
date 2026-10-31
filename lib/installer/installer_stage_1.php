@@ -1,24 +1,33 @@
 <?php
+// modified by jaoe1000
 require_once('lib/pullurl.php');
 
 
-function license() {
+function license(): string {
 	$licenseUrl = 'http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode';
-	$license = join('', pullurl($licenseUrl));
-	$license = str_replace("\n", '', $license);
-	$license = str_replace("\r", '', $license);
+	$pulled = pullurl($licenseUrl);
+	if (!is_array($pulled) || empty($pulled)) {
+		return '';
+	}
+	$license = join('', $pulled);
+	$license = str_replace(["\n", "\r"], '', $license);
 	$match = [];
-	preg_match_all("'<body[^>]*>(.*)</body>'", $license, $match);
-	return $match[1][0];
+	if (preg_match_all("'<body[^>]*>(.*)</body>'", $license, $match) && !empty($match[1][0])) {
+		return (string)$match[1][0];
+	}
+	return '';
 }
 
-function licenseHash() {
+function licenseHash(): string {
 	return md5(license());
 }
 
-function licenseTxt() {
+function licenseTxt(): string {
+	if (!file_exists('LICENSE.txt')) {
+		return '';
+	}
 	$license = join('', file('LICENSE.txt'));
-	preg_replace(
+	$license = preg_replace(
 		"/[^\na-zA-Z0-9!?.,;:'\"\\/\\()@ -\\]\\[]/",
 		'',
 		$license
@@ -29,15 +38,10 @@ function licenseTxt() {
 	return $license;
 }
 
-function licenseTxtHash() {
+function licenseTxtHash(): string {
 	return md5(licenseTxt());
 }
 
-$licenseOutput = "
-	<a href='http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode'>
-		<div class='license-agreement'>$license</div>
-	</a>
-";
 $licenseTxt = licenseTxt();
 $licenseHash = licenseTxtHash();
 
@@ -53,7 +57,7 @@ else
 		Below are the author's explanation of the agreement, from LICENSE.txt`0
 	");
 output('`n`n');
-if (licenseTxtHash() == 'a192586931e44a73b118c3ff96a45c27') 
+if ($licenseTxt !== '') 
 	output("`b`@License Plaintext information: `b`n`7$licenseTxt`0", true);
 else {
 	output("
