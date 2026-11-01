@@ -20,8 +20,11 @@ function db_connect($host, $user, $pass, $database) {
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT, // Mirror legacy silent error handling or handle manually
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::ATTR_EMULATE_PREPARES => true,
         ];
+        if (defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
+            $options[PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = true;
+        }
         $pdo_connection = new PDO($dsn, $user, $pass, $options);
         $mysqli_resource = $pdo_connection;
         return true;
@@ -38,8 +41,11 @@ function db_pconnect($host, $user, $pass, $database) {
             PDO::ATTR_PERSISTENT => true,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::ATTR_EMULATE_PREPARES => true,
         ];
+        if (defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
+            $options[PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = true;
+        }
         $pdo_connection = new PDO($dsn, $user, $pass, $options);
         $mysqli_resource = $pdo_connection;
         return true;
@@ -92,18 +98,28 @@ function db_query($sql, $params = [], $die = true) {
     }
 
     try {
-        $stmt = $pdo_connection->prepare($sql);
-        if ($stmt === false) {
-            $err = $pdo_connection->errorInfo();
-            throw new PDOException(implode(" - ", $err));
-        }
-        $pdo_last_statement = $stmt;
-        
-        $success = $stmt->execute($params);
-        if (!$success) {
-            throw new PDOException(implode(" - ", $stmt->errorInfo()));
+        if (empty($params)) {
+            $stmt = $pdo_connection->query($sql);
+            if ($stmt === false) {
+                $err = $pdo_connection->errorInfo();
+                throw new PDOException(implode(" - ", $err));
+            }
+            $pdo_last_statement = $stmt;
+        } else {
+            $stmt = $pdo_connection->prepare($sql);
+            if ($stmt === false) {
+                $err = $pdo_connection->errorInfo();
+                throw new PDOException(implode(" - ", $err));
+            }
+            $pdo_last_statement = $stmt;
+
+            $success = $stmt->execute($params);
+            if (!$success) {
+                throw new PDOException(implode(" - ", $stmt->errorInfo()));
+            }
         }
     } catch (PDOException $e) {
+        error_log("LotGD DB Error: " . $e->getMessage() . " | SQL: " . $sql);
         if ($die === true) {
             if (defined("IS_INSTALLER") && IS_INSTALLER) {
                 return [];

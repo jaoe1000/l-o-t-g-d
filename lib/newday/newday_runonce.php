@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 //newday runonce
 	//Let's do a new day operation that will only fire off for
 	//one user on the whole server.
@@ -9,19 +10,21 @@
 
 	//Moved from lib/datacache.php
 	if (getsetting("usedatacache",0)){
-		$handle = opendir(getsetting('datacachepath', '/cache'));
-		while (($file = readdir($handle)) !== false) {
-			if (substr($file,0,strlen(DATACACHE_FILENAME_PREFIX)) ==
-					DATACACHE_FILENAME_PREFIX){
-				$fn = $datacachefilepath."/".$file;
-				$fn = preg_replace("'//'","/",$fn);
-				$fn = preg_replace("'\\\\'","\\",$fn);
-				if (is_file($fn) &&
-						filemtime($fn) < strtotime("-24 hours")){
-				unlink($fn);
-			}else{
+		$datacachefilepath = getsetting('datacachepath', '/cache');
+		if (is_dir($datacachefilepath) && ($handle = @opendir($datacachefilepath))) {
+			while (($file = readdir($handle)) !== false) {
+				if (substr($file,0,strlen(DATACACHE_FILENAME_PREFIX)) ==
+						DATACACHE_FILENAME_PREFIX){
+					$fn = $datacachefilepath."/".$file;
+					$fn = preg_replace("'//'","/",$fn);
+					$fn = preg_replace("'\\\\'","\\",$fn);
+					if (is_file($fn) &&
+							filemtime($fn) < strtotime("-24 hours")){
+						@unlink($fn);
+					}
+				}
 			}
-			}
+			closedir($handle);
 		}
 	}
 	//Expire Chars

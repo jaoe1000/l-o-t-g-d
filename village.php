@@ -39,6 +39,9 @@ $sql = db_query_cached(
     'newest-character'
 );
 $newCharacter = db_fetch_assoc($sql);
+if (!is_array($newCharacter)) {
+    $newCharacter = ['name' => '', 'acctid' => 0];
+}
 
 // Pull translations directly from loadNamespace
 $i18n = loadNamespace('village');

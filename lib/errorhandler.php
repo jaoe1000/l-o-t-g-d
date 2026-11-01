@@ -113,9 +113,13 @@ $html_text
 			  * Mime bits are set up,
 			 **/
 			foreach ($sendto as $key => $email) {
+				$email = trim((string)$email);
+				if ($email === '') {
+					continue;
+				}
 				debug("Notifying $email of this error.");
 
-				mail($email, $subject, $body,
+				@mail($email, $subject, $body,
 					"From: " . $from . "\n" .
 					"MIME-Version: 1.0\n" .
 					"Content-Type: multipart/alternative;\n" .

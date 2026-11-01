@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 require_once('common.php');
 require_once('lib/sanitize.php');
@@ -139,6 +140,9 @@ $result = db_query_cached(
     3600
 );
 $mountData = db_fetch_assoc($result);
+if (!is_array($mountData)) {
+    $mountData = [];
+}
 $mountData['acctid'] = $target['acctid'];
 $mountData = modulehook('bio-mount', $mountData);
 $none = translate_inline('`iNone`i');
@@ -170,7 +174,13 @@ while ($row = db_fetch_assoc($result)) {
     tlschema($row['tlschema']);
     if ($row['arguments'] > '') {
         $arguments = [];
-        $base_arguments = json_decode($row['arguments']);
+        $base_arguments = json_decode($row['arguments'], true);
+        if (!is_array($base_arguments)) {
+            $base_arguments = @unserialize($row['arguments'], ['allowed_classes' => false]);
+        }
+        if (!is_array($base_arguments)) {
+            $base_arguments = [];
+        }
         array_push($arguments, $row['newstext']);
         foreach ($base_arguments as $key => $val) {
             array_push($arguments, $val);

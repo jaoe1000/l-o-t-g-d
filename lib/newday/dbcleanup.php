@@ -1,14 +1,23 @@
 <?php
+// modified by jaoe1000
 
 require_once('lib/gamelog.php');
 savesetting('lastdboptimize', date('Y-m-d H:i:s'));
-$result = db_query('SHOW TABLES');
+$result = db_query('SHOW TABLES', false);
 $tables = [];
+if ($result) {
+    while ($row = db_fetch_assoc($result)) {
+        foreach ($row as $val) {
+            $tables[] = $val;
+        }
+    }
+    db_free_result($result);
+}
 $start = getmicrotime();
-for ($i = 0; $i < db_num_rows($result); $i++) {
-	foreach (db_fetch_assoc($result) as $key => $val) {
-    	db_query("OPTIMIZE TABLE $val");
-    	array_push($tables, $val);
+foreach ($tables as $val) {
+    $optRes = db_query("OPTIMIZE TABLE $val", false);
+    if ($optRes) {
+        db_free_result($optRes);
     }
 }
 $time = round(getmicrotime() - $start, 2);

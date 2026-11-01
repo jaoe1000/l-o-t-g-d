@@ -2,6 +2,7 @@
 // translator ready
 // addnews ready
 // mail ready
+// modified by jaoe1000
 
 if (isset($_POST['template'])) {
 	$skin = $_POST['template'];
@@ -50,7 +51,7 @@ if (getsetting('homenewestplayer', 1)) {
 		$sql = "SELECT name FROM " . db_prefix('accounts') . " WHERE acctid='$newplayer'";
 		$result = db_query_cached($sql, 'newest');
 		$row = db_fetch_assoc($result);
-		$name = $row['name'];
+		$name = $row['name'] ?? '';
 	} else {
 		$name = $newplayer;
 	}
@@ -119,7 +120,7 @@ if (getsetting('homeskinselect', 1)) {
 	rawoutput("<form action='home.php' method='POST'>");
 	rawoutput("<table align='center'><tr><td>");
 	$form = ["template" => "Choose a different display skin:,theme"];
-	$prefs['template'] = $_COOKIE['template'];
+	$prefs['template'] = $_COOKIE['template'] ?? getsetting("defaultskin", "jade.htm");
 	require_once("lib/showform.php");
 	showform($form, $prefs, true);
     // output(

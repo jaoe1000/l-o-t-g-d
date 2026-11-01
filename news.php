@@ -2,6 +2,7 @@
 // translator ready
 // addnews ready
 // mail ready
+// modified by jaoe1000
 define("ALLOW_ANONYMOUS",true);
 require_once("common.php");
 require_once("lib/http.php");
@@ -68,7 +69,13 @@ while ($row = db_fetch_assoc($result)) {
 	tlschema($row['tlschema']);
 	if ($row['arguments']>""){
 		$arguments = array();
-		$base_arguments = json_decode($row['arguments']);
+		$base_arguments = json_decode($row['arguments'], true);
+		if (!is_array($base_arguments)) {
+			$base_arguments = @unserialize($row['arguments'], ['allowed_classes' => false]);
+		}
+		if (!is_array($base_arguments)) {
+			$base_arguments = [];
+		}
 		array_push($arguments,$row['newstext']);
 		foreach ($base_arguments as $key => $val) {
 			array_push($arguments,$val);

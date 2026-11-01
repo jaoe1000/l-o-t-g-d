@@ -39,7 +39,7 @@ function addnews($text = '', ...$args)
         unset($options[$key]);
     }
     $text = addslashes($text);
-    $newsArgs = json_encode($options);
+    $newsArgs = addslashes((string)json_encode($options));
     db_query(
         "INSERT INTO $news
         (newstext, newsdate, accountid, tlschema, arguments)

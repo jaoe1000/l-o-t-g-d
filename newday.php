@@ -33,6 +33,9 @@ $resline = (httpget('resurrection')=="true") ? "&resurrection=true" : "" ;
  ** End Settings **
  ******************/
 $dk = httpget('dk');
+if (!isset($session['user']['dragonpoints']) || !is_array($session['user']['dragonpoints'])) {
+    $session['user']['dragonpoints'] = [];
+}
 if ((count($session['user']['dragonpoints']) <
             $session['user']['dragonkills']) && $dk!="") {
     array_push($session['user']['dragonpoints'],$dk);
@@ -175,16 +178,21 @@ if ($dp < $dkills) {
     output("`2Hitpoints have been restored to `^%s`2.`n",$session['user']['maxhitpoints']);
 
     $dkff=0;
-    foreach (getSessionUser('dragonpoints') as $key => $val) {
-        if ($val=="ff"){
-            $dkff++;
+    $userDragonPoints = getSessionUser('dragonpoints');
+    if (is_array($userDragonPoints)) {
+        foreach ($userDragonPoints as $key => $val) {
+            if ($val=="ff"){
+                $dkff++;
+            }
         }
     }
-    if ($session['user']['hashorse']){
+    if ($session['user']['hashorse'] && !empty($playermount['mountbuff'])){
         $buff = unserialize($playermount['mountbuff'], ['allowed_classes' => false]);
-        if (!isset($buff['schema']) || $buff['schema'] == "")
-            $buff['schema']="mounts";
-        apply_buff('mount',$buff);
+        if (is_array($buff)) {
+            if (!isset($buff['schema']) || $buff['schema'] == "")
+                $buff['schema']="mounts";
+            apply_buff('mount',$buff);
+        }
     }
     if ($dkff>0) {
         output("`n`2You gain `^%s`2 forest %s from spent dragon points!",
@@ -230,25 +238,25 @@ if ($dp < $dkills) {
         output("`2As a result, you `^%s %s forest %s`2 for today!`n",
                 $gain, $sff, translate_inline($sff==1?"fight":"fights"));
     }
-    $rp = $session['user']['restorepage'];
-    $x = max(strrpos("&",$rp),strrpos("?",$rp));
+    $rp = (string)($session['user']['restorepage'] ?? '');
+    $x = max((int)strrpos($rp, "&"), (int)strrpos($rp, "?"));
     if ($x>0) $rp = substr($rp,0,$x);
-    if (substr($rp,0,10)=="badnav.php"){
+    if ($rp === "" || substr($rp,0,10)=="badnav.php"){
         addnav("Continue","news.php");
     }else{
         addnav("Continue", cmd_sanitize($rp));
     }
 
     $session['user']['laston'] = date("Y-m-d H:i:s");
-    $bgold = $session['user']['goldinbank'];
-    $session['user']['goldinbank']*=$interestrate;
+    $bgold = (int)$session['user']['goldinbank'];
+    $session['user']['goldinbank'] = (int)round($session['user']['goldinbank'] * $interestrate);
     $nbgold = $session['user']['goldinbank'] - $bgold;
 
     if ($nbgold != 0) {
         debuglog(($nbgold >= 0 ? "earned " : "paid ") . abs($nbgold) . " gold in interest");
     }
     $turnstoday .= ", Spirits: $resurrectionturns, DK: $dkff";
-    $session['user']['turns']=$turnsperday+$resurrectionturns+$dkff;
+    $session['user']['turns'] = (int)($turnsperday + $resurrectionturns + $dkff);
     $session['user']['hitpoints'] = $session['user']['maxhitpoints'];
     $session['user']['spirits'] = $spirits;
     if ($resurrection != "true")
@@ -267,15 +275,15 @@ if ($dp < $dkills) {
     $session['user']['boughtroomtoday'] = 0;
     $session['user']['recentcomments']=$session['user']['lasthit'];
     $session['user']['lasthit'] = gmdate("Y-m-d H:i:s");
-    if ($session['user']['hashorse']){
-        $msg = $playermount['newday'];
+    if ($session['user']['hashorse'] && !empty($playermount)){
+        $msg = $playermount['newday'] ?? '';
         require_once("lib/substitute.php");
         $msg = substitute_array("`n`&".$msg."`0`n");
         output($msg);
         require_once("lib/mountname.php");
         list($name, $lcname) = getmountname();
 
-        $mff = (int)$playermount['mountforestfights'];
+        $mff = (int)($playermount['mountforestfights'] ?? 0);
         $session['user']['turns'] += $mff;
         $turnstoday.=", Mount: $mff";
         if ($mff > 0) {
@@ -310,7 +318,7 @@ if ($dp < $dkills) {
                 // it appears to be a different game day, acquire semaphore and
                 // check again.
             $sql = "LOCK TABLES " . db_prefix("settings") . " WRITE";
-            db_query($sql);
+            db_query($sql, false);
             clearsettings();
             $lastnewdaysemaphore = convertgametime(strtotime(getsetting("newdaySemaphore","0000-00-00 00:00:00") . " +0000"));
                 $gametoday = gametime();
@@ -318,12 +326,12 @@ if ($dp < $dkills) {
                 //we need to run the hook, update the setting, and unlock.
                 savesetting("newdaySemaphore",gmdate("Y-m-d H:i:s"));
                 $sql = "UNLOCK TABLES";
-                db_query($sql);
+                db_query($sql, false);
                 require("lib/newday/newday_runonce.php");
             }else{
                 //someone else beat us to it, unlock.
                 $sql = "UNLOCK TABLES";
-                db_query($sql);
+                db_query($sql, false);
             }
         }
 
