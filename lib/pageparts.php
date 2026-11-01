@@ -140,9 +140,10 @@ function page_footer($saveuser=true){
 	//output any template part replacements that above hooks need (eg,
 	//advertising)
 	reset($replacementbits);
-foreach ($replacementbits as $key => $val) {		
-		$header = str_replace("{{$key}}", "{{$key}}" . join('', $val), $header);
-		$footer = str_replace("{{$key}}", "{{$key}}" . join('', $val), $footer);
+	foreach ($replacementbits as $key => $val) {
+		$valStr = is_array($val) ? join('', $val) : (string)$val;
+		$header = str_replace("{{$key}}", "{{$key}}" . $valStr, $header);
+		$footer = str_replace("{{$key}}", "{{$key}}" . $valStr, $footer);
 	}
 
 	$builtnavs = buildnavs();
@@ -157,6 +158,7 @@ foreach ($replacementbits as $key => $val) {
 	restore_buff_fields();
 
 	$headscript = "";
+	$session['needtoviewmotd'] = false;
 	if (file_exists('dbconnect.php') && (!defined('IS_INSTALLER') || !IS_INSTALLER)) {
 	$sql = "SELECT motddate FROM " . db_prefix("motd") . " ORDER BY motditem DESC LIMIT 1";
 	$result = db_query($sql);
@@ -170,9 +172,6 @@ foreach ($replacementbits as $key => $val) {
 		$headscript .= popup("motd.php");
 		$session['needtoviewmotd'] = true;
 	}
-	}
-	else {
-		$session['needtoviewmotd'] = false;
 	}
 	$pre_headscript = "<LINK REL=\"shortcut icon\" HREF=\"favicon.ico\" TYPE=\"image/x-icon\"/>" .
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" .
@@ -532,8 +531,9 @@ function popup_footer(){
 	//output any template part replacements that above hooks need
 	reset($replacementbits);
 	foreach ($replacementbits as $key => $val) {
-		$header = str_replace("{".$key."}","{".$key."}".join($val,""),$header);
-		$footer = str_replace("{".$key."}","{".$key."}".join($val,""),$footer);
+		$valStr = is_array($val) ? join("", $val) : (string)$val;
+		$header = str_replace("{".$key."}","{".$key."}".$valStr,$header);
+		$footer = str_replace("{".$key."}","{".$key."}".$valStr,$footer);
 	}
 
 	//clean up spare {fields}s from header and footer (in case they're not used)
@@ -954,7 +954,7 @@ function maillink(){
  */
 function motdlink(){
 	global $session;
-	if ($session['needtoviewmotd']){
+	if (!empty($session['needtoviewmotd'])){
 		return "<a href='motd.php' target='_blank' onClick=\"".popup("motd.php").";return false;\" class='hotmotd'><b>".translate_inline("MoTD")."</b></a>";
 	}else{
 		return "<a href='motd.php' target='_blank' onClick=\"".popup("motd.php").";return false;\" class='motd'><b>".translate_inline("MoTD")."</b></a>";

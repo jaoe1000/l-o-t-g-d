@@ -16,6 +16,16 @@ function logd_error_handler($errno, $errstr, $errfile, $errline){
 		$in_error_handler--;
 		return;
 	}
+	if ($errno === E_WARNING && (
+		str_starts_with($errstr, 'Undefined array key') ||
+		str_starts_with($errstr, 'Undefined variable') ||
+		str_starts_with($errstr, 'Trying to access array offset') ||
+		str_starts_with($errstr, 'Undefined property') ||
+		str_starts_with($errstr, 'Attempt to read property') ||
+		str_starts_with($errstr, 'Uninitialized string offset')
+	)) {
+		$errno = E_NOTICE;
+	}
 	switch($errno){
 	case E_NOTICE:
 	case E_USER_NOTICE:
