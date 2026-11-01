@@ -40,34 +40,55 @@ function db_query($sql, $params = [], $die = true) {
 			return [];
 		}
 	}
-	if (!empty($params)) {
-		if (function_exists('mysqli_execute_query')) {
-			$r = @mysqli_execute_query($mysqli_resource, $sql, $params);
-		} else {
-			$offset = 0;
-			foreach ($params as $param) {
-				$pos = strpos($sql, '?', $offset);
-				if ($pos === false) break;
-				if ($param === null) {
-					$rep = 'NULL';
-				} elseif (is_int($param) || is_float($param)) {
-					$rep = (string)$param;
-				} elseif (is_bool($param)) {
-					$rep = $param ? '1' : '0';
-				} else {
-					$rep = "'" . mysqli_real_escape_string($mysqli_resource, (string)$param) . "'";
+	$attempts = 0;
+	while (true) {
+		$attempts++;
+		if (!empty($params)) {
+			if (function_exists('mysqli_execute_query')) {
+				$r = @mysqli_execute_query($mysqli_resource, $sql, $params);
+			} else {
+				$execSql = $sql;
+				$offset = 0;
+				foreach ($params as $param) {
+					$pos = strpos($execSql, '?', $offset);
+					if ($pos === false) break;
+					if ($param === null) {
+						$rep = 'NULL';
+					} elseif (is_int($param) || is_float($param)) {
+						$rep = (string)$param;
+					} elseif (is_bool($param)) {
+						$rep = $param ? '1' : '0';
+					} else {
+						$rep = "'" . mysqli_real_escape_string($mysqli_resource, (string)$param) . "'";
+					}
+					$execSql = substr_replace($execSql, $rep, $pos, 1);
+					$offset = $pos + strlen($rep);
 				}
-				$sql = substr_replace($sql, $rep, $pos, 1);
-				$offset = $pos + strlen($rep);
+				$r = @mysqli_query($mysqli_resource, $execSql);
 			}
-			$r = mysqli_query($mysqli_resource, $sql);
+		} else {
+			$r = @mysqli_query($mysqli_resource, $sql);
 		}
-	} else {
-		$r = mysqli_query($mysqli_resource, $sql);
+		if (!$r && $attempts <= 5) {
+			$errMsg = mysqli_error($mysqli_resource);
+			if (preg_match("/Table '[^.]+\\.([a-zA-Z0-9_]+)' doesn't exist/i", $errMsg, $m)) {
+				$missingTable = $m[1];
+				$prefixedTable = db_prefix($missingTable);
+				$dbPrefixStr = (string)($GLOBALS['DB_PREFIX'] ?? '');
+				if ($prefixedTable !== $missingTable && ($dbPrefixStr === '' || strpos($missingTable, $dbPrefixStr) !== 0)) {
+					$newSql = preg_replace('/(?<![a-zA-Z0-9_])`?' . preg_quote($missingTable, '/') . '`?(?![a-zA-Z0-9_])/', $prefixedTable, $sql);
+					if ($newSql !== null && $newSql !== $sql) {
+						$sql = $newSql;
+						continue;
+					}
+				}
+			}
+		}
+		break;
 	}
 
 	if (!$r && $die === true) {
-	 	if (defined("IS_INSTALLER") && IS_INSTALLER){
+	 	if ((defined("IS_INSTALLER") && IS_INSTALLER) || !empty($GLOBALS['currenthook'])){
 	 		return array();
 		}else{
 			if ((getSessionSuperUser() & SU_DEVELOPER)){

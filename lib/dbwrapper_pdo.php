@@ -99,46 +99,64 @@ function db_query($sql, $params = [], $die = true) {
         }
     }
 
-    try {
-        if (empty($params)) {
-            $stmt = $pdo_connection->query($sql);
-            if ($stmt === false) {
-                $err = $pdo_connection->errorInfo();
-                throw new PDOException(implode(" - ", $err));
-            }
-            $pdo_last_statement = $stmt;
-        } else {
-            $stmt = $pdo_connection->prepare($sql);
-            if ($stmt === false) {
-                $err = $pdo_connection->errorInfo();
-                throw new PDOException(implode(" - ", $err));
-            }
-            $pdo_last_statement = $stmt;
-
-            $success = $stmt->execute($params);
-            if (!$success) {
-                throw new PDOException(implode(" - ", $stmt->errorInfo()));
-            }
-        }
-    } catch (PDOException $e) {
-        error_log("LotGD DB Error: " . $e->getMessage() . " | SQL: " . $sql);
-        if ($die === true) {
-            if (defined("IS_INSTALLER") && IS_INSTALLER) {
-                return [];
+    $attempts = 0;
+    while (true) {
+        $attempts++;
+        try {
+            if (empty($params)) {
+                $stmt = $pdo_connection->query($sql);
+                if ($stmt === false) {
+                    $err = $pdo_connection->errorInfo();
+                    throw new PDOException(implode(" - ", $err));
+                }
+                $pdo_last_statement = $stmt;
             } else {
-                if ((getSessionSuperUser() & SU_DEVELOPER)) {
-                    require_once("lib/show_backtrace.php");
-                    die(
-                        "<pre>" . htmlentities($sql, ENT_COMPAT, getsetting("charset", "ISO-8859-1")) . "</pre>"
-                        . db_error()
-                        . show_backtrace()
-                    );
-                } else {
-                    die("A most bogus error has occurred.  I apologise, but the page you were trying to access is broken.  Please use your browser's back button and try again.");
+                $stmt = $pdo_connection->prepare($sql);
+                if ($stmt === false) {
+                    $err = $pdo_connection->errorInfo();
+                    throw new PDOException(implode(" - ", $err));
+                }
+                $pdo_last_statement = $stmt;
+
+                $success = $stmt->execute($params);
+                if (!$success) {
+                    throw new PDOException(implode(" - ", $stmt->errorInfo()));
                 }
             }
+            break;
+        } catch (PDOException $e) {
+            $errMsg = $e->getMessage();
+            if ($attempts <= 5 && preg_match("/Table '[^.]+\\.([a-zA-Z0-9_]+)' doesn't exist/i", $errMsg, $m)) {
+                $missingTable = $m[1];
+                $prefixedTable = db_prefix($missingTable);
+                $dbPrefixStr = (string)($GLOBALS['DB_PREFIX'] ?? '');
+                if ($prefixedTable !== $missingTable && ($dbPrefixStr === '' || strpos($missingTable, $dbPrefixStr) !== 0)) {
+                    $newSql = preg_replace('/(?<![a-zA-Z0-9_])`?' . preg_quote($missingTable, '/') . '`?(?![a-zA-Z0-9_])/', $prefixedTable, $sql);
+                    if ($newSql !== null && $newSql !== $sql) {
+                        $sql = $newSql;
+                        continue;
+                    }
+                }
+            }
+            error_log("LotGD DB Error: " . $errMsg . " | SQL: " . $sql);
+            if ($die === true) {
+                if ((defined("IS_INSTALLER") && IS_INSTALLER) || !empty($GLOBALS['currenthook'])) {
+                    return [];
+                } else {
+                    if ((getSessionSuperUser() & SU_DEVELOPER)) {
+                        require_once("lib/show_backtrace.php");
+                        die(
+                            "<pre>" . htmlentities($sql, ENT_COMPAT, getsetting("charset", "ISO-8859-1")) . "</pre>"
+                            . db_error()
+                            . show_backtrace()
+                        );
+                    } else {
+                        die("A most bogus error has occurred.  I apologise, but the page you were trying to access is broken.  Please use your browser's back button and try again.");
+                    }
+                }
+            }
+            return false;
         }
-        return false;
     }
 
     $endtime = getmicrotime();

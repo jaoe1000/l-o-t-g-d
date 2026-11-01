@@ -2,6 +2,7 @@
 // translator ready
 // addnews ready
 // mail ready
+// modified by jaoe1000
 
 define("ALLOW_ANONYMOUS",true);
 define("OVERRIDE_FORCED_NAV",true);
@@ -30,7 +31,20 @@ if (injectmodule(httpget('module'), (httpget('admin')?true:false))){
 	$starttime = getmicrotime();
 	$fname = $mostrecentmodule."_run";
 	tlschema("module-$mostrecentmodule");
-	$fname();
+	try {
+		$fname();
+	} catch (\Throwable $e) {
+		error_log("LotGD RunModule Error in {$mostrecentmodule}: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
+		tlschema();
+		page_header("Error");
+		if ($session['user']['loggedin']) {
+			villagenav();
+		} else {
+			addnav("L?Return to the Login", "index.php");
+		}
+		output("An error occurred while running module %s.", $mostrecentmodule);
+		page_footer();
+	}
 	$endtime = getmicrotime();
 	if (($endtime - $starttime >= 1.00 && ($session['user']['superuser'] & SU_DEBUG_OUTPUT))){
 		debug("Slow Module (".round($endtime-$starttime,2)."s): $mostrecentmodule`n");

@@ -74,7 +74,13 @@ function module_do_event($type, $module, $allowinactive=false, $baseLink=false)
 		$oldnavsection = $navsection;
 		tlschema("module-$module");
 		$fname = $module."_runevent";
-		$fname($type,$baseLink);
+		if (function_exists($fname)) {
+			try {
+				$fname($type,$baseLink);
+			} catch (\Throwable $e) {
+				error_log("LotGD Module Event Error in {$module} ({$type}): " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
+			}
+		}
 		tlschema();
 		//hook into the running event, but only in *this* running event, not in all
 		modulehook("runevent_$module", array("type"=>$type, "baselink"=>$baseLink, "get"=>httpallget(), "post"=>httpallpost()));

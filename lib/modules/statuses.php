@@ -118,9 +118,12 @@ function injectmodule($modulename,$force=false){
 						$install_result = $fname();
 					} catch (\Throwable $e) {
 						$block_new_output = $old_block_new_output;
+						error_log("LotGD Module Install Error in {$modulename}: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
 						db_query("UPDATE " . db_prefix("modules") . " SET filemoddate='" . DATETIME_DATEMIN . "' WHERE modulename='$modulename'");
 						invalidatedatacache("inject-$modulename");
-						throw $e;
+						tlschema();
+						$injected_modules[$force][$modulename] = false;
+						return false;
 					}
 					$block_new_output = $old_block_new_output;
 					if ($install_result === false) {
@@ -459,7 +462,13 @@ function uninstall_module($module){
 		$fname = $module."_uninstall";
 		output("Running module uninstall script`n");
 		tlschema("module-{$module}");
-		$fname();
+		if (function_exists($fname)) {
+			try {
+				$fname();
+			} catch (\Throwable $e) {
+				error_log("LotGD Module Uninstall Error in {$module}: " . $e->getMessage());
+			}
+		}
 		tlschema();
 
 		output("Deleting module entry`n");
@@ -539,7 +548,13 @@ function install_module($module, $force=true){
 						}
 					}
 				}
-				if ($fname() === false) {
+				try {
+					if (!function_exists($fname) || $fname() === false) {
+						return false;
+					}
+				} catch (\Throwable $e) {
+					error_log("LotGD Module Install Error in {$mostrecentmodule}: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
+					output("`\$Module install script threw an error: %s`0`n", $e->getMessage());
 					return false;
 				}
 				output("`^Module installed.  It is not yet active.`n");

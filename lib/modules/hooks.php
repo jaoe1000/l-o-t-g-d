@@ -131,10 +131,16 @@ function modulehook(
 				/*******************************************************/
 				$starttime = getmicrotime();
 				/*******************************************************/
+				$res = $args;
 				if (function_exists($row['func'])) {
-					$res = $row['func']($hookname, $args);
+					try {
+						$res = $row['func']($hookname, $args);
+					} catch (\Throwable $e) {
+						error_log("LotGD Module Hook Error in {$row['modulename']} ({$hookname}): " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
+						$res = $args;
+					}
 				} else {
-					trigger_error("Unknown function {$row['func']} for hoookname $hookname in module {$row['module']}.", E_USER_WARNING);
+					trigger_error("Unknown function {$row['func']} for hoookname $hookname in module {$row['modulename']}.", E_USER_WARNING);
 				}
 				/*******************************************************/
 				$endtime = getmicrotime();
