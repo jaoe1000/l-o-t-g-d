@@ -19,18 +19,26 @@ function do_forced_nav($anonymous,$overrideforced){
 			$session['user']['dragonpoints']=unserialize($session['user']['dragonpoints'], ['allowed_classes' => false]);
 			$session['user']['prefs']=unserialize($session['user']['prefs'], ['allowed_classes' => false]);
 			if (!is_array($session['user']['dragonpoints'])) $session['user']['dragonpoints']=array();
+			if (!is_array($session['user']['prefs'])) $session['user']['prefs']=array();
 			$allowed = unserialize($session['user']['allowednavs'], ['allowed_classes' => false]);
 			if (is_array($allowed)){
 				$session['allowednavs']=$allowed;
 			}else{
 				$session['allowednavs']=array($session['user']['allowednavs']);
 			}
-			if (!$session['user']['loggedin'] || ( (date("U") - strtotime($session['user']['laston'])) > getsetting("LOGINTIMEOUT",900)) ){
+			$nowLocalTs = (int)strtotime(date("Y-m-d H:i:s"));
+			$lastOnTs = (int)strtotime((string)($session['user']['laston'] ?? ''));
+			if (!$session['user']['loggedin'] || (($nowLocalTs - $lastOnTs) > (int)getsetting("LOGINTIMEOUT",900)) ){
+				if (!empty($session['user']['acctid'])) {
+					db_query("UPDATE " . db_prefix("accounts") . " SET loggedin = 0 WHERE acctid = ?", [$session['user']['acctid']]);
+				}
 				$session=array();
+				$_SESSION['session'] =& $session;
 				redirect("index.php?op=timeout","Account not logged in but session thinks they are.");
 			}
 		}else{
 			$session=array();
+			$_SESSION['session'] =& $session;
 			$session['message']=translate_inline("`4Error, your login was incorrect`0","login");
 			redirect("index.php","Account Disappeared!");
 		}

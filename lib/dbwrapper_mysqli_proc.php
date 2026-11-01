@@ -180,6 +180,7 @@ function db_pconnect($host, $user, $pass, $database) {
 	$mysqli_resource = mysqli_connect($host, $user, $pass, $database);
 
 	if($mysqli_resource) {
+	  @mysqli_query($mysqli_resource, "SET SESSION sql_mode = ''");
 	  return true;
 	}
 	else {
@@ -193,6 +194,7 @@ function db_connect($host, $user, $pass, $database) {
 	$mysqli_resource = mysqli_connect($host, $user, $pass, $database);
 
 	if($mysqli_resource) {
+	  @mysqli_query($mysqli_resource, "SET SESSION sql_mode = ''");
 	  return true;
 	}
 	else {

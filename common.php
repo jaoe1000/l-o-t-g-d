@@ -169,18 +169,20 @@ if (!defined('IS_INSTALLER') || !IS_INSTALLER) {
     header("Content-Type: text/html; charset=".getsetting('charset','ISO-8859-1'));
 
     $lastHit = $session['lasthit'] ?? 0;
+    $nowComparison = is_numeric($lastHit) ? time() : (int)strtotime(date('Y-m-d H:i:s'));
     $lastHitTs = is_numeric($lastHit) ? (int)$lastHit : (int)strtotime((string)$lastHit);
-    if ($lastHitTs > 0 && !empty($session['loggedin']) && strtotime("-".getsetting("LOGINTIMEOUT",900)." seconds") > $lastHitTs){
+    if ($lastHitTs > 0 && !empty($session['loggedin']) && ($nowComparison - $lastHitTs) > (int)getsetting("LOGINTIMEOUT",900)){
     	// force the abandoning of the session when the user should have been
     	// sent to the fields.
     	$session=array();
+    	$_SESSION['session'] =& $session;
     	// technically we should be able to translate this, but for now,
     	// ignore it.
     	// 1.1.1 now should be a good time to get it on with it, added tl-inline
     	translator_setup();
     	$session['message'] = ($session['message'] ?? '') . translate_inline("`nYour session has expired!`n","common");
     }
-    $session['lasthit'] = date('Y-m-d H:i:s');
+    $session['lasthit'] = time();
     mass_module_prepare([
     	'template-header',
     	'template-footer',

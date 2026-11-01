@@ -26,6 +26,7 @@ function db_connect($host, $user, $pass, $database) {
             $options[PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = true;
         }
         $pdo_connection = new PDO($dsn, $user, $pass, $options);
+        $pdo_connection->exec("SET SESSION sql_mode = ''");
         $mysqli_resource = $pdo_connection;
         return true;
     } catch (PDOException $e) {
@@ -47,6 +48,7 @@ function db_pconnect($host, $user, $pass, $database) {
             $options[PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = true;
         }
         $pdo_connection = new PDO($dsn, $user, $pass, $options);
+        $pdo_connection->exec("SET SESSION sql_mode = ''");
         $mysqli_resource = $pdo_connection;
         return true;
     } catch (PDOException $e) {

@@ -65,6 +65,7 @@ if ($name!=""){
 			}else{
 				$session['loggedin']=true;
 				$session['laston']=date("Y-m-d H:i:s");
+				$session['lasthit']=time();
 				$session['sentnotice']=0;
 				$session['user']['dragonpoints']=unserialize($session['user']['dragonpoints'], ['allowed_classes' => false]);
 				$session['user']['prefs']=unserialize($session['user']['prefs'], ['allowed_classes' => false]);
@@ -72,6 +73,7 @@ if ($name!=""){
 				if (!is_array($session['bufflist']))
 					$session['bufflist'] = array();
 				if (!is_array($session['user']['dragonpoints'])) $session['user']['dragonpoints']=array();
+				if (!is_array($session['user']['prefs'])) $session['user']['prefs']=array();
 				invalidatedatacache("charlisthomepage");
 				invalidatedatacache("list.php-warsonline");
                 invalidatedatacache('list_characters_online');
@@ -97,8 +99,8 @@ if ($name!=""){
 					$link = "<a href='" . $session['user']['restorepage'] . "'>" . $session['user']['restorepage'] . "</a>";
 
 					$str = sprintf_translate("Sending you to %s, have a safe journey", $link);
-					header("Location: {$session['user']['restorepage']}");
 					saveuser();
+					header("Location: {$session['user']['restorepage']}");
 					echo $str;
 					exit();
 				}

@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 output("`@`c`bSuperuser Accounts`b`c");
 $name = httppost('name');
 $accountsPrefix = db_prefix('accounts');
@@ -32,6 +33,7 @@ if (db_num_rows($result) == 0) {
 			SU_MANAGE_MODULES | SU_AUDIT_MODERATION | SU_RAW_SQL |
 			SU_VIEW_SOURCE | SU_NEVER_EXPIRE;
 			$pass = md5(md5(stripslashes(httppost('pass1'))));
+			$nowDate = date("Y-m-d H:i:s");
 			db_query(
 				"DELETE FROM $accountsPrefix WHERE login = '$name'"
 			);
@@ -39,7 +41,7 @@ if (db_num_rows($result) == 0) {
 				"INSERT INTO $accountsPrefix
 				(login, password, superuser, name, ctitle, regdate, laston)
 				VALUES
-				('$name', '$pass', $su, '`%Admin `&$name`0','`%Admin', NOW(), NOW())"
+				('$name', '$pass', $su, '`%Admin `&$name`0','`%Admin', '$nowDate', '$nowDate')"
 			);
 			output("`^Your superuser account has been created as `%Admin `&$name`^!");
 			savesetting("installer_version",$logd_version);

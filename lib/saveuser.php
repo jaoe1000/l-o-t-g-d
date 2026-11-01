@@ -39,10 +39,12 @@ function saveuser(){
 	$sql="";
 	reset($session['user']);
 	foreach (getSession('user') as $key => $val) {
+		if ($key === 'laston') continue;
 		if (is_array($val)) $val = serialize($val);
+		if (is_bool($val)) $val = $val ? 1 : 0;
 		//only update columns that have changed.
-		if ($baseaccount[$key]!=$val){
-			$sql.="$key='".addslashes($val)."', ";
+		if (!isset($baseaccount[$key]) || $baseaccount[$key]!=$val){
+			$sql.="$key='".addslashes((string)$val)."', ";
 		}
 	}
 	//due to the change in the accounts table -> moved output -> save everyhit
@@ -65,6 +67,7 @@ function saveuser(){
 		"acctid"=>$session['user']['acctid'],
 		"login"=>$session['user']['login'],
 	);
+	$_SESSION['session'] = $session;
 }
 
 ?>

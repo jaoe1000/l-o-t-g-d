@@ -479,6 +479,7 @@ function page_footer($saveuser=true){
 		saveuser();
 	}
 	unset($session['output']);
+	$_SESSION['session'] = $session;
 	//this somehow allows some frames to load before the user's navs say it can
 	//session_write_close();
 	echo $output;

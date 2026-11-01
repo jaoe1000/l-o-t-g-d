@@ -1,4 +1,5 @@
 <?php
+// modified by jaoe1000
 
 function redirect(string $location, string $reason = ''): void
 {
@@ -26,6 +27,7 @@ function redirect(string $location, string $reason = ''): void
 		$session['debug'] = "Redirected to $location from $REQUEST_URI. $reason<br>";
 	}
 	saveuser();
+	$_SESSION['session'] = $session;
 	@header("Location: $location");
 	exit();
 }
